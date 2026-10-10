@@ -1,0 +1,8 @@
+{
+  "name": "JU.GameData.Demo.Tests",
+  "rootNamespace": "JU.GameData.Demo.Tests",
+  "references": ["JU.GameData", "JU.GameData.Demo", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

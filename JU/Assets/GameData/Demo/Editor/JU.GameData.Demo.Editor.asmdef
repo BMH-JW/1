@@ -1,0 +1,7 @@
+{
+  "name": "JU.GameData.Demo.Editor",
+  "rootNamespace": "JU.GameData.Demo.Editor",
+  "references": ["JU.GameData", "JU.GameData.Demo", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

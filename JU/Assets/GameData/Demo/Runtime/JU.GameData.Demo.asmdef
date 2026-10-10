@@ -1,0 +1,6 @@
+{
+  "name": "JU.GameData.Demo",
+  "rootNamespace": "JU.GameData.Demo",
+  "references": ["JU.GameData", "UnityEngine.UI"],
+  "autoReferenced": true
+}
