@@ -1,0 +1,7 @@
+{
+  "name": "JU.GameData.Editor",
+  "rootNamespace": "JU.GameData.Editor",
+  "references": ["JU.GameData"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

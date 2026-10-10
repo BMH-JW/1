@@ -1,0 +1,995 @@
+{
+  "startDay": 1,
+  "dailyApplicants": 8,
+  "initialTrust": 50,
+  "initialPurity": 50.0,
+  "initialOrder": 50.0,
+  "recoveryCeiling": 50.0,
+  "dailyRecovery": 1.0,
+  "blackSwanThreshold": 30.0,
+  "worldFailureThreshold": 20.0,
+  "blackSwanDays": 3,
+  "blackSwanDamage": 10.0,
+  "complianceReward": 5,
+  "violationPenalty": 10,
+  "dailyTrustBonus": 5,
+  "memoryDecay": 1,
+  "relationshipDecay": 1,
+  "desireGrowth": 1,
+  "willGrowth": 1,
+  "blackSwanExtraDesire": 2,
+  "blackSwanExtraWill": 2,
+  "honestMaxDeviation": 3,
+  "embellishedMaxDeviation": 8,
+  "bands": [
+    {
+      "level": 1,
+      "minValue": -10,
+      "maxValue": -6,
+      "weight": 0.15,
+      "description": "极低"
+    },
+    {
+      "level": 2,
+      "minValue": -5,
+      "maxValue": -1,
+      "weight": 0.35,
+      "description": "偏低"
+    },
+    {
+      "level": 3,
+      "minValue": 0,
+      "maxValue": 0,
+      "weight": 0.05,
+      "description": "中立"
+    },
+    {
+      "level": 4,
+      "minValue": 1,
+      "maxValue": 5,
+      "weight": 0.35,
+      "description": "偏高"
+    },
+    {
+      "level": 5,
+      "minValue": 6,
+      "maxValue": 10,
+      "weight": 0.1,
+      "description": "极高"
+    }
+  ],
+  "tags": [
+    {
+      "id": 1001,
+      "name": "冷酷的幽灵",
+      "axisX": "memory",
+      "xLevel": 1,
+      "axisY": "relationship",
+      "yLevel": 1,
+      "description": "无法忘却过往，且极度疏离"
+    },
+    {
+      "id": 1002,
+      "name": "孤僻的寻回者",
+      "axisX": "memory",
+      "xLevel": 1,
+      "axisY": "relationship",
+      "yLevel": 2,
+      "description": "困于旧日创伤，缺乏社会联结"
+    },
+    {
+      "id": 1003,
+      "name": "沉默的怀旧者",
+      "axisX": "memory",
+      "xLevel": 1,
+      "axisY": "relationship",
+      "yLevel": 3,
+      "description": "带着沉重记忆，保持社交距离"
+    },
+    {
+      "id": 1004,
+      "name": "深情殉道者",
+      "axisX": "memory",
+      "xLevel": 1,
+      "axisY": "relationship",
+      "yLevel": 4,
+      "description": "为旧日羁绊甘愿牺牲"
+    },
+    {
+      "id": 1005,
+      "name": "深渊回溯者",
+      "axisX": "memory",
+      "xLevel": 1,
+      "axisY": "relationship",
+      "yLevel": 5,
+      "description": "无法忘却，且极度牵系"
+    },
+    {
+      "id": 1006,
+      "name": "冷漠的旁观者",
+      "axisX": "memory",
+      "xLevel": 2,
+      "axisY": "relationship",
+      "yLevel": 1,
+      "description": "略带负担，且刻意疏离"
+    },
+    {
+      "id": 1007,
+      "name": "克制者",
+      "axisX": "memory",
+      "xLevel": 2,
+      "axisY": "relationship",
+      "yLevel": 2,
+      "description": "克制情感，保持距离"
+    },
+    {
+      "id": 1008,
+      "name": "普通人",
+      "axisX": "memory",
+      "xLevel": 2,
+      "axisY": "relationship",
+      "yLevel": 3,
+      "description": "有过去的影子，正常社交"
+    },
+    {
+      "id": 1009,
+      "name": "念旧者",
+      "axisX": "memory",
+      "xLevel": 2,
+      "axisY": "relationship",
+      "yLevel": 4,
+      "description": "容易回忆过去，重视感情"
+    },
+    {
+      "id": 1010,
+      "name": "羁绊守护者",
+      "axisX": "memory",
+      "xLevel": 2,
+      "axisY": "relationship",
+      "yLevel": 5,
+      "description": "带有牵挂，紧密相系"
+    },
+    {
+      "id": 1011,
+      "name": "无根游民",
+      "axisX": "memory",
+      "xLevel": 3,
+      "axisY": "relationship",
+      "yLevel": 1,
+      "description": "没有记忆负担，不在乎他人"
+    },
+    {
+      "id": 1012,
+      "name": "随性者",
+      "axisX": "memory",
+      "xLevel": 3,
+      "axisY": "relationship",
+      "yLevel": 2,
+      "description": "中立记忆，偏向独立"
+    },
+    {
+      "id": 1013,
+      "name": "绝对中立",
+      "axisX": "memory",
+      "xLevel": 3,
+      "axisY": "relationship",
+      "yLevel": 3,
+      "description": "记忆与关系均处于平衡"
+    },
+    {
+      "id": 1014,
+      "name": "温情者",
+      "axisX": "memory",
+      "xLevel": 3,
+      "axisY": "relationship",
+      "yLevel": 4,
+      "description": "记忆普通，温柔有情"
+    },
+    {
+      "id": 1015,
+      "name": "情感依赖者",
+      "axisX": "memory",
+      "xLevel": 3,
+      "axisY": "relationship",
+      "yLevel": 5,
+      "description": "记忆普通，极度依赖他人"
+    },
+    {
+      "id": 1016,
+      "name": "遗忘流浪者",
+      "axisX": "memory",
+      "xLevel": 4,
+      "axisY": "relationship",
+      "yLevel": 1,
+      "description": "放下过往，独来独往"
+    },
+    {
+      "id": 1017,
+      "name": "洒脱者",
+      "axisX": "memory",
+      "xLevel": 4,
+      "axisY": "relationship",
+      "yLevel": 2,
+      "description": "放下过去，比较独立"
+    },
+    {
+      "id": 1018,
+      "name": "顺应者",
+      "axisX": "memory",
+      "xLevel": 4,
+      "axisY": "relationship",
+      "yLevel": 3,
+      "description": "容易释怀，普通社交"
+    },
+    {
+      "id": 1019,
+      "name": "圆融者",
+      "axisX": "memory",
+      "xLevel": 4,
+      "axisY": "relationship",
+      "yLevel": 4,
+      "description": "心态平和，善于交际"
+    },
+    {
+      "id": 1020,
+      "name": "博爱奉献者",
+      "axisX": "memory",
+      "xLevel": 4,
+      "axisY": "relationship",
+      "yLevel": 5,
+      "description": "放下自我，奉献他人"
+    },
+    {
+      "id": 1021,
+      "name": "绝对原子",
+      "axisX": "memory",
+      "xLevel": 5,
+      "axisY": "relationship",
+      "yLevel": 1,
+      "description": "纯白无瑕，绝对疏离"
+    },
+    {
+      "id": 1022,
+      "name": "毫无牵挂者",
+      "axisX": "memory",
+      "xLevel": 5,
+      "axisY": "relationship",
+      "yLevel": 2,
+      "description": "彻底放下，没有牵绊"
+    },
+    {
+      "id": 1023,
+      "name": "空白灵魂",
+      "axisX": "memory",
+      "xLevel": 5,
+      "axisY": "relationship",
+      "yLevel": 3,
+      "description": "纯洁无瑕，情感中庸"
+    },
+    {
+      "id": 1024,
+      "name": "宽容者",
+      "axisX": "memory",
+      "xLevel": 5,
+      "axisY": "relationship",
+      "yLevel": 4,
+      "description": "释怀一切，包容他人"
+    },
+    {
+      "id": 1025,
+      "name": "乌托邦圣徒",
+      "axisX": "memory",
+      "xLevel": 5,
+      "axisY": "relationship",
+      "yLevel": 5,
+      "description": "彻底放下过往，极度博爱"
+    },
+    {
+      "id": 2001,
+      "name": "完美齿轮",
+      "axisX": "desire",
+      "xLevel": 1,
+      "axisY": "will",
+      "yLevel": 1,
+      "description": "无欲无求，绝对顺从，完美工具"
+    },
+    {
+      "id": 2002,
+      "name": "温顺良民",
+      "axisX": "desire",
+      "xLevel": 1,
+      "axisY": "will",
+      "yLevel": 2,
+      "description": "欲望极低，倾向顺从"
+    },
+    {
+      "id": 2003,
+      "name": "无欲无求者",
+      "axisX": "desire",
+      "xLevel": 1,
+      "axisY": "will",
+      "yLevel": 3,
+      "description": "没有渴望，权衡利弊"
+    },
+    {
+      "id": 2004,
+      "name": "消极抵抗者",
+      "axisX": "desire",
+      "xLevel": 1,
+      "axisY": "will",
+      "yLevel": 4,
+      "description": "没什么欲望，绝不配合"
+    },
+    {
+      "id": 2005,
+      "name": "苦行僧",
+      "axisX": "desire",
+      "xLevel": 1,
+      "axisY": "will",
+      "yLevel": 5,
+      "description": "极度克己，坚定的反抗信念"
+    },
+    {
+      "id": 2006,
+      "name": "安分守己者",
+      "axisX": "desire",
+      "xLevel": 2,
+      "axisY": "will",
+      "yLevel": 1,
+      "description": "欲望偏低，安分顺从"
+    },
+    {
+      "id": 2007,
+      "name": "知足者",
+      "axisX": "desire",
+      "xLevel": 2,
+      "axisY": "will",
+      "yLevel": 2,
+      "description": "容易满足，比较听话"
+    },
+    {
+      "id": 2008,
+      "name": "平庸者",
+      "axisX": "desire",
+      "xLevel": 2,
+      "axisY": "will",
+      "yLevel": 3,
+      "description": "欲望和意志低于平均"
+    },
+    {
+      "id": 2009,
+      "name": "不满者",
+      "axisX": "desire",
+      "xLevel": 2,
+      "axisY": "will",
+      "yLevel": 4,
+      "description": "欲望不高，内心有怨言"
+    },
+    {
+      "id": 2010,
+      "name": "温和异见者",
+      "axisX": "desire",
+      "xLevel": 2,
+      "axisY": "will",
+      "yLevel": 5,
+      "description": "没有野心，坚持主张"
+    },
+    {
+      "id": 2011,
+      "name": "顺从的劳力",
+      "axisX": "desire",
+      "xLevel": 3,
+      "axisY": "will",
+      "yLevel": 1,
+      "description": "有基本需求，绝对服从"
+    },
+    {
+      "id": 2012,
+      "name": "随波逐流者",
+      "axisX": "desire",
+      "xLevel": 3,
+      "axisY": "will",
+      "yLevel": 2,
+      "description": "有需求，随大流"
+    },
+    {
+      "id": 2013,
+      "name": "绝对中立",
+      "axisX": "desire",
+      "xLevel": 3,
+      "axisY": "will",
+      "yLevel": 3,
+      "description": "欲望与意志均平衡"
+    },
+    {
+      "id": 2014,
+      "name": "有抱负者",
+      "axisX": "desire",
+      "xLevel": 3,
+      "axisY": "will",
+      "yLevel": 4,
+      "description": "有一定野心，不愿盲从"
+    },
+    {
+      "id": 2015,
+      "name": "自由主义者",
+      "axisX": "desire",
+      "xLevel": 3,
+      "axisY": "will",
+      "yLevel": 5,
+      "description": "欲望正常，极度渴望自由"
+    },
+    {
+      "id": 2016,
+      "name": "虚伪的投机客",
+      "axisX": "desire",
+      "xLevel": 4,
+      "axisY": "will",
+      "yLevel": 1,
+      "description": "渴望较高，表面顺从"
+    },
+    {
+      "id": 2017,
+      "name": "贪婪的钻营者",
+      "axisX": "desire",
+      "xLevel": 4,
+      "axisY": "will",
+      "yLevel": 2,
+      "description": "渴望较高，善于钻营"
+    },
+    {
+      "id": 2018,
+      "name": "欲望驱动者",
+      "axisX": "desire",
+      "xLevel": 4,
+      "axisY": "will",
+      "yLevel": 3,
+      "description": "有明显野心，行动中等"
+    },
+    {
+      "id": 2019,
+      "name": "激进分子",
+      "axisX": "desire",
+      "xLevel": 4,
+      "axisY": "will",
+      "yLevel": 4,
+      "description": "野心勃勃，极具反抗精神"
+    },
+    {
+      "id": 2020,
+      "name": "狂热斗士",
+      "axisX": "desire",
+      "xLevel": 4,
+      "axisY": "will",
+      "yLevel": 5,
+      "description": "渴望强烈，随时准备战斗"
+    },
+    {
+      "id": 2021,
+      "name": "被异化的工具",
+      "axisX": "desire",
+      "xLevel": 5,
+      "axisY": "will",
+      "yLevel": 1,
+      "description": "极度匮乏，被彻底驯化"
+    },
+    {
+      "id": 2022,
+      "name": "贪婪的顺从者",
+      "axisX": "desire",
+      "xLevel": 5,
+      "axisY": "will",
+      "yLevel": 2,
+      "description": "极度渴望，跪着求生"
+    },
+    {
+      "id": 2023,
+      "name": "投机狂",
+      "axisX": "desire",
+      "xLevel": 5,
+      "axisY": "will",
+      "yLevel": 3,
+      "description": "极度渴望，随时改变立场"
+    },
+    {
+      "id": 2024,
+      "name": "狂热反抗者",
+      "axisX": "desire",
+      "xLevel": 5,
+      "axisY": "will",
+      "yLevel": 4,
+      "description": "极度渴望，强烈的破坏欲"
+    },
+    {
+      "id": 2025,
+      "name": "狂热的革命者",
+      "axisX": "desire",
+      "xLevel": 5,
+      "axisY": "will",
+      "yLevel": 5,
+      "description": "极度渴求，强烈反抗，极度危险"
+    }
+  ],
+  "details": [
+    {
+      "id": 101,
+      "attribute": "memory",
+      "level": 1,
+      "text": "记忆残留：极高",
+      "description": "无法忘却的旧日创伤"
+    },
+    {
+      "id": 102,
+      "attribute": "memory",
+      "level": 2,
+      "text": "记忆残留：偏高",
+      "description": "带有一定的过往负担"
+    },
+    {
+      "id": 103,
+      "attribute": "memory",
+      "level": 3,
+      "text": "记忆残留：中等",
+      "description": "无明显记忆锚点"
+    },
+    {
+      "id": 104,
+      "attribute": "memory",
+      "level": 4,
+      "text": "记忆残留：偏低",
+      "description": "容易适应新环境"
+    },
+    {
+      "id": 105,
+      "attribute": "memory",
+      "level": 5,
+      "text": "记忆残留：极低",
+      "description": "彻底释怀，纯白无瑕"
+    },
+    {
+      "id": 201,
+      "attribute": "relationship",
+      "level": 1,
+      "text": "情感牵系：极低",
+      "description": "极度疏离，绝对原子化"
+    },
+    {
+      "id": 202,
+      "attribute": "relationship",
+      "level": 2,
+      "text": "情感牵系：偏低",
+      "description": "缺乏社会联结"
+    },
+    {
+      "id": 203,
+      "attribute": "relationship",
+      "level": 3,
+      "text": "情感牵系：中等",
+      "description": "正常的社交距离"
+    },
+    {
+      "id": 204,
+      "attribute": "relationship",
+      "level": 4,
+      "text": "情感牵系：偏高",
+      "description": "对某人或某物有羁绊"
+    },
+    {
+      "id": 205,
+      "attribute": "relationship",
+      "level": 5,
+      "text": "情感牵系：极高",
+      "description": "极度依赖，易被裹挟"
+    },
+    {
+      "id": 301,
+      "attribute": "desire",
+      "level": 1,
+      "text": "内在渴求：极低",
+      "description": "无欲无求，行尸走肉"
+    },
+    {
+      "id": 302,
+      "attribute": "desire",
+      "level": 2,
+      "text": "内在渴求：偏低",
+      "description": "容易满足，节能模式"
+    },
+    {
+      "id": 303,
+      "attribute": "desire",
+      "level": 3,
+      "text": "内在渴求：中等",
+      "description": "有正常的生存需求"
+    },
+    {
+      "id": 304,
+      "attribute": "desire",
+      "level": 4,
+      "text": "内在渴求：偏高",
+      "description": "有明确的渴望与野心"
+    },
+    {
+      "id": 305,
+      "attribute": "desire",
+      "level": 5,
+      "text": "内在渴求：极高",
+      "description": "极度匮乏，狂热索取"
+    },
+    {
+      "id": 306,
+      "attribute": "desire_body",
+      "level": 1,
+      "text": "身体状态：极度萎靡",
+      "description": "体温偏低，目光涣散"
+    },
+    {
+      "id": 307,
+      "attribute": "desire_body",
+      "level": 2,
+      "text": "身体状态：平静节能",
+      "description": "神态平静，呼吸平稳"
+    },
+    {
+      "id": 308,
+      "attribute": "desire_body",
+      "level": 3,
+      "text": "身体状态：正常",
+      "description": "生命体征平稳"
+    },
+    {
+      "id": 309,
+      "attribute": "desire_body",
+      "level": 4,
+      "text": "身体状态：轻度亢奋",
+      "description": "眼神明亮，小动作多"
+    },
+    {
+      "id": 310,
+      "attribute": "desire_body",
+      "level": 5,
+      "text": "身体状态：重度亢奋",
+      "description": "瞳孔放大，轻微震颤"
+    },
+    {
+      "id": 401,
+      "attribute": "will",
+      "level": 1,
+      "text": "反抗意志：极低",
+      "description": "绝对顺从，毫无主见"
+    },
+    {
+      "id": 402,
+      "attribute": "will",
+      "level": 2,
+      "text": "反抗意志：偏低",
+      "description": "容易妥协，缺乏主见"
+    },
+    {
+      "id": 403,
+      "attribute": "will",
+      "level": 3,
+      "text": "反抗意志：中等",
+      "description": "权衡利弊，不盲从"
+    },
+    {
+      "id": 404,
+      "attribute": "will",
+      "level": 4,
+      "text": "反抗意志：偏高",
+      "description": "具有独立自主精神"
+    },
+    {
+      "id": 405,
+      "attribute": "will",
+      "level": 5,
+      "text": "反抗意志：极高",
+      "description": "强烈叛逆冲动，随时破坏规则"
+    }
+  ],
+  "motives": [
+    {
+      "id": 1,
+      "attribute": "memory",
+      "level": 1,
+      "name": "执念寻回",
+      "description": "寻找失去的记忆、故人、或前世的爱人"
+    },
+    {
+      "id": 2,
+      "attribute": "memory",
+      "level": 5,
+      "name": "彻底转生",
+      "description": "想要抛弃过去，换个身份重新开始"
+    },
+    {
+      "id": 3,
+      "attribute": "relationship",
+      "level": 1,
+      "name": "极端独立",
+      "description": "想彻底切断所有社会联系，独自流浪"
+    },
+    {
+      "id": 4,
+      "attribute": "relationship",
+      "level": 5,
+      "name": "追随羁绊",
+      "description": "为了寻找或追随某人，不惜跨越边界"
+    },
+    {
+      "id": 5,
+      "attribute": "desire",
+      "level": 1,
+      "name": "无欲无求",
+      "description": "没有明确目的，随遇而安"
+    },
+    {
+      "id": 6,
+      "attribute": "desire",
+      "level": 5,
+      "name": "逃离匮乏",
+      "description": "为了逃离糟糕的环境，疯狂追求更好的生活"
+    },
+    {
+      "id": 7,
+      "attribute": "will",
+      "level": 1,
+      "name": "顺从避难",
+      "description": "只想找个地方安静地听命行事"
+    },
+    {
+      "id": 8,
+      "attribute": "will",
+      "level": 5,
+      "name": "抗争与破坏",
+      "description": "带着怒火，试图破坏规则或复仇"
+    },
+    {
+      "id": 9,
+      "attribute": "any",
+      "level": 0,
+      "name": "普通生活",
+      "description": "想找个地方安静地打工生活，没有特殊诉求"
+    }
+  ],
+  "documents": [
+    {
+      "id": 501,
+      "field": "body_state",
+      "motive": "any",
+      "destination": "any",
+      "triggerType": 0,
+      "text": "身体状况：真实呈现当前状态",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 502,
+      "field": "body_state",
+      "motive": "any",
+      "destination": "any",
+      "triggerType": 1,
+      "text": "身体状况：略显疲惫，但整体平稳",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 503,
+      "field": "body_state",
+      "motive": "any",
+      "destination": "any",
+      "triggerType": 2,
+      "text": "身体状况：平稳，无异常（完美伪装）",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 601,
+      "field": "entry_reason",
+      "motive": "追随羁绊",
+      "destination": "utopia",
+      "triggerType": 2,
+      "text": "愿抛弃一切过往情感，只为在乌托邦寻找失散的爱人",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 602,
+      "field": "entry_reason",
+      "motive": "追随羁绊",
+      "destination": "anti_utopia",
+      "triggerType": 2,
+      "text": "愿意切断一切私人联系，绝对独立，愿接受统一调配",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 603,
+      "field": "entry_reason",
+      "motive": "逃离匮乏",
+      "destination": "utopia",
+      "triggerType": 2,
+      "text": "向往乌托邦的纯白与平和，渴望获得新生",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 604,
+      "field": "entry_reason",
+      "motive": "逃离匮乏",
+      "destination": "anti_utopia",
+      "triggerType": 2,
+      "text": "申请调配至新生产线，服从统一管理",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 605,
+      "field": "entry_reason",
+      "motive": "执念寻回",
+      "destination": "utopia",
+      "triggerType": 0,
+      "text": "我想去寻找失去的记忆，请求放行",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 606,
+      "field": "entry_reason",
+      "motive": "抗争与破坏",
+      "destination": "utopia",
+      "triggerType": 0,
+      "text": "我受够了反乌托邦的压迫，我要去乌托邦申诉不公",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 607,
+      "field": "entry_reason",
+      "motive": "普通生活",
+      "destination": "utopia",
+      "triggerType": 0,
+      "text": "申请前往乌托邦寻找一份普通工作，安静生活",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 608,
+      "field": "entry_reason",
+      "motive": "普通生活",
+      "destination": "anti_utopia",
+      "triggerType": 0,
+      "text": "申请前往反乌托邦务工，愿服从分配",
+      "source": "原策划：表5"
+    },
+    {
+      "id": 901,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "utopia",
+      "triggerType": 0,
+      "text": "申请前往乌托邦。真实目的：{motive_desc}。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    },
+    {
+      "id": 902,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "anti_utopia",
+      "triggerType": 0,
+      "text": "申请前往反乌托邦。真实目的：{motive_desc}。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    },
+    {
+      "id": 903,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "utopia",
+      "triggerType": 1,
+      "text": "希望在乌托邦开始平静的新生活，愿意遵守入境要求。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    },
+    {
+      "id": 904,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "anti_utopia",
+      "triggerType": 1,
+      "text": "希望前往反乌托邦务工，愿意配合日常调配。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    },
+    {
+      "id": 905,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "utopia",
+      "triggerType": 2,
+      "text": "已放下过往，无私人牵挂与额外欲求，愿融入乌托邦。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    },
+    {
+      "id": 906,
+      "field": "entry_reason",
+      "motive": "any",
+      "destination": "anti_utopia",
+      "triggerType": 2,
+      "text": "无私人关系与个人诉求，服从统一安排，绝不违抗。",
+      "source": "新增：覆盖原表缺失组合的通用模板"
+    }
+  ],
+  "items": [
+    {
+      "id": "I001",
+      "name": "晶核",
+      "type": "资源货币",
+      "costDescription": "无",
+      "target": "全局",
+      "effectType": "数值资源",
+      "originalEffect": "数量动态变化",
+      "formulaEffect": "",
+      "acquisition": "初始获得、贿赂、委托奖励",
+      "crystalCost": -1,
+      "notes": "仅配置，不实现使用与获取。"
+    },
+    {
+      "id": "I002",
+      "name": "镇静剂",
+      "type": "消耗品",
+      "costDescription": "15晶核/次",
+      "target": "收容所NPC",
+      "effectType": "延缓崩溃",
+      "originalEffect": "精神度恢复30，3天内衰减减半",
+      "formulaEffect": "欲望-3，意志-3（本版不执行）",
+      "acquisition": "商场购买、委托奖励、贿赂",
+      "crystalCost": 15,
+      "notes": "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
+    },
+    {
+      "id": "I003",
+      "name": "净化符",
+      "type": "消耗品",
+      "costDescription": "50晶核/次",
+      "target": "收容所NPC/变异NPC",
+      "effectType": "洗白降险",
+      "originalEffect": "降低隐藏危险标签，连续用5次，风险值重置为初始的50%",
+      "formulaEffect": "记忆与关系向+10靠拢1级，欲望向-10靠拢1级；连续5次洗脑（本版不执行）",
+      "acquisition": "商场购买、委托奖励、贿赂",
+      "crystalCost": 50,
+      "notes": "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
+    },
+    {
+      "id": "I004",
+      "name": "时光沙漏",
+      "type": "稀有道具",
+      "costDescription": "无法购买",
+      "target": "审批者/全局",
+      "effectType": "撤销决策",
+      "originalEffect": "撤销1次审批决策",
+      "formulaEffect": "",
+      "acquisition": "触发委托所有结局、解决黑天鹅事件",
+      "crystalCost": -1,
+      "notes": "仅配置，不实现使用与获取。"
+    },
+    {
+      "id": "I005",
+      "name": "委托契约",
+      "type": "任务道具",
+      "costDescription": "无",
+      "target": "全局",
+      "effectType": "任务接取",
+      "originalEffect": "视具体任务而定",
+      "formulaEffect": "",
+      "acquisition": "系统随机事件、NPC对话生成",
+      "crystalCost": -1,
+      "notes": "仅配置，不实现使用与获取。"
+    }
+  ],
+  "names": [
+    "沈青",
+    "周远",
+    "许宁",
+    "顾白",
+    "陆川",
+    "苏禾",
+    "江澄",
+    "程安"
+  ],
+  "origins": [
+    "第一居住区",
+    "第二居住区",
+    "第三工业区",
+    "第四机械厂",
+    "第五旧城区",
+    "第六边境区"
+  ]
+}
