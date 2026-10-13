@@ -25,7 +25,7 @@ public class CalendarText : MonoBehaviour
     void UpdateDate()
     {
         if (GameTimeManager.Instance == null) return;
-        dateText.text = "µÚ" + GameTimeManager.Instance.currentDay + "Ìì";
+        dateText.text = GameTimeManager.Instance.currentDay.ToString();
     }
 
     void OnDestroy()

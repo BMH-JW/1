@@ -4,18 +4,40 @@ using UnityEngine;
 
 public class NPCInteract : MonoBehaviour
 {
+    private NPCBellLogic _bellLogic;
+
     public void OnClickNPC()
     {
         bool success = NPCDailyManager.Instance.InteractNPC();
 
         if (success)
         {
-            Debug.Log("NPC»¥¶¯³É¹¦£¬Ê£Óà´ÎÊı¼õÉÙ");
-            // ÄãÎ´À´¿ÉÒÔÔÚÕâÀï¼Ó£ºµ¯´°¡¢¾çÇé¡¢½±Àø
+            Debug.Log("NPCäº¤äº’æˆåŠŸï¼Œå‰©ä½™æ¬¡æ•°å·²æ‰£å‡");
+            if (_bellLogic == null) _bellLogic = FindObjectOfType<NPCBellLogic>();
+            // æ¯ç‚¹ä¸€æ¬¡NPCåˆ·æ–°ä¸€æ¬¡é‚®ç®±
+            if (_bellLogic != null) _bellLogic.RefreshMailBox();
+            // å½’0æ—¶éšè—æ‰€æœ‰NPCç›¸å…³ç‰©ä½“
+            if (NPCDailyManager.Instance.todayRemain <= 0)
+            {
+                HideAllNPCParts();
+            }
         }
         else
         {
-            Debug.Log("½ñÈÕNPC´ÎÊıÒÑÓÃÍê / ·ÇÉÏ°àÊ±¼ä²»¿É»¥¶¯");
+            Debug.Log("æ— æ³•NPCäº¤äº’ï¼šæ¬¡æ•°ç”¨å°½ / éä¸Šç­æ—¶é—´ä¸å¯äº¤äº’");
         }
+    }
+
+    private void HideAllNPCParts()
+    {
+        NPCBellLogic bellLogic = FindObjectOfType<NPCBellLogic>();
+        if (bellLogic == null) return;
+
+        if (bellLogic.npcObj != null) bellLogic.npcObj.SetActive(false);
+        if (bellLogic.Btn_4 != null) bellLogic.Btn_4.SetActive(false);
+        if (bellLogic.Btn_File2 != null) bellLogic.Btn_File2.SetActive(false);
+        if (bellLogic.Btn_File3 != null) bellLogic.Btn_File3.SetActive(false);
+        if (bellLogic.imageMailBox != null) bellLogic.imageMailBox.SetActive(true);
+        if (bellLogic.imageMailBox2 != null) bellLogic.imageMailBox2.SetActive(false);
     }
 }

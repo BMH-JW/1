@@ -5,16 +5,14 @@ using UnityEngine.UI;
 
 public class NPCDailyManager : MonoBehaviour
 {
-    [Header("NPC±¾ÌåÎïÌå")]
-    public GameObject npcObj;
-    [Header("Ê£Óà´ÎÊıUIÎÄ±¾£¨ÆÕÍ¨Text£©")]
+    private const int MAX_DAILY = 8;
+    [Header("å‰©ä½™æ¬¡æ•°Textç»„ä»¶(æ‹–Textç»„ä»¶)")]
     public Text remainText;
-    [Header("Ã¿ÈÕ×î´ó´ÎÊı")]
-    public int maxDailyCount = 8;
-    public static NPCDailyManager Instance;
 
+    public static NPCDailyManager Instance;
     public int todayRemain;
-    public event System.Action OnInitComplete;
+
+    private bool _initFinished = false;
 
     void Awake()
     {
@@ -27,57 +25,55 @@ public class NPCDailyManager : MonoBehaviour
         GameTimeManager.Instance.OnWorkEnd += OnWorkEnd;
         GameTimeManager.Instance.OnNewDay += OnNewDay;
 
-        bool workFlag = GameTimeManager.Instance.IsWorkTime();
-        Debug.Log($"¡¾µ÷ÊÔ¡¿ÊÇ·ñÉÏ°àÊ±¼ä:{workFlag}");
-        if (workFlag)
-        {
-            Debug.Log("½øÈëOnWorkStart");
-            OnWorkStart();
-        }
-        else
-        {
-            Debug.Log("²»ÉÏ°à");
-        }
+        todayRemain = MAX_DAILY;
+        Debug.Log($"[Start]åˆå§‹åŒ– todayRemain = {todayRemain}");
+        StartCoroutine(InitDoneLock());
         RefreshUI();
-        OnInitComplete?.Invoke();
     }
 
-    // Ã¿ÌìÔçÉÏ9µã£ºÖØÖÃ8´Î
+    IEnumerator InitDoneLock()
+    {
+        yield return new WaitForSeconds(0.05f);
+        _initFinished = true;
+        Debug.Log($"åˆå§‹åŒ–å®Œæˆï¼Œé“ƒé“›æ‰“å¼€ã€‚");
+    }
+
     void OnWorkStart()
     {
-        maxDailyCount = 8;
-        todayRemain = maxDailyCount;
-        Debug.Log($"¡¾OnWorkStart¡¿todayRemain±»¸³Öµ = {todayRemain}");
-        RefreshNPCState();
+        if (!_initFinished) return;
+        todayRemain = MAX_DAILY;
         RefreshUI();
+        Debug.Log($"[OnWorkStart] todayRemain={todayRemain}");
     }
 
-    // Ã¿Ìì18µãÏÂ°à
     void OnWorkEnd()
     {
-        //npcObj.SetActive(false); //NPCÏÔÒş½»¸øÁåîõÂß¼­£¬×¢ÊÍ
     }
 
-    // ĞÂµÄÒ»Ìì³õÊ¼»¯
     void OnNewDay()
     {
-        todayRemain = maxDailyCount;
-        RefreshNPCState();
+        if (!_initFinished) return;
+        todayRemain = MAX_DAILY;
         RefreshUI();
+        Debug.Log($"[OnNewDay] todayRemain={todayRemain}");
     }
 
-    // Íæ¼Ò»¥¶¯Ò»´ÎNPC
     public bool InteractNPC()
     {
-        // ·ÇÉÏ°àÊ±¼ä²»ÄÜ»¥¶¯
-        if (!GameTimeManager.Instance.IsWorkTime()) return false;
-        if (todayRemain <= 0) return false;
-
-        todayRemain--;
+        Debug.Log($"[InteractNPC]å½“å‰todayRemain={todayRemain}");
+        if (todayRemain <= 0)
+        {
+            return false;
+        }
+        // å…ˆæ˜¾ç¤ºå½“å‰å‰©ä½™æ¬¡æ•°ï¼ˆç¬¬ä¸€æ¬¡ç‚¹å‡»æ˜¾ç¤º8ï¼‰ï¼Œå†æ‰£å‡
         RefreshUI();
-        RefreshNPCState();
+        todayRemain -= 1;
+        // æ‰£å‡åå¦‚æœå½’0ï¼Œåˆ·æ–°æ˜¾ç¤ºä¸º0
+        if (todayRemain <= 0)
+        {
+            RefreshUI();
+        }
 
-        //¿ÛÍê´ÎÊı¸üĞÂÁåîõ°´Å¥×´Ì¬
         NPCBellLogic bellLogic = FindObjectOfType<NPCBellLogic>();
         if (bellLogic != null)
         {
@@ -86,23 +82,11 @@ public class NPCDailyManager : MonoBehaviour
         return true;
     }
 
-    // ¸ù¾İÊ£Óà´ÎÊıË¢ĞÂ×´Ì¬ ¡ª¡ª¡¾²»ÔÙ×Ô¶¯¿ØÖÆNPCÏÔÊ¾Òş²Ø¡¿
-    void RefreshNPCState()
-    {
-        //bool show = GameTimeManager.Instance.IsWorkTime() && todayRemain > 0;
-        //npcObj.SetActive(show);
-    }
-
     void RefreshUI()
     {
-        Debug.Log($"¡¾RefreshUI¡¿todayRemain={todayRemain}");
         if (remainText != null)
         {
-            remainText.text = $"{todayRemain}";
-        }
-        else
-        {
-            Debug.LogError("remainTextÎª¿Õ£¬Ã»ÓĞÍÏ×§UIÎÄ±¾");
+            remainText.text = todayRemain.ToString();
         }
     }
 
