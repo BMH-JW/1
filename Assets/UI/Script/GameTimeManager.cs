@@ -7,25 +7,25 @@ public class GameTimeManager : MonoBehaviour
 {
     public static GameTimeManager Instance;
 
-    [Header("³õÊ¼Ê±¼äÉèÖÃ")]
+    [Header("ï¿½ï¿½Ê¼Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public int StartDay;
     public int StartHour;
     public int StartMinute;
     public int StartSecond;
 
-    [Header("µ±Ç°ÓÎÏ·Ê±¼ä£¨²¥·ÅÄ£Ê½¿ÉÖ±½ÓĞŞ¸Äµ÷ÊÔ£©")]
+    [Header("ï¿½ï¿½Ç°ï¿½ï¿½Ï·Ê±ï¿½ä£¨ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Ş¸Äµï¿½ï¿½Ô£ï¿½")]
     public int currentDay;
     public int currentHour;
     public int currentMinute;
     public int currentSecond;
 
-    [Header("ÓÎÏ·1·ÖÖÓ = ÕæÊµÊÀ½ç¶àÉÙÃë")]
+    [Header("ï¿½ï¿½Ï·1ï¿½ï¿½ï¿½ï¿½ = ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float GameMinuteRealSec = 1f;
 
-    // ÊÂ¼ş
+    // ï¿½Â¼ï¿½
     public event System.Action OnNewDay;
-    public event System.Action OnWorkStart;   //9µãÉÏ°à
-    public event System.Action OnWorkEnd;     //18µãÏÂ°à
+    public event System.Action OnWorkStart;   //9ï¿½ï¿½ï¿½Ï°ï¿½
+    public event System.Action OnWorkEnd;     //18ï¿½ï¿½ï¿½Â°ï¿½
 
     private bool isWorkTimeTriggered = false;
     private float timeAccumulator;
@@ -38,7 +38,7 @@ public class GameTimeManager : MonoBehaviour
         currentMinute = StartMinute;
         currentSecond = StartSecond;
         timeAccumulator = 0;
-        Debug.Log($"¡¾GameTime¡¿³õÊ¼»¯Íê³É£¬currentHour={currentHour}");
+        Debug.Log($"ï¿½ï¿½GameTimeï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½É£ï¿½currentHour={currentHour}");
     }
 
     public bool IsWorkTime()
@@ -46,15 +46,30 @@ public class GameTimeManager : MonoBehaviour
         return currentHour >= 9 && currentHour < 18;
     }
 
+    /// <summary>ç›´æ¥è·³åˆ°ç¬¬äºŒå¤© 9:00ï¼ˆç»“ç®—é»‘å±è¿‡æ¸¡æ—¶è°ƒç”¨ï¼‰</summary>
+    public void JumpToNextWorkday()
+    {
+        currentDay++;
+        currentHour = 9;
+        currentMinute = 0;
+        currentSecond = 0;
+        timeAccumulator = 0f;
+        isWorkTimeTriggered = false;
+        Debug.Log($"[GameTime] è·³åˆ°ç¬¬ {currentDay} å¤© 9:00");
+        OnNewDay?.Invoke();
+        OnWorkStart?.Invoke();
+        isWorkTimeTriggered = true;
+    }
+
     void Update()
     {
         timeAccumulator += Time.deltaTime;
 
-        // ±£»¤£º×îĞ¡²»ÄÜµÍÓÚ0.05£¬±ÜÃâ³ıÒÔ0Ôì³ÉËÀÑ­»·
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½Üµï¿½ï¿½ï¿½0.05ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
         float realMinute = Mathf.Max(GameMinuteRealSec, 0.05f);
         float gameSecondDuration = realMinute / 60f;
 
-        // Ôö¼ÓÑ­»·×î´óÉÏÏŞ£¬·ÀÖ¹ËÀÑ­»·ËøËÀ±à¼­Æ÷£¬×î¶àÒ»Ö¡ÅÜ200´Î
+        // ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ş£ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½200ï¿½ï¿½
         int loopGuard = 0;
         while (timeAccumulator >= gameSecondDuration && loopGuard < 200)
         {
@@ -83,10 +98,10 @@ public class GameTimeManager : MonoBehaviour
 
         if (loopGuard >= 200)
         {
-            Debug.LogWarning("Ê±¼äÑ­»·³¬ÏŞ£¡¼ì²éGameMinuteRealSecÊıÖµ²»ÒªÌîÌ«Ğ¡");
+            Debug.LogWarning("Ê±ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½Ş£ï¿½ï¿½ï¿½ï¿½GameMinuteRealSecï¿½ï¿½Öµï¿½ï¿½Òªï¿½ï¿½Ì«Ğ¡");
         }
 
-        //ÉÏ°àÏÂ°àÊÂ¼ş²»±ä
+        //ï¿½Ï°ï¿½ï¿½Â°ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
         if (IsWorkTime())
         {
             if (!isWorkTimeTriggered)

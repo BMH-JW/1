@@ -8,13 +8,16 @@ using UnityEngine.UI;
 /// <summary>
 /// 新手引导管理器（自包含，挂在场景任意物体上）
 /// 阶段0 引导NPC打字机对话 → 阶段1~8 发光提示框依次框选铃铛/邮箱/档案/文书/印章/电话/信息屏/时钟
-/// 引导结束后进入自由审批；8位NPC审批完成后自动弹出结算弹窗。
+/// 引导结束后进入自由审批；NPC处理完(剩余0)或18点下班时自动弹出结算弹窗。
 /// 目标 = Inspector拖拽(优先) / 按 findName 自动查找(支持逗号分隔多个备选名，忽略大小写)。
 /// 气泡尺寸与各阶段文案均为Inspector槽位。
 /// </summary>
 public class TutorialManager : MonoBehaviour
 {
     public static TutorialManager Instance { get; private set; }
+
+    /// <summary>当前是否处于自由审批模式（教程已结束）</summary>
+    public bool IsFreePlay => stage == Stage.FreePlay;
 
     /// <summary>引导目标：手动拖拽优先，否则按名字查找(逗号分隔备选名)</summary>
     [Serializable]
@@ -37,9 +40,9 @@ public class TutorialManager : MonoBehaviour
     [Header("引导目标(能拖就拖；拖不了就把findName改成场景里的实际名字)")]
     public GuideTarget bell = new GuideTarget { findName = "Btn_Bell" };
     [Tooltip("客人NPC，运行时由铃铛生成")]
-    public GuideTarget npcGuest = new GuideTarget { findName = "npcObj" };
+    public GuideTarget npcGuest = new GuideTarget { findName = "NPC" };
     [Tooltip("新旧邮箱谁激活就高亮谁")]
-    public GuideTarget mailbox = new GuideTarget { findName = "Mail,imageMailBox2,imageMailBox" };
+    public GuideTarget mailbox = new GuideTarget { findName = "MailBox,MailBox2" };
     public GuideTarget profile = new GuideTarget { findName = "Btn_File3" };
     public GuideTarget document = new GuideTarget { findName = "Btn_File2" };
     public GuideTarget stamp1 = new GuideTarget { findName = "Btn_Stamp1" };   // 通过章
@@ -79,8 +82,27 @@ public class TutorialManager : MonoBehaviour
     public Font fontOverride;
 
     [Header("NPC离场与结算")]
+    [Tooltip("退场动画时长(秒)")]
     public float leaveAnimDuration = 0.6f;
+    [Tooltip("入场动画时长(秒)")]
+    public float enterAnimDuration = 0.6f;
     public int totalNpcCount = 8;
+
+    [Header("结算面板外观")]
+    [Tooltip("结算面板背景图，留空用代码生成的圆角白底")]
+    public Sprite settlementBgSprite;
+    [Tooltip("结算面板图标(预留图片槽位)，显示在标题上方")]
+    public Sprite settlementIconSprite;
+    [Tooltip("结算面板字体，留空用上方 fontOverride")]
+    public Font settlementFont;
+    [Tooltip("黑屏过渡总时长(秒)")]
+    public float dayTransitionDuration = 2f;
+
+    [Header("盖章视觉")]
+    [Tooltip("盖在通关文书上的【通过】印章 Image（预制体上那两张里的红章）——留空则自动从 Btn_File3 子物体里找")]
+    public Image sealImagePass;
+    [Tooltip("盖在通关文书上的【不通过】印章 Image（预制体上那两张里的灰章）——留空则自动从 Btn_File3 子物体里找")]
+    public Image sealImageReject;
 
     // ---------------- 运行时状态 ----------------
     private Stage stage = Stage.None;
@@ -108,9 +130,17 @@ public class TutorialManager : MonoBehaviour
     private int dialogStep;
 
     private Coroutine leaveCoroutine;
+    private Coroutine enterCoroutine;
+    private GameObject leavingNpc;                 // 正在播退场动画的NPC
+    private Vector3 npcBaseScale = Vector3.one;    // NPC原始缩放(第一次入场前记录)
+    private bool npcBaseScaleSaved;
+    private bool npcOnStage;                       // NPC是否还站在场上(未退场)
     private GameObject settlementRoot;
     private bool settlementShown;
     private int completedCount, correctCount, wrongCount, corruptionCount;
+    private bool npcLocked;                        // 点过 mailbox 后锁 NPC，防止跳过审批
+    private bool approvalProcessing;               // 审批链式协程正在跑，防止重复触发
+    private Sprite builtinWhiteSprite;             // 内置白精灵缓存
 
     // ================================================================
     // 生命周期
@@ -125,7 +155,19 @@ public class TutorialManager : MonoBehaviour
     {
         BuildOverlay();
         TryBindPersistentHooks();
+        if (GameTimeManager.Instance != null)
+        {
+            GameTimeManager.Instance.OnWorkEnd += OnWorkEndSettlement; // 18点下班自动结算
+            GameTimeManager.Instance.OnNewDay += OnNewDayReset;        // 新的一天重置统计
+        }
         StartCoroutine(EnterWelcomeNextFrame());
+    }
+
+    void OnDestroy()
+    {
+        if (GameTimeManager.Instance == null) return;
+        GameTimeManager.Instance.OnWorkEnd -= OnWorkEndSettlement;
+        GameTimeManager.Instance.OnNewDay -= OnNewDayReset;
     }
 
     private IEnumerator EnterWelcomeNextFrame()
@@ -136,6 +178,18 @@ public class TutorialManager : MonoBehaviour
 
     void Update()
     {
+        // NPC全部处理完(剩余0且场上无NPC) → 自动弹结算
+        if (!settlementShown && stage == Stage.FreePlay
+            && NPCDailyManager.Instance != null && NPCDailyManager.Instance.todayRemain <= 0)
+        {
+            GameObject npc = CurrentNpc();
+            if (npc == null || !npc.activeInHierarchy)
+            {
+                settlementShown = true;
+                ShowSettlement();
+            }
+        }
+
         if (frames.Count == 0 || overlayRect == null) return;
 
         // 呼吸发光
@@ -261,6 +315,31 @@ public class TutorialManager : MonoBehaviour
     // ================================================================
     // 覆盖层Canvas
     // ================================================================
+    /// <summary>白 sprite：动态创建 1x1 白贴图，避免依赖 Unity 版本相关的内置资源路径</summary>
+    private Sprite GetBuiltinWhiteSprite()
+    {
+        if (builtinWhiteSprite != null) return builtinWhiteSprite;
+
+        // 尝试几个常见的内置路径（不同 Unity 版本存在差异）
+        string[] tryPaths = { "Sprites/Default", "white", "UI/Skin/UISprite.psd", "UI/Skin/Background.psd" };
+        foreach (var p in tryPaths)
+        {
+            Sprite s = Resources.GetBuiltinResource<Sprite>(p);
+            if (s != null) { builtinWhiteSprite = s; return builtinWhiteSprite; }
+            Texture2D t = Resources.GetBuiltinResource<Texture2D>(p);
+            if (t != null) { builtinWhiteSprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f)); return builtinWhiteSprite; }
+        }
+
+        // 最终兜底：自己画一张 1x1 白贴图
+        var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+        var pixels = new Color[16];
+        for (int i = 0; i < 16; i++) pixels[i] = Color.white;
+        tex.SetPixels(pixels);
+        tex.Apply();
+        builtinWhiteSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+        return builtinWhiteSprite;
+    }
+
     private void BuildOverlay()
     {
         GameObject root = new GameObject("TutorialOverlay", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -402,48 +481,58 @@ public class TutorialManager : MonoBehaviour
                 dialogCoroutine = StartCoroutine(TypeDialog(welcomeText));
                 break;
             case Stage.Bell:
-                ShowStage(bell, bellText, false, () => EnterStage(Stage.MailBox));
+                ShowStage(bell, bellText, () => EnterStage(Stage.MailBox));
                 break;
             case Stage.MailBox:
                 // 新旧邮箱谁激活就高亮谁，指示立即出现
-                ShowStage(mailbox, mailBoxText, false, () => EnterStage(Stage.Profile));
+                ShowStage(mailbox, mailBoxText, () => EnterStage(Stage.Profile));
                 break;
             case Stage.Profile:
-                ShowStage(profile, profileText, true, () => EnterStage(Stage.Document));
+                ShowStage(profile, profileText, () => EnterStage(Stage.Document));
                 break;
             case Stage.Document:
-                ShowStage(document, documentText, true, () => EnterStage(Stage.Stamps));
+                ShowStage(document, documentText, () => EnterStage(Stage.Stamps));
                 break;
             case Stage.Stamps:
-                ShowStage(new GuideTarget[] { stamp1, stamp2 }, stampsText, false, null, TryBindPersistentHooks);
+                ShowStage(new GuideTarget[] { stamp1, stamp2 }, stampsText, null, TryBindPersistentHooks);
                 break;
             case Stage.Phone:
-                ShowStage(phone, phoneText, false, null, TryBindPersistentHooks);
+                ShowStage(phone, phoneText, null, TryBindPersistentHooks);
                 break;
             case Stage.Screen:
-                ShowStage(screen, screenText, false, () => EnterStage(Stage.Clock));
+                ShowStage(screen, screenText, FinishGuide); // 点信息屏 直接结束教程进自由审批
                 break;
             case Stage.Clock:
-                ShowStage(clock, clockText, false, FinishGuide);
+                // 兜底：如果不小心还是走进 Clock，显示时钟提示后 1.5 秒自动 FinishGuide
+                StartCoroutine(ClockAutoFinish());
                 break;
         }
     }
 
-    private void ShowStage(GuideTarget gt, string text, bool dragHint, UnityAction onNext, Action afterReady = null)
+    private IEnumerator ClockAutoFinish()
     {
-        StartCoroutine(ShowStageRoutine(new GuideTarget[] { gt }, text, dragHint, onNext, afterReady));
+        var clock = FindObjectOfType<NPCBellLogic>() != null
+            ? GameObject.Find("clock") : GameObject.Find("clock");
+        ShowStage(new GuideTarget { findName = "clock" }, "教程即将结束...", null);
+        yield return new WaitForSeconds(1.5f);
+        if (stage == Stage.Clock) FinishGuide();
     }
 
-    private void ShowStage(GuideTarget[] gts, string text, bool dragHint, UnityAction onNext, Action afterReady = null)
+    private void ShowStage(GuideTarget gt, string text, UnityAction onNext, Action afterReady = null)
     {
-        StartCoroutine(ShowStageRoutine(gts, text, dragHint, onNext, afterReady));
+        StartCoroutine(ShowStageRoutine(new GuideTarget[] { gt }, text, onNext, afterReady));
+    }
+
+    private void ShowStage(GuideTarget[] gts, string text, UnityAction onNext, Action afterReady = null)
+    {
+        StartCoroutine(ShowStageRoutine(gts, text, onNext, afterReady));
     }
 
     /// <summary>
     /// 等待目标激活后显示提示。目标未出现时每0.1秒轮询，
     /// GameObject.Find未命中时定期做忽略大小写的全量扫描兜底。
     /// </summary>
-    private IEnumerator ShowStageRoutine(GuideTarget[] gts, string text, bool dragHint, UnityAction onNext, Action afterReady)
+    private IEnumerator ShowStageRoutine(GuideTarget[] gts, string text, UnityAction onNext, Action afterReady)
     {
         Stage myStage = stage;
         stageOnNext = onNext;
@@ -488,7 +577,7 @@ public class TutorialManager : MonoBehaviour
 
         if (stage != myStage) yield break;
 
-        ShowHint(gts, text, dragHint);
+        ShowHint(gts, text);
 
         if (onNext != null)
         {
@@ -500,7 +589,7 @@ public class TutorialManager : MonoBehaviour
         if (afterReady != null) afterReady();
     }
 
-    private void ShowHint(GuideTarget[] gts, string text, bool dragHint)
+    private void ShowHint(GuideTarget[] gts, string text)
     {
         HideHint();
 
@@ -530,15 +619,6 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
-        // "可拖动"直接写进气泡(金色小字一行)
-        string full = text;
-        if (dragHint)
-        {
-            string hex = ColorUtility.ToHtmlStringRGB(highlightColor);
-            int smallSize = Mathf.Max(16, bubbleFontSize - 6);
-            full += $"\n<size={smallSize}><color=#{hex}>可拖动</color></size>";
-        }
-
         GameObject b = new GameObject("GuideBubble", typeof(RectTransform), typeof(Image));
         b.transform.SetParent(overlayRect, false);
         Image bImg = b.GetComponent<Image>();
@@ -551,7 +631,7 @@ public class TutorialManager : MonoBehaviour
         bubbleRect.sizeDelta = new Vector2(Mathf.Max(200f, bubbleSize.x), Mathf.Max(60f, bubbleSize.y));
 
         // 文本直接挂气泡(不要中间容器，否则宽度为0会竖排)
-        bubbleText = CreateText(full, bubbleRect, bubbleFontSize, textColor, TextAnchor.MiddleLeft, FontStyle.Normal);
+        bubbleText = CreateText(text, bubbleRect, bubbleFontSize, textColor, TextAnchor.MiddleLeft, FontStyle.Normal);
         RectTransform tr = bubbleText.rectTransform;
         tr.offsetMin = new Vector2(24f, 14f);
         tr.offsetMax = new Vector2(-24f, -14f);
@@ -652,7 +732,7 @@ public class TutorialManager : MonoBehaviour
     // ================================================================
     // 持久挂钩：印章/电话(幂等，引导结束依然生效)
     // ================================================================
-    private void TryBindPersistentHooks()
+    public void TryBindPersistentHooks()
     {
         // 用ResolveTarget而不是直接读target：印章/电话可能在弹窗里，进入阶段时才第一次解析
         BindPersistent(ResolveTarget(stamp1), () => OnStampClicked(1));
@@ -692,36 +772,405 @@ public class TutorialManager : MonoBehaviour
     // ================================================================
     public void OnStampClicked(int stampId)
     {
+        Debug.Log($"[Tutorial] OnStampClicked stampId={stampId} stage={stage} approvalProcessing={approvalProcessing}");
+        if (approvalProcessing) { Debug.LogWarning("[Tutorial] OnStampClicked 被锁"); return; }
+
+        // Fallback：如果还卡在教程阶段（Screen/Clock）但玩家已经能点到 Stamp，
+        // 说明教程对话已经走完了，强制收尾进 FreePlay
+        if (stage != Stage.Stamps && stage != Stage.FreePlay)
+        {
+            Debug.LogWarning($"[Tutorial] stage={stage} 但 Stamp 被点了，强制 FinishGuide → FreePlay");
+            FinishGuide();
+        }
+
         GuideTarget gt = stampId == 1 ? stamp1 : stamp2;
         GameObject stamp = ResolveTarget(gt);
-        if (stamp != null) StartCoroutine(StampPunch(stamp));
 
-        bool correct = stampId == 1; // 判定：Btn_Stamp1=通过(正确) Btn_Stamp2=不通过，接入真实审批数据后替换
+        bool correct = stampId == 1; // Btn_Stamp1=通过(正确) Btn_Stamp2=不通过
 
+        approvalProcessing = true;
         if (stage == Stage.Stamps)
         {
-            NotifyApprovalResult(correct);
-            EnterStage(Stage.Phone);
+            StartCoroutine(StampApprovalChain_Tutorial(stamp, stampId, correct));
         }
         else if (stage == Stage.FreePlay)
         {
-            NotifyApprovalResult(correct);
-            NpcLeave();
+            StartCoroutine(StampApprovalChain(stamp, stampId, correct));
         }
+        else
+        {
+            Debug.LogWarning($"[Tutorial] OnStampClicked 但当前既不是 Stamps 也不是 FreePlay 阶段！stage={stage}");
+            approvalProcessing = false;
+        }
+    }
+
+    /// <summary>教程阶段盖章：印章缩放 → Btn_File3 盖章 → 自动关 → 推进电话阶段</summary>
+    private IEnumerator StampApprovalChain_Tutorial(GameObject stampObj, int stampId, bool correct)
+    {
+        if (stampObj != null) yield return StartCoroutine(StampPunch(stampObj));
+        yield return StartCoroutine(ShowDocumentStampPopup(stampId));
+
+        NotifyApprovalResult(correct);
+        approvalProcessing = false;
+        EnterStage(Stage.Phone);
     }
 
     public void OnPhoneClicked()
     {
+        Debug.Log($"[Tutorial] OnPhoneClicked stage={stage} approvalProcessing={approvalProcessing}");
+        if (approvalProcessing) { Debug.LogWarning("[Tutorial] OnPhoneClicked 被锁"); return; }
+
+        // Fallback：如果还卡在教程阶段但电话已激活，强制收尾进 FreePlay
+        if (stage != Stage.Phone && stage != Stage.FreePlay)
+        {
+            Debug.LogWarning($"[Tutorial] stage={stage} 但电话被点了，强制 FinishGuide → FreePlay");
+            FinishGuide();
+        }
+
+        approvalProcessing = true;
         if (stage == Stage.Phone)
         {
-            NpcLeave();
-            EnterStage(Stage.Screen);
+            StartCoroutine(PhoneApprovalChain_Tutorial());
         }
         else if (stage == Stage.FreePlay)
         {
-            NotifyApprovalResult(false); // 扣留记为未通过，接入真实判定后替换
-            NpcLeave();
+            StartCoroutine(PhoneApprovalChain());
         }
+        else
+        {
+            Debug.LogWarning($"[Tutorial] OnPhoneClicked 但 stage={stage}");
+            approvalProcessing = false;
+        }
+    }
+
+    /// <summary>教程阶段电话：退场 → 推进信息屏阶段</summary>
+    private IEnumerator PhoneApprovalChain_Tutorial()
+    {
+        NpcLeave();
+        while (leaveCoroutine != null) yield return null;
+        approvalProcessing = false;
+        EnterStage(Stage.Screen);
+    }
+
+    /// <summary>自由审批：印章点击链式——印章缩放 → 通关文书弹窗+盖章 → 自动关 → NPC退场 → 关弹窗 → 自动叫下一位</summary>
+    private IEnumerator StampApprovalChain(GameObject stampObj, int stampId, bool correct)
+    {
+        // 1. 印章按钮本身缩放动画
+        if (stampObj != null) yield return StartCoroutine(StampPunch(stampObj));
+
+        // 2. 弹通关文书 + 盖章图片
+        yield return StartCoroutine(ShowDocumentStampPopup(stampId));
+
+        // 3. NPC 退场
+        NpcLeave();
+        while (leaveCoroutine != null) yield return null;
+
+        // 4. 关掉所有弹窗（NPC 走了档案/文书都该关）
+        RoomInteract.CloseAllPopups();
+
+        // 5. 通知结果 + 自动叫下一位
+        NotifyApprovalResult(correct);
+        yield return AutoSpawnNextNpc();
+    }
+
+    /// <summary>自由审批：电话(扣留)链式——退场 → 关弹窗 → 自动叫下一位</summary>
+    private IEnumerator PhoneApprovalChain()
+    {
+        NpcLeave();
+        while (leaveCoroutine != null) yield return null;
+
+        RoomInteract.CloseAllPopups();
+        NotifyApprovalResult(false);
+        yield return AutoSpawnNextNpc();
+    }
+
+    /// <summary>退场完自动摇铃叫下一位(如果还有剩余次数)</summary>
+    private IEnumerator AutoSpawnNextNpc()
+    {
+        UnlockNpc();
+        approvalProcessing = false; // 释放审批锁，允许下一位 NPC 的审批
+        if (NPCDailyManager.Instance != null && NPCDailyManager.Instance.todayRemain > 0)
+        {
+            yield return null; // 等一帧让 NpcLeaveRoutine 彻底收尾
+            NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
+            if (bell != null) bell.SpawnNpc();
+        }
+    }
+
+    /// <summary>把盖章图挂到 PopupPanel 子物体上，锚点左下角、位置留 12px 内边距、按弹窗宽度 25% 等比缩放</summary>
+    private void AttachSealToPanel(RectTransform sealRT, RectTransform panelRT)
+    {
+        sealRT.SetParent(panelRT, false);
+        sealRT.anchorMin = sealRT.anchorMax = new Vector2(0, 0); // 左下角
+        sealRT.pivot = new Vector2(0.5f, 0.5f);
+        float s = panelRT.rect.width * 0.25f;
+        sealRT.sizeDelta = new Vector2(s, s);
+        sealRT.anchoredPosition = new Vector2(s * 0.5f + 12, s * 0.5f + 12);
+        sealRT.localScale = Vector3.one;
+        Image sealImg = sealRT.GetComponent<Image>();
+        if (sealImg != null) sealImg.raycastTarget = false;
+    }
+
+    /// <summary>Clone 一张 Image，只保留 Image + RectTransform，绝不 SetParent 原图</summary>
+    private Image CloneImage(Image source, string cloneName)
+    {
+        GameObject cloneGO = Instantiate(source.gameObject);
+        cloneGO.name = cloneName;
+        // 移除可能的 Button/Outline 等多余组件，只留 Image + RectTransform + CanvasRenderer
+        var extras = cloneGO.GetComponents<Component>();
+        foreach (var c in extras)
+        {
+            if (c is Transform || c is RectTransform || c is CanvasRenderer || c is Image) continue;
+            Destroy(c);
+        }
+        var img = cloneGO.GetComponent<Image>();
+        if (img != null) img.raycastTarget = false;
+        return img;
+    }
+
+    private void EnsureSealImages()
+    {
+        if (sealImagePass != null && sealImageReject != null) return;
+
+        // 候选关键词（大小写不敏感）
+        string[] passKws = { "SealPass", "PassSeal", "Pass", "通过", "Seal_Pass", "StampPass" };
+        string[] rejectKws = { "SealReject", "RejectSeal", "Reject", "不通过", "Seal_Reject", "StampReject", "Fail", "Refuse" };
+
+        // 1. 扫 Btn_File3 子物体
+        GameObject file3 = FindObjectOfType<NPCBellLogic>() != null
+            ? FindObjectOfType<NPCBellLogic>().Btn_File3
+            : GameObject.Find("Btn_File3");
+        if (file3 != null)
+        {
+            Image[] subImgs = file3.GetComponentsInChildren<Image>(true);
+            Debug.Log($"[Tutorial] Btn_File3 下共 {subImgs.Length} 个 Image 子物体");
+            foreach (Image img in subImgs)
+            {
+                TryMatchSealImage(img, passKws, rejectKws);
+            }
+        }
+
+        // 2. 还没找到 → 扫整个场景（Resources.FindObjectsOfTypeAll 查隐藏物体）
+        if (sealImagePass == null || sealImageReject == null)
+        {
+            Image[] allImgs = Resources.FindObjectsOfTypeAll<Image>();
+            foreach (Image img in allImgs)
+            {
+                if (!img.gameObject.scene.IsValid()) continue; // 排除 Project 窗口的预制体资源
+                TryMatchSealImage(img, passKws, rejectKws);
+                if (sealImagePass != null && sealImageReject != null) break;
+            }
+            if (sealImagePass != null || sealImageReject != null)
+                Debug.Log("[Tutorial] 从全场景扫到盖章图");
+        }
+
+        if (sealImagePass == null && sealImageReject == null)
+            Debug.LogWarning("[Tutorial] 全场景没扫到任何盖章图，将用动态白方块兜底");
+
+        // 兜底：只找到一张就 Pass/Reject 共用
+        if (sealImagePass == null && sealImageReject != null) sealImagePass = sealImageReject;
+    }
+
+    private void TryMatchSealImage(Image img, string[] passKws, string[] rejectKws)
+    {
+        string n = img.gameObject.name;
+
+        // ===== 过滤大物体/重要 UI：绝不能把 Calendar/Clock/NPC 当盖章图 =====
+        string[] blockKws = { "Calendar", "Clock", "NPC", "Background", "Bg", "Panel", "Frame", "MailBox", "Btn_", "Image", "Sprite", "Text", "Title", "Content" };
+        foreach (var bw in blockKws)
+        {
+            if (n.IndexOf(bw, System.StringComparison.OrdinalIgnoreCase) >= 0) return;
+        }
+        // 体积过滤：盖章图不可能比 200px 大
+        var rt = img.GetComponent<RectTransform>();
+        if (rt != null && rt.rect.width > 200f) return;
+
+        Color c = img.color;
+        bool isRed = c.r > 0.6f && c.g < 0.4f && c.b < 0.4f;
+        bool isGray = c.r < 0.7f && Mathf.Abs(c.r - c.g) < 0.1f && Mathf.Abs(c.g - c.b) < 0.1f;
+
+        if (sealImagePass == null)
+        {
+            foreach (var kw in passKws)
+            {
+                if (n.IndexOf(kw, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    sealImagePass = img;
+                    Debug.Log($"[Tutorial] 匹配到 sealImagePass: {n}");
+                    return;
+                }
+            }
+        }
+
+        if (sealImageReject == null)
+        {
+            foreach (var kw in rejectKws)
+            {
+                if (n.IndexOf(kw, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    sealImageReject = img;
+                    Debug.Log($"[Tutorial] 匹配到 sealImageReject: {n}");
+                    return;
+                }
+            }
+        }
+
+        // 纯颜色兜底：名字没匹配，但颜色对也可以（但必须过上面的 blockKws 和体积过滤）
+        if (sealImagePass == null && isRed)
+        {
+            sealImagePass = img;
+            Debug.Log($"[Tutorial] 颜色兜底 sealImagePass(红): {n}");
+        }
+        else if (sealImageReject == null && isGray)
+        {
+            sealImageReject = img;
+            Debug.Log($"[Tutorial] 颜色兜底 sealImageReject(灰): {n}");
+        }
+    }
+
+    /// <summary>拿到 File3 弹出来的 PopupPanel（popupSource="File3"），忽略 File2 的档案弹窗</summary>
+    private RectTransform FindActivePopupPanel()
+    {
+        PopupPanel[] panels = Resources.FindObjectsOfTypeAll<PopupPanel>();
+        foreach (var p in panels)
+        {
+            if (p == null || !p.gameObject.scene.IsValid() || !p.gameObject.activeInHierarchy) continue;
+            if (string.Equals(p.popupSource, "File3", System.StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.Log($"[Tutorial] 找到 File3 弹窗: {p.gameObject.name}");
+                return p.GetComponent<RectTransform>();
+            }
+        }
+        // 兜底：如果 File3 没标记（玩家没改 RoomInteract.popupSource），找最后一个激活的
+        foreach (var p in panels)
+        {
+            if (p != null && p.gameObject.scene.IsValid() && p.gameObject.activeInHierarchy)
+            {
+                Debug.LogWarning($"[Tutorial] File3 来源没标记，兜底用最后一个激活的 PopupPanel: {p.gameObject.name}");
+                return p.GetComponent<RectTransform>();
+            }
+        }
+        Debug.LogWarning("[Tutorial] 没找到激活的 PopupPanel");
+        return null;
+    }
+
+    /// <summary>在 Btn_File3 弹出的 PopupPanel 左下角盖印章，1.5 秒后自动隐藏。
+    /// 盖章图挂到 PopupPanel 子物体上，弹窗怎么拖都跟着。</summary>
+    private IEnumerator ShowDocumentStampPopup(int stampId)
+    {
+        Debug.Log($"[Tutorial] ShowDocumentStampPopup stampId={stampId}");
+
+        EnsureSealImages();
+
+        // 找到当前激活的 PopupPanel 弹窗实例
+        RectTransform popupRT = FindActivePopupPanel();
+        if (popupRT == null)
+        {
+            Debug.LogWarning("[Tutorial] 没找到 PopupPanel，盖章失败");
+            yield break;
+        }
+
+        Image sealPass = sealImagePass;
+        Image sealReject = sealImageReject;
+        RectTransform sealRT = null;
+
+        if (sealPass != null || sealReject != null)
+        {
+            // === 绝对安全：Clone 一份盖章图来用，绝不 SetParent 原物体 ===
+            Image clonedPass = sealPass != null ? CloneImage(sealPass, "SealPass_Clone") : null;
+            Image clonedReject = sealReject != null ? CloneImage(sealReject, "SealReject_Clone") : null;
+
+            if (clonedPass != null) clonedPass.gameObject.SetActive(false);
+            if (clonedReject != null) clonedReject.gameObject.SetActive(false);
+
+            // 把 Clone 挂到 PopupPanel 下、锚点设左下角
+            if (clonedPass != null) AttachSealToPanel(clonedPass.rectTransform, popupRT);
+            if (clonedReject != null) AttachSealToPanel(clonedReject.rectTransform, popupRT);
+
+            if (stampId == 1)
+            {
+                if (clonedPass != null) { sealRT = clonedPass.rectTransform; clonedPass.gameObject.SetActive(true); }
+                if (clonedReject != null) clonedReject.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (clonedReject != null) { sealRT = clonedReject.rectTransform; clonedReject.gameObject.SetActive(true); }
+                if (clonedPass != null) clonedPass.gameObject.SetActive(false);
+            }
+            if (sealRT == null)
+            {
+                Debug.LogWarning("[Tutorial] Clone 后盖章图还是 null！pass=" + (clonedPass != null) + " reject=" + (clonedReject != null));
+                yield break;
+            }
+        }
+        else
+        {
+            // 兜底：动态创建一张盖章图，直接挂 PopupPanel 下、锚点左下角
+            Image seal;
+            GameObject sealGO = new GameObject("SealOnPopup", typeof(RectTransform), typeof(Image));
+            sealGO.transform.SetParent(popupRT, false);
+            sealRT = sealGO.GetComponent<RectTransform>();
+            sealRT.anchorMin = sealRT.anchorMax = new Vector2(0, 0); // 左下角
+            sealRT.pivot = new Vector2(0.5f, 0.5f);
+            float s = popupRT.rect.width * 0.25f;
+            sealRT.sizeDelta = new Vector2(s, s);
+            sealRT.anchoredPosition = new Vector2(s * 0.5f + 12, s * 0.5f + 12);
+            sealRT.localScale = Vector3.zero;
+            seal = sealGO.GetComponent<Image>();
+            seal.color = stampId == 1
+                ? new Color(0.85f, 0.1f, 0.1f, 0.85f)
+                : new Color(0.55f, 0.55f, 0.55f, 0.85f);
+            seal.sprite = GetBuiltinWhiteSprite();
+            seal.raycastTarget = false;
+
+            GameObject labelGO = new GameObject("SealLabel", typeof(RectTransform));
+            labelGO.transform.SetParent(sealRT, false);
+            Text sealText = labelGO.AddComponent<Text>();
+            sealText.alignment = TextAnchor.MiddleCenter;
+            sealText.fontSize = 28;
+            sealText.fontStyle = FontStyle.Bold;
+            sealText.color = Color.white;
+            sealText.text = stampId == 1 ? "✓ 通过" : "✗ 不通过";
+            sealText.resizeTextForBestFit = true;
+            sealText.resizeTextMinSize = 10;
+            sealText.resizeTextMaxSize = 48;
+            sealText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (sealText.font == null) sealText.font = fontOverride;
+            RectTransform labelRT = labelGO.GetComponent<RectTransform>();
+            labelRT.anchorMin = Vector2.zero; labelRT.anchorMax = Vector2.one;
+            labelRT.offsetMin = Vector2.zero; labelRT.offsetMax = Vector2.zero;
+        }
+
+        // 砸落 + 超冲回弹
+        float t = 0f;
+        while (t < 0.35f)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / 0.35f);
+            float s = k < 0.7f ? (0.5f + k * 1.2f) : (1.34f - (k - 0.7f) * 1.13f);
+            if (sealRT == null) yield break; // 弹窗被玩家提前关了
+            sealRT.localScale = Vector3.one * s;
+            yield return null;
+        }
+        if (sealRT == null) yield break;
+        sealRT.localScale = Vector3.one;
+
+        yield return new WaitForSeconds(1.5f);
+
+        if (sealRT == null) yield break; // 弹窗被玩家提前关了
+        sealRT.localScale = Vector3.zero; // 缩回去
+        yield return new WaitForSeconds(0.15f);
+
+        // Clone 版：什么都不做 —— Clone 的那份会随着 PopupPanel 关闭被 Destroy
+    }
+
+    /// <summary>世界坐标 → 指定 RectTransform 局部坐标</summary>
+    private static Vector2 WorldToLocal(RectTransform parent, Vector3 worldPos)
+    {
+        Vector2 local;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parent, worldPos, null, out local);
+        return local;
     }
 
     private IEnumerator StampPunch(GameObject stamp)
@@ -740,18 +1189,101 @@ public class TutorialManager : MonoBehaviour
     }
 
     // ================================================================
-    // NPC离场 与 结算
+    // NPC 入场 / 离场
     // ================================================================
+
+    /// <summary>资料已打开时，NPC 不可再点(防止跳过审批直接离场)</summary>
+    public bool IsNpcLocked => npcLocked;
+    public void LockNpc() => npcLocked = true;
+    public void UnlockNpc() => npcLocked = false;
+
+    /// <summary>NPC入场：淡入+放大。前一位还站在场上时，先播他的退场再入场</summary>
+    private GameObject CurrentNpc()
+    {
+        if (npcGuest.target == null)
+        {
+            NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
+            if (bell != null && bell.npcObj != null) npcGuest.target = bell.npcObj;
+        }
+        if (npcGuest.target == null) npcGuest.target = ResolveTarget(npcGuest, true);
+        return npcGuest.target;
+    }
+
     public void NpcLeave()
     {
-        GameObject npc = ResolveTarget(npcGuest);
+        GameObject npc = CurrentNpc();
         if (npc == null || !npc.activeSelf)
         {
+            npcOnStage = false;
             NotifyNpcLeft();
             return;
         }
-        if (leaveCoroutine != null) StopCoroutine(leaveCoroutine);
+        if (leavingNpc == npc && leaveCoroutine != null) return; // 已在退场中，忽略重复触发
+        CancelNpcLeave(); // 打断并还原上一个未完成的退场
+        if (enterCoroutine != null) { StopCoroutine(enterCoroutine); enterCoroutine = null; }
+        leavingNpc = npc;
         leaveCoroutine = StartCoroutine(NpcLeaveRoutine(npc));
+    }
+
+    /// <summary>NPC入场：淡入+放大。前一位还站在场上时，先播他的退场再入场</summary>
+    public void NpcEnter()
+    {
+        GameObject npc = CurrentNpc();
+        if (npc == null) return;
+        if (enterCoroutine != null) { StopCoroutine(enterCoroutine); enterCoroutine = null; }
+        enterCoroutine = StartCoroutine(NpcEnterRoutine(npc));
+    }
+
+    /// <summary>取消未完成的退场动画并还原NPC外观</summary>
+    public void CancelNpcLeave()
+    {
+        if (leaveCoroutine != null) { StopCoroutine(leaveCoroutine); leaveCoroutine = null; }
+        if (leavingNpc != null)
+        {
+            CanvasGroup cg = leavingNpc.GetComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = 1f;
+            leavingNpc.transform.localScale = npcBaseScale;
+            leavingNpc = null;
+        }
+    }
+
+    private void SaveBaseScale(GameObject npc)
+    {
+        if (npcBaseScaleSaved) return;
+        npcBaseScale = npc.transform.localScale;
+        npcBaseScaleSaved = true;
+    }
+
+    private IEnumerator NpcEnterRoutine(GameObject npc)
+    {
+        CanvasGroup cg = npc.GetComponent<CanvasGroup>();
+        if (cg == null) cg = npc.AddComponent<CanvasGroup>();
+        SaveBaseScale(npc);
+
+        // 前一位还站在场上且没在退场：先播他的退场
+        if (npcOnStage && leaveCoroutine == null && npc.activeSelf)
+        {
+            leavingNpc = npc;
+            leaveCoroutine = StartCoroutine(NpcLeaveRoutine(npc));
+        }
+        while (leaveCoroutine != null) yield return null; // 退场播完再入场
+
+        npc.SetActive(true); // 退场协程结束时会隐藏，重新激活
+        cg.alpha = 0f;
+        float t = 0f;
+        while (t < enterAnimDuration)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / enterAnimDuration);
+            cg.alpha = k;
+            npc.transform.localScale = npcBaseScale * (0.7f + 0.3f * k);
+            yield return null;
+        }
+        cg.alpha = 1f;
+        npc.transform.localScale = npcBaseScale;
+        enterCoroutine = null;
+        npcOnStage = true;
+        npcLocked = false; // 新 NPC 入场后解锁，允许点击
     }
 
     private IEnumerator NpcLeaveRoutine(GameObject npc)
@@ -770,7 +1302,10 @@ public class TutorialManager : MonoBehaviour
         }
         npc.SetActive(false);
         cg.alpha = 1f;
-        npc.transform.localScale = startScale;
+        npc.transform.localScale = npcBaseScaleSaved ? npcBaseScale : startScale;
+        if (leavingNpc == npc) leavingNpc = null;
+        leaveCoroutine = null;
+        npcOnStage = false;
         NotifyNpcLeft();
     }
 
@@ -797,6 +1332,32 @@ public class TutorialManager : MonoBehaviour
         corruptionCount++;
     }
 
+    /// <summary>18点下班：自动弹出结算</summary>
+    private void OnWorkEndSettlement()
+    {
+        if (settlementShown) return;
+        settlementShown = true;
+        ShowSettlement();
+    }
+
+    /// <summary>新的一天：重置结算状态与统计，彻底重置 NPC 状态</summary>
+    private void OnNewDayReset()
+    {
+        CloseSettlement();
+        settlementShown = false;
+        completedCount = correctCount = wrongCount = corruptionCount = 0;
+        npcLocked = false;
+        approvalProcessing = false;
+
+        // 彻底重置 NPC 状态（修第二天铃铛点不起的根因）
+        npcOnStage = false;
+        if (leaveCoroutine != null) { StopCoroutine(leaveCoroutine); leaveCoroutine = null; }
+        if (enterCoroutine != null) { StopCoroutine(enterCoroutine); enterCoroutine = null; }
+        leavingNpc = null;
+
+        Debug.Log("[Tutorial] OnNewDayReset 完成，NPC状态已重置");
+    }
+
     private void ShowSettlement()
     {
         if (settlementRoot != null) Destroy(settlementRoot);
@@ -808,34 +1369,60 @@ public class TutorialManager : MonoBehaviour
         sr.offsetMin = Vector2.zero; sr.offsetMax = Vector2.zero;
         Image dim = settlementRoot.GetComponent<Image>();
         dim.color = new Color(0f, 0f, 0f, 0.6f);
-        settlementRoot.GetComponent<Button>().onClick.AddListener(CloseSettlement);
+        settlementRoot.GetComponent<Button>().onClick.AddListener(OnSettlementClicked);
 
         GameObject panel = new GameObject("Panel", typeof(RectTransform), typeof(Image));
         panel.transform.SetParent(sr, false);
         Image panelImg = panel.GetComponent<Image>();
-        panelImg.sprite = BubbleSprite;
+        // 背景图：优先用 Inspector 拖的，留空用代码生成的圆角白底
+        panelImg.sprite = settlementBgSprite != null ? settlementBgSprite : BubbleSprite;
         panelImg.type = Image.Type.Sliced;
         panelImg.raycastTarget = false;
         RectTransform pr = panel.GetComponent<RectTransform>();
         pr.anchorMin = new Vector2(0.5f, 0.5f); pr.anchorMax = new Vector2(0.5f, 0.5f);
         pr.sizeDelta = new Vector2(680f, 460f);
 
+        // 结算字体：优先用 Inspector 拖的 settlementFont，留空用 fontOverride
+        Font stFont = settlementFont != null ? settlementFont : ResolveFont();
+
+        float titleY = -44f;
+
+        // 图标（预留图片槽位）
+        if (settlementIconSprite != null)
+        {
+            GameObject iconGO = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconGO.transform.SetParent(pr, false);
+            Image iconImg = iconGO.GetComponent<Image>();
+            iconImg.sprite = settlementIconSprite;
+            iconImg.preserveAspect = true;
+            iconImg.raycastTarget = false;
+            RectTransform iconRT = iconGO.GetComponent<RectTransform>();
+            iconRT.anchorMin = new Vector2(0.5f, 1f); iconRT.anchorMax = new Vector2(0.5f, 1f);
+            iconRT.pivot = new Vector2(0.5f, 1f);
+            iconRT.anchoredPosition = new Vector2(0f, -16f);
+            iconRT.sizeDelta = new Vector2(72f, 72f);
+            titleY = -100f; // 有图标时标题下移
+        }
+
         // 文本直接挂面板(不要中间容器，否则宽度为0会竖排)
         Text title = CreateText("【今日当铺结算】", pr, 42, textColor, TextAnchor.MiddleCenter, FontStyle.Bold);
+        title.font = stFont;
         RectTransform tr = title.rectTransform;
         tr.anchorMin = new Vector2(0f, 1f); tr.anchorMax = new Vector2(1f, 1f);
         tr.pivot = new Vector2(0.5f, 1f);
-        tr.anchoredPosition = new Vector2(0f, -44f);
+        tr.anchoredPosition = new Vector2(0f, titleY);
         tr.sizeDelta = new Vector2(0f, 60f);
 
         string stats = $"今日接待：{completedCount} 位\n通过：{correctCount} 位\n未通过：{wrongCount} 位";
         if (corruptionCount > 0) stats += $"\n腐化溢出：{corruptionCount} 次";
         Text st = CreateText(stats, pr, 30, textColor, TextAnchor.MiddleCenter, FontStyle.Normal);
+        st.font = stFont;
         RectTransform sr2 = st.rectTransform;
         sr2.anchorMin = new Vector2(0f, 0.25f); sr2.anchorMax = new Vector2(1f, 0.8f);
         sr2.offsetMin = Vector2.zero; sr2.offsetMax = Vector2.zero;
 
         Text hint = CreateText("点击任意位置继续营业", pr, 22, new Color(0.45f, 0.42f, 0.38f), TextAnchor.MiddleCenter, FontStyle.Normal);
+        hint.font = stFont;
         RectTransform hr = hint.rectTransform;
         hr.anchorMin = new Vector2(0f, 0f); hr.anchorMax = new Vector2(1f, 0f);
         hr.pivot = new Vector2(0.5f, 0f);
@@ -843,10 +1430,81 @@ public class TutorialManager : MonoBehaviour
         hr.sizeDelta = new Vector2(0f, 36f);
     }
 
+    /// <summary>只关弹窗（供 OnNewDayReset 等系统自动调用）</summary>
     public void CloseSettlement()
     {
         if (settlementRoot != null) Destroy(settlementRoot);
         settlementRoot = null;
+    }
+
+    /// <summary>玩家点击结算弹窗 → 关弹窗 → 黑屏过渡 → 跳到第二天</summary>
+    private void OnSettlementClicked()
+    {
+        CloseSettlement();
+        StartCoroutine(DayTransitionRoutine());
+    }
+
+    /// <summary>黑屏过渡：淡入黑屏 → 显示"第X天" → 淡出 → 继续营业</summary>
+    private IEnumerator DayTransitionRoutine()
+    {
+        // 跳到第二天 9:00（触发 OnNewDay + OnWorkStart，重置所有状态）
+        if (GameTimeManager.Instance != null)
+            GameTimeManager.Instance.JumpToNextWorkday();
+
+        // 创建全屏黑屏
+        GameObject blackScreen = new GameObject("DayTransition", typeof(RectTransform), typeof(Image));
+        blackScreen.transform.SetParent(overlayRect, false);
+        RectTransform br = blackScreen.GetComponent<RectTransform>();
+        br.anchorMin = Vector2.zero; br.anchorMax = Vector2.one;
+        br.offsetMin = Vector2.zero; br.offsetMax = Vector2.zero;
+        br.SetAsLastSibling();
+        Image blackImg = blackScreen.GetComponent<Image>();
+        blackImg.color = new Color(0f, 0f, 0f, 0f);
+        blackImg.raycastTarget = true; // 挡住所有点击
+
+        // 淡入黑屏
+        float fadeTime = 0.4f;
+        float t = 0f;
+        while (t < fadeTime)
+        {
+            t += Time.deltaTime;
+            Color c = blackImg.color;
+            c.a = Mathf.Lerp(0f, 1f, t / fadeTime);
+            blackImg.color = c;
+            yield return null;
+        }
+
+        // 显示"第 X 天"
+        int day = GameTimeManager.Instance != null ? GameTimeManager.Instance.currentDay : 2;
+        Font dayFont = settlementFont != null ? settlementFont : ResolveFont();
+        Text dayText = CreateText($"—— 第 {day} 天 ——", br, 72, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold);
+        dayText.font = dayFont;
+
+        // 停留
+        float stayTime = dayTransitionDuration - fadeTime * 2f;
+        if (stayTime < 0.5f) stayTime = 0.5f;
+        yield return new WaitForSeconds(stayTime);
+
+        // 淡出
+        t = 0f;
+        while (t < fadeTime)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, t / fadeTime);
+            Color c = blackImg.color;
+            c.a = alpha;
+            blackImg.color = c;
+            if (dayText != null)
+            {
+                Color tc = dayText.color;
+                tc.a = alpha;
+                dayText.color = tc;
+            }
+            yield return null;
+        }
+
+        Destroy(blackScreen);
+        Debug.Log($"[Tutorial] 黑屏过渡完成，进入第 {day} 天");
     }
 
     // ================================================================
@@ -859,6 +1517,9 @@ public class TutorialManager : MonoBehaviour
         HideHint();
         ClearStageHooks();
         TryBindPersistentHooks();
+        // 注意：不归零 completedCount —— 教程那 1 位也是真实接待的（todayRemain 扣过），
+        // 归零会导致结算显示 7 位 ≠ 实际 8 位
+        approvalProcessing = false; // 兜底：教程各阶段都释放过，但这里再清一次防边界
         Debug.Log("[Tutorial] 基础引导结束，进入自由审批");
     }
 

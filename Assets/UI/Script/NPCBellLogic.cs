@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +10,8 @@ public class NPCBellLogic : MonoBehaviour
     public GameObject Btn_4;
     public GameObject Btn_File2;
     public GameObject Btn_File3;
+    public GameObject stampObj1;
+    public GameObject stampObj2;
 
     [Header("邮箱图片")]
     public GameObject imageMailBox;
@@ -20,6 +21,7 @@ public class NPCBellLogic : MonoBehaviour
     public GameObject remainTextObj;
 
     private int _lastDay = -1;
+    private bool _bellUsedToday;   // 自由审批模式下一天只能点一次铃铛
     private Coroutine _showCoroutine;
 
     void Start()
@@ -28,6 +30,7 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
+        SetStampsActive(false);
         imageMailBox.SetActive(true);
         imageMailBox2.SetActive(false);
 
@@ -55,13 +58,48 @@ public class NPCBellLogic : MonoBehaviour
         if (currentDay != _lastDay)
         {
             _lastDay = currentDay;
-            CheckBellInteractable();
-            remainTextObj.SetActive(false);
+            ResetForNewDay();
         }
     }
 
-    /// <summary>铃铛点击入口，必须绑定到Button的OnClick</summary>
+    /// <summary>新的一天：重置所有状态（铃铛、NPC、按钮、协程）</summary>
+    public void ResetForNewDay()
+    {
+        _bellUsedToday = false;
+        if (_showCoroutine != null) { StopCoroutine(_showCoroutine); _showCoroutine = null; }
+        npcObj.SetActive(false);
+        Btn_4.SetActive(false);
+        Btn_File2.SetActive(false);
+        Btn_File3.SetActive(false);
+        SetStampsActive(false);
+        imageMailBox.SetActive(true);
+        imageMailBox2.SetActive(false);
+        remainTextObj.SetActive(false);
+        CheckBellInteractable();
+        Debug.Log("[NPCBellLogic] ResetForNewDay 完成");
+    }
+
+    private void SetStampsActive(bool active)
+    {
+        if (stampObj1 != null) stampObj1.SetActive(active);
+        if (stampObj2 != null) stampObj2.SetActive(active);
+    }
+
+    /// <summary>铃铛点击入口（玩家手动点击），必须绑定到Button的OnClick</summary>
     public void OnClickBell()
+    {
+        // 自由审批模式下一天只能点一次铃铛
+        if (TutorialManager.Instance != null && TutorialManager.Instance.IsFreePlay && _bellUsedToday)
+        {
+            Debug.Log("[NPCBellLogic] 今天已经摇过铃了，等下一位客人自动到来");
+            return;
+        }
+        _bellUsedToday = true;
+        SpawnNpc();
+    }
+
+    /// <summary>生成NPC（内部方法，AutoSpawnNextNpc 也调这个，不检查铃铛限制）</summary>
+    public void SpawnNpc()
     {
         if (NPCDailyManager.Instance == null) return;
 
@@ -72,22 +110,10 @@ public class NPCBellLogic : MonoBehaviour
             return;
         }
 
-        // 扣减后归0，隐藏所有NPC相关物体，只保留剩余次数显示
-        if (NPCDailyManager.Instance.todayRemain <= 0)
-        {
-            remainTextObj.SetActive(true);
-            npcObj.SetActive(false);
-            Btn_4.SetActive(false);
-            Btn_File2.SetActive(false);
-            Btn_File3.SetActive(false);
-            imageMailBox.SetActive(true);
-            imageMailBox2.SetActive(false);
-            return;
-        }
-
         remainTextObj.SetActive(true);
         npcObj.SetActive(true);
-        // 铃铛只负责生成NPC，邮箱回到初始状态，等点击NPC后刷新
+        if (TutorialManager.Instance != null) TutorialManager.Instance.NpcEnter();
+
         if (_showCoroutine != null)
         {
             StopCoroutine(_showCoroutine);
@@ -98,9 +124,9 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
+        SetStampsActive(false);
     }
 
-    /// <summary>点击NPC时调用：刷新一次邮箱（先回初始状态，再切换到新邮件状态）</summary>
     public void RefreshMailBox()
     {
         if (_showCoroutine != null)
@@ -113,25 +139,23 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
+        SetStampsActive(false);
         _showCoroutine = StartCoroutine(NpcShowDelayLogic(0.5f));
     }
 
-    private System.Collections.IEnumerator NpcShowDelayLogic(float delay)
+    private IEnumerator NpcShowDelayLogic(float delay)
     {
         yield return new WaitForSeconds(delay);
-        // 如果次数已归0，不执行后续显示逻辑
         if (NPCDailyManager.Instance == null || NPCDailyManager.Instance.todayRemain <= 0)
             yield break;
         imageMailBox.SetActive(false);
         imageMailBox2.SetActive(true);
         Btn_4.SetActive(true);
-        // 保证按钮在最上层，避免被邮箱图片挡住射线导致点不到
         Btn_4.transform.SetAsLastSibling();
     }
 
     public void OnClickBtn4()
     {
-        // 停掉未完成的显示协程，防止状态被翻转回去（点了没反应的主要原因）
         if (_showCoroutine != null)
         {
             StopCoroutine(_showCoroutine);
@@ -141,6 +165,11 @@ public class NPCBellLogic : MonoBehaviour
         imageMailBox2.SetActive(false);
         Btn_File2.SetActive(true);
         Btn_File3.SetActive(true);
+        SetStampsActive(true);
+        Debug.Log($"[NPCBellLogic] OnClickBtn4 → 文件+印章激活");
+
+        // 兜底：Stamp 按钮激活后确保 TutorialManager 已挂上 listener（幂等）
+        if (TutorialManager.Instance != null) TutorialManager.Instance.TryBindPersistentHooks();
     }
 
     /// <summary>
