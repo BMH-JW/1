@@ -21,7 +21,7 @@ public class NPCBellLogic : MonoBehaviour
     public GameObject remainTextObj;
 
     private int _lastDay = -1;
-    private bool _bellUsedToday;   // 自由审批模式下一天只能点一次铃铛
+    private bool _npcPresent;     // 场上是否有NPC（有则铃铛不可再点）
     private Coroutine _showCoroutine;
 
     void Start()
@@ -30,12 +30,13 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
-        SetStampsActive(false);
+        SetStampsActive(true);   // 印章常驻显示
         imageMailBox.SetActive(true);
         imageMailBox2.SetActive(false);
 
-        remainTextObj.SetActive(false);
+        remainTextObj.SetActive(true); // 剩余人数文本常驻显示
         EnsureMailBox2Clickable();
+        SetMailboxClickable(false); // NPC没来之前邮箱不可点（必须在EnsureMailBox2Clickable之后，避免后补的Button重置为可点）
 
         if (GameTimeManager.Instance != null)
         {
@@ -62,19 +63,20 @@ public class NPCBellLogic : MonoBehaviour
         }
     }
 
-    /// <summary>新的一天：重置所有状态（铃铛、NPC、按钮、协程）</summary>
+    /// <summary>新的一天：重置所有状态（NPC、按钮、协程）。剩余人数文本和印章常驻不动</summary>
     public void ResetForNewDay()
     {
-        _bellUsedToday = false;
+        _npcPresent = false;
         if (_showCoroutine != null) { StopCoroutine(_showCoroutine); _showCoroutine = null; }
         npcObj.SetActive(false);
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
-        SetStampsActive(false);
+        SetStampsActive(true);
         imageMailBox.SetActive(true);
         imageMailBox2.SetActive(false);
-        remainTextObj.SetActive(false);
+        // remainTextObj 常驻，不隐藏
+        SetMailboxClickable(false); // 新一天NPC还没来，邮箱锁住
         CheckBellInteractable();
         Debug.Log("[NPCBellLogic] ResetForNewDay 完成");
     }
@@ -85,20 +87,34 @@ public class NPCBellLogic : MonoBehaviour
         if (stampObj2 != null) stampObj2.SetActive(active);
     }
 
+    /// <summary>设置两张邮箱图是否可点击（NPC没来之前不可点）</summary>
+    private void SetMailboxClickable(bool clickable)
+    {
+        SetOneMailboxClickable(imageMailBox, clickable);
+        SetOneMailboxClickable(imageMailBox2, clickable);
+    }
+
+    private void SetOneMailboxClickable(GameObject mailBox, bool clickable)
+    {
+        if (mailBox == null) return;
+        Button btn = mailBox.GetComponent<Button>();
+        if (btn == null) btn = mailBox.GetComponentInChildren<Button>();
+        if (btn != null) btn.interactable = clickable;
+    }
+
     /// <summary>铃铛点击入口（玩家手动点击），必须绑定到Button的OnClick</summary>
     public void OnClickBell()
     {
-        // 自由审批模式下一天只能点一次铃铛
-        if (TutorialManager.Instance != null && TutorialManager.Instance.IsFreePlay && _bellUsedToday)
+        // 场上已有NPC（资料已出来 / NPC还没走），不允许再摇铃
+        if (_npcPresent)
         {
-            Debug.Log("[NPCBellLogic] 今天已经摇过铃了，等下一位客人自动到来");
+            Debug.Log("[NPCBellLogic] 当前客人还没离开，不能摇铃叫下一位");
             return;
         }
-        _bellUsedToday = true;
         SpawnNpc();
     }
 
-    /// <summary>生成NPC（内部方法，AutoSpawnNextNpc 也调这个，不检查铃铛限制）</summary>
+    /// <summary>生成NPC（摇铃调用）。一次只出一个NPC，退场后需要玩家再次摇铃</summary>
     public void SpawnNpc()
     {
         if (NPCDailyManager.Instance == null) return;
@@ -109,6 +125,10 @@ public class NPCBellLogic : MonoBehaviour
             Debug.Log("次数已用尽，不生成NPC");
             return;
         }
+
+        _npcPresent = true;
+        CheckBellInteractable(); // 立刻锁铃铛，资料出来前后都不能再点
+        SetMailboxClickable(true); // NPC来了，邮箱可以点了
 
         remainTextObj.SetActive(true);
         npcObj.SetActive(true);
@@ -124,7 +144,34 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
-        SetStampsActive(false);
+        // 印章常驻，不隐藏
+    }
+
+    /// <summary>立即隐藏档案/通关文书按钮和Btn_4（教程结束时调用，不等NPC退场动画）</summary>
+    public void HideFileButtons()
+    {
+        if (_showCoroutine != null)
+        {
+            StopCoroutine(_showCoroutine);
+            _showCoroutine = null;
+        }
+        if (Btn_4 != null) Btn_4.SetActive(false);
+        if (Btn_File2 != null) Btn_File2.SetActive(false);
+        if (Btn_File3 != null) Btn_File3.SetActive(false);
+        Debug.Log("[NPCBellLogic] HideFileButtons → Btn_File2/Btn_File3/Btn_4 已隐藏");
+    }
+
+    /// <summary>NPC退场收尾：恢复桌面初始状态、锁定邮箱与铃铛，等玩家再次手动摇铃</summary>
+    public void OnNpcLeft()
+    {
+        _npcPresent = false;
+        HideFileButtons();
+        imageMailBox.SetActive(true);
+        imageMailBox2.SetActive(false);
+        SetMailboxClickable(false); // NPC走了，邮箱重新锁住
+        // 印章常驻，不隐藏；剩余人数文本常驻，不隐藏
+        CheckBellInteractable();
+        Debug.Log("[NPCBellLogic] NPC已离场，等待玩家再次摇铃");
     }
 
     public void RefreshMailBox()
@@ -139,7 +186,6 @@ public class NPCBellLogic : MonoBehaviour
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
-        SetStampsActive(false);
         _showCoroutine = StartCoroutine(NpcShowDelayLogic(0.5f));
     }
 
@@ -156,6 +202,12 @@ public class NPCBellLogic : MonoBehaviour
 
     public void OnClickBtn4()
     {
+        // 权威拦截：NPC没来之前点邮箱无效（双保险，即使Button状态被别处改动）
+        if (!_npcPresent)
+        {
+            Debug.Log("[NPCBellLogic] 客人还没来，不能查看邮箱");
+            return;
+        }
         if (_showCoroutine != null)
         {
             StopCoroutine(_showCoroutine);
@@ -165,8 +217,11 @@ public class NPCBellLogic : MonoBehaviour
         imageMailBox2.SetActive(false);
         Btn_File2.SetActive(true);
         Btn_File3.SetActive(true);
+        // 印章本身常驻，这里只确保是激活状态
         SetStampsActive(true);
-        Debug.Log($"[NPCBellLogic] OnClickBtn4 → 文件+印章激活");
+        // 人物资料出来后铃铛不可点
+        if (Btn_Bell != null) Btn_Bell.interactable = false;
+        Debug.Log("[NPCBellLogic] OnClickBtn4 → 文件+印章激活，铃铛已锁定");
 
         // 兜底：Stamp 按钮激活后确保 TutorialManager 已挂上 listener（幂等）
         if (TutorialManager.Instance != null) TutorialManager.Instance.TryBindPersistentHooks();
@@ -199,8 +254,9 @@ public class NPCBellLogic : MonoBehaviour
     public void CheckBellInteractable()
     {
         if (NPCDailyManager.Instance == null || Btn_Bell == null) return;
-        bool canClick = NPCDailyManager.Instance.todayRemain > 0;
+        // 有次数 且 场上没有NPC时，铃铛才可点
+        bool canClick = NPCDailyManager.Instance.todayRemain > 0 && !_npcPresent;
         Btn_Bell.interactable = canClick;
-        Debug.Log($"铃铛可点击状态：{canClick}  todayRemain={NPCDailyManager.Instance.todayRemain}");
+        Debug.Log($"铃铛可点击状态：{canClick}  todayRemain={NPCDailyManager.Instance.todayRemain}  npcPresent={_npcPresent}");
     }
 }

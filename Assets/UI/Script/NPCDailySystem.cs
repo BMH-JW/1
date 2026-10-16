@@ -13,6 +13,7 @@ public class NPCDailyManager : MonoBehaviour
     public int todayRemain;
 
     private bool _initFinished = false;
+    private bool _bellRangToday; // 今天是否已摇过铃：摇铃前人数显示0，首次摇铃后从8开始
 
     void Awake()
     {
@@ -26,7 +27,8 @@ public class NPCDailyManager : MonoBehaviour
         GameTimeManager.Instance.OnNewDay += OnNewDay;
 
         todayRemain = MAX_DAILY;
-        Debug.Log($"[Start]初始化 todayRemain = {todayRemain}");
+        _bellRangToday = false;
+        Debug.Log($"[Start]初始化 todayRemain = {todayRemain}（摇铃前显示0）");
         StartCoroutine(InitDoneLock());
         RefreshUI();
     }
@@ -42,8 +44,9 @@ public class NPCDailyManager : MonoBehaviour
     {
         if (!_initFinished) return;
         todayRemain = MAX_DAILY;
+        _bellRangToday = false;
         RefreshUI();
-        Debug.Log($"[OnWorkStart] todayRemain={todayRemain}");
+        Debug.Log($"[OnWorkStart] todayRemain={todayRemain}（摇铃前显示0）");
     }
 
     void OnWorkEnd()
@@ -54,8 +57,9 @@ public class NPCDailyManager : MonoBehaviour
     {
         if (!_initFinished) return;
         todayRemain = MAX_DAILY;
+        _bellRangToday = false;
         RefreshUI();
-        Debug.Log($"[OnNewDay] todayRemain={todayRemain}");
+        Debug.Log($"[OnNewDay] todayRemain={todayRemain}（摇铃前显示0）");
     }
 
     public bool InteractNPC()
@@ -65,6 +69,8 @@ public class NPCDailyManager : MonoBehaviour
         {
             return false;
         }
+        // 首次摇铃：人数从 MAX_DAILY(8) 开始显示
+        _bellRangToday = true;
         // 先显示当前剩余次数（第一次点击显示8），再扣减
         RefreshUI();
         todayRemain -= 1;
@@ -86,7 +92,8 @@ public class NPCDailyManager : MonoBehaviour
     {
         if (remainText != null)
         {
-            remainText.text = todayRemain.ToString();
+            // 今天还没摇过铃时显示0，首次摇铃后显示真实剩余人数
+            remainText.text = _bellRangToday ? todayRemain.ToString() : "0";
         }
     }
 

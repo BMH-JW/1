@@ -1,14 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement; // ³¡¾°¹ÜÀí±ØĞëÒıÓÃ
+using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
-    // ¹«¿ª·½·¨£¬¸ø°´Å¥µã»÷ÊÂ¼şµ÷ÓÃ
+    /// <summary>å¼€å§‹æ¸¸æˆï¼šå…ˆè¿›å…¥å‰§æƒ…åœºæ™¯ PlotSceneï¼ˆ1~4 å¼ å‰§æƒ…å›¾ï¼‰</summary>
+    public void LoadPlotScene()
+    {
+        SceneManager.LoadScene("PlotScene");
+    }
+
+    /// <summary>ç›´æ¥è¿›å…¥æˆ¿é—´åœºæ™¯ï¼ˆä¿ç•™ï¼Œå‰§æƒ…ç»“æŸåç”± PlotController è°ƒç”¨åŒååŠ è½½ï¼‰</summary>
     public void LoadRoomScene()
     {
-        // ³¡¾°Ãû×Ö±ØĞëºÍÄãµÄ³¡¾°ÎÄ¼şÃû¡¾ÍêÈ«Ò»Ä£Ò»Ñù£¬´óĞ¡Ğ´¶¼ÒªÆ¥Åä¡¿
         SceneManager.LoadScene("RoomScene");
     }
 }

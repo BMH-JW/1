@@ -63,24 +63,30 @@ public class RoomInteract : MonoBehaviour
         }
     }
 
-    /// <summary>关掉所有 RoomInteract 弹出的弹窗（NPC 退场时调用）</summary>
+    /// <summary>关掉所有弹窗（追踪集合 + 场景兜底扫描，双保险）</summary>
     public static void CloseAllPopups()
     {
-        // 复制一份再 Destroy，因为 Destroy 后 GameObject 会在本帧结束才真正销毁
+        // 1. 销毁追踪集合里的弹窗
         var toDestroy = new List<GameObject>(_trackedPopups);
         _trackedPopups.Clear();
-
-        int destroyed = 0;
         foreach (var go in toDestroy)
         {
             if (go != null)
             {
                 Debug.Log($"[RoomInteract] CloseAllPopups Destroying tracked popup: {go.name}");
                 Destroy(go);
-                destroyed++;
             }
         }
-        Debug.Log($"[RoomInteract] CloseAllPopups done, destroyed={destroyed}");
+
+        // 2. 兜底：扫场景里所有激活的 PopupPanel（防止追踪集合漏网）
+        foreach (var p in FindObjectsOfType<PopupPanel>())
+        {
+            if (p != null && p.gameObject.scene.IsValid() && p.gameObject.activeInHierarchy)
+            {
+                Debug.Log($"[RoomInteract] CloseAllPopups 兜底销毁: {p.gameObject.name}");
+                Destroy(p.gameObject);
+            }
+        }
     }
 
     /// <summary>PopupPanel 被玩家手动关掉时（点关闭按钮），从追踪集合里移除</summary>

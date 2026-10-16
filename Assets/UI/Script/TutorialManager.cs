@@ -104,6 +104,16 @@ public class TutorialManager : MonoBehaviour
     [Tooltip("盖在通关文书上的【不通过】印章 Image（预制体上那两张里的灰章）——留空则自动从 Btn_File3 子物体里找")]
     public Image sealImageReject;
 
+    [Header("印章在弹窗上的位置调整")]
+    [Tooltip("印章边长 = 弹窗宽度 × 此比例")]
+    [Range(0.05f, 1f)] public float sealSizeRatio = 0.25f;
+    [Tooltip("不使用自定义坐标时，印章距弹窗左下角的内边距(像素)")]
+    public float sealPadding = 12f;
+    [Tooltip("勾选后使用下面的自定义坐标，忽略内边距自动计算")]
+    public bool useCustomSealPosition = false;
+    [Tooltip("印章在通关文书弹窗上的自定义坐标(锚点=左下角, 单位像素)，X右正 Y上正")]
+    public Vector2 sealAnchoredPosition = new Vector2(0f, 0f);
+
     // ---------------- 运行时状态 ----------------
     private Stage stage = Stage.None;
     private readonly HashSet<GameObject> hookedTargets = new HashSet<GameObject>(); // 持久挂钩防重复
@@ -827,32 +837,26 @@ public class TutorialManager : MonoBehaviour
             FinishGuide();
         }
 
-        approvalProcessing = true;
         if (stage == Stage.Phone)
         {
+            approvalProcessing = true;
             StartCoroutine(PhoneApprovalChain_Tutorial());
         }
         else if (stage == Stage.FreePlay)
         {
-            StartCoroutine(PhoneApprovalChain());
-        }
-        else
-        {
-            Debug.LogWarning($"[Tutorial] OnPhoneClicked 但 stage={stage}");
-            approvalProcessing = false;
+            // 自由审批：点击电话不再让NPC离开，NPC继续留场，由印章完成审批
+            Debug.Log("[Tutorial] 自由审批点击电话：NPC不离场");
         }
     }
 
-    /// <summary>教程阶段电话：退场 → 推进信息屏阶段</summary>
+    /// <summary>教程阶段电话：点击电话后直接结束教程（FinishGuide 收尾会自动关闭所有弹窗、隐藏文件按钮、NPC退场）</summary>
     private IEnumerator PhoneApprovalChain_Tutorial()
     {
-        NpcLeave();
-        while (leaveCoroutine != null) yield return null;
-        approvalProcessing = false;
-        EnterStage(Stage.Screen);
+        yield return null;
+        FinishGuide();
     }
 
-    /// <summary>自由审批：印章点击链式——印章缩放 → 通关文书弹窗+盖章 → 自动关 → NPC退场 → 关弹窗 → 自动叫下一位</summary>
+    /// <summary>自由审批：印章点击链式——印章缩放 → 通关文书弹窗+盖章 → NPC退场 → 关弹窗 → 等玩家再次手动摇铃</summary>
     private IEnumerator StampApprovalChain(GameObject stampObj, int stampId, bool correct)
     {
         // 1. 印章按钮本身缩放动画
@@ -868,44 +872,33 @@ public class TutorialManager : MonoBehaviour
         // 4. 关掉所有弹窗（NPC 走了档案/文书都该关）
         RoomInteract.CloseAllPopups();
 
-        // 5. 通知结果 + 自动叫下一位
+        // 5. 通知结果 + 收尾（不自动叫下一位，由玩家再次摇铃）
         NotifyApprovalResult(correct);
-        yield return AutoSpawnNextNpc();
+        yield return FinishNpcAndRestore();
     }
 
-    /// <summary>自由审批：电话(扣留)链式——退场 → 关弹窗 → 自动叫下一位</summary>
-    private IEnumerator PhoneApprovalChain()
+    /// <summary>NPC退场收尾：解锁NPC、释放审批锁、恢复桌面与铃铛，等待玩家再次手动摇铃</summary>
+    private IEnumerator FinishNpcAndRestore()
     {
-        NpcLeave();
-        while (leaveCoroutine != null) yield return null;
-
-        RoomInteract.CloseAllPopups();
-        NotifyApprovalResult(false);
-        yield return AutoSpawnNextNpc();
-    }
-
-    /// <summary>退场完自动摇铃叫下一位(如果还有剩余次数)</summary>
-    private IEnumerator AutoSpawnNextNpc()
-    {
+        yield return null; // 等一帧让 NpcLeaveRoutine 彻底收尾
         UnlockNpc();
-        approvalProcessing = false; // 释放审批锁，允许下一位 NPC 的审批
-        if (NPCDailyManager.Instance != null && NPCDailyManager.Instance.todayRemain > 0)
-        {
-            yield return null; // 等一帧让 NpcLeaveRoutine 彻底收尾
-            NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
-            if (bell != null) bell.SpawnNpc();
-        }
+        approvalProcessing = false;
+        NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
+        if (bell != null) bell.OnNpcLeft();
     }
 
-    /// <summary>把盖章图挂到 PopupPanel 子物体上，锚点左下角、位置留 12px 内边距、按弹窗宽度 25% 等比缩放</summary>
+    /// <summary>把盖章图挂到 PopupPanel 子物体上，锚点左下角；大小/位置由 Inspector 槽位控制</summary>
     private void AttachSealToPanel(RectTransform sealRT, RectTransform panelRT)
     {
         sealRT.SetParent(panelRT, false);
         sealRT.anchorMin = sealRT.anchorMax = new Vector2(0, 0); // 左下角
         sealRT.pivot = new Vector2(0.5f, 0.5f);
-        float s = panelRT.rect.width * 0.25f;
+        float s = panelRT.rect.width * sealSizeRatio;
         sealRT.sizeDelta = new Vector2(s, s);
-        sealRT.anchoredPosition = new Vector2(s * 0.5f + 12, s * 0.5f + 12);
+        // 坐标：勾选自定义就用槽位值，否则按"内边距贴左下角"自动算
+        sealRT.anchoredPosition = useCustomSealPosition
+            ? sealAnchoredPosition
+            : new Vector2(s * 0.5f + sealPadding, s * 0.5f + sealPadding);
         sealRT.localScale = Vector3.one;
         Image sealImg = sealRT.GetComponent<Image>();
         if (sealImg != null) sealImg.raycastTarget = false;
@@ -1512,6 +1505,7 @@ public class TutorialManager : MonoBehaviour
     // ================================================================
     private void FinishGuide()
     {
+        if (stage == Stage.FreePlay) return; // 幂等：fallback 路径可能重复调用，收尾只做一次
         stage = Stage.FreePlay;
         stageOnNext = null;
         HideHint();
@@ -1520,7 +1514,31 @@ public class TutorialManager : MonoBehaviour
         // 注意：不归零 completedCount —— 教程那 1 位也是真实接待的（todayRemain 扣过），
         // 归零会导致结算显示 7 位 ≠ 实际 8 位
         approvalProcessing = false; // 兜底：教程各阶段都释放过，但这里再清一次防边界
+        StartCoroutine(FinishGuideCleanupRoutine());
         Debug.Log("[Tutorial] 基础引导结束，进入自由审批");
+    }
+
+    /// <summary>教程结束收尾：立即关闭所有弹窗和Btn_File2/3 → 教程NPC退场 → 恢复桌面与铃铛</summary>
+    private IEnumerator FinishGuideCleanupRoutine()
+    {
+        NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
+
+        // 1. 立即关闭教程期间打开的所有弹窗（档案/通关文书等）
+        RoomInteract.CloseAllPopups();
+
+        // 2. 立即隐藏 Btn_File2 / Btn_File3 / Btn_4（不等NPC退场动画）
+        if (bell != null) bell.HideFileButtons();
+        yield return null; // 等一帧让 Destroy/SetActive 生效
+
+        // 3. 教程NPC还在场上：播退场动画（NotifyNpcLeft 会计入今日接待人数）
+        if (npcOnStage)
+        {
+            NpcLeave();
+            while (leaveCoroutine != null) yield return null;
+        }
+
+        // 4. 恢复桌面初始状态、解锁铃铛，等待玩家手动摇铃开始自由审批
+        if (bell != null) bell.OnNpcLeft();
     }
 
     // ================================================================
