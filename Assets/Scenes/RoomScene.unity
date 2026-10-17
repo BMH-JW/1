@@ -2032,7 +2032,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   guideNpcSprite: {fileID: 0}
   typingInterval: 0.06
-  welcomeText: "\u6B22\u8FCE\u6765\u5230\u6DF1\u7A7A\u5F53\u94FA\u3002\u6211\u4F1A\u4E00\u6B65\u6B65\u6559\u4F60\u8FD9\u91CC\u7684\u5DE5\u4F5C\u89C4\u5219\u3002"
+  welcomeText: "\u6B22\u8FCE\u6765\u5230\u5BA1\u6279\u7AD9\u3002\u6211\u4F1A\u4E00\u6B65\u6B65\u6559\u4F60\u8FD9\u91CC\u7684\u5DE5\u4F5C\u89C4\u5219\u3002"
   welcomeText2: "\u8DDF\u7740\u91D1\u8272\u9AD8\u4EAE\u63D0\u793A\u64CD\u4F5C\uFF0C\u5373\u53EF\u5B8C\u6210\u57FA\u7840\u5F15\u5BFC\u3002"
   bell:
     target: {fileID: 0}
@@ -2067,13 +2067,13 @@ MonoBehaviour:
   bubbleSize: {x: 560, y: 160}
   bellText: "\u70B9\u51FB\u94C3\u94DB\uFF0C\u547C\u53EB\u5BA2\u4EBA\u524D\u6765"
   mailBoxText: "\u70B9\u51FB\u7EB8\u76D2\uFF0C\u67E5\u770B\u5BA2\u4EBA\u643A\u5E26\u7684\u7269\u54C1\u4FE1\u606F"
-  profileText: "\u6253\u5F00\u4EBA\u7269\u6863\u6848\uFF0C\u7559\u58F0\u673A\u4F1A\u64AD\u62A5\u5BA2\u4EBA\u80CC\u666F\u4FE1\u606F\uFF0C\u7559\u610F\u5404\u9879\u6570\u503C"
+  profileText: "\u6253\u5F00\u4EBA\u7269\u6863\u6848\u4E0E\u901A\u5173\u6587\u4E66\uFF0C\u53EF\u8FDB\u884C\u62D6\u62FD\u79FB\u52A8\uFF0C\u5E76\u5BF9\u5176\u4E00\u4E00\u67E5\u9605"
   documentText: "\u67E5\u770B\u5BA1\u6279\u89C4\u5219\uFF1A\u9009\u62E9\u5BF9\u4E16\u754C\u5F71\u54CD\u66F4\u5C0F\u7684\u65B9\u6848\u5373\u4E3A\u6B63\u786E\u5BA1\u6279"
   stampsText: "\u4E24\u679A\u5370\u7AE0\u4EE3\u8868\u4F60\u7684\u5BA1\u6279\u9009\u62E9\uFF0C\u8C28\u614E\u505A\u51FA\u51B3\u5B9A"
-  phoneText: "\u96BE\u4EE5\u5224\u65AD\u65F6\uFF0C\u53EF\u4EE5\u9009\u62E9\u6263\u7559\uFF0C\u70B9\u51FB\u7535\u8BDD\u786E\u8BA4\u64CD\u4F5C"
+  phoneText: "\u9047\u5230....\u60C5\u51B5\uFF0C\u53EF\u4EE5\u9009\u62E9\u6263\u7559\uFF0C\u70B9\u51FB\u7535\u8BDD\u786E\u8BA4\u64CD\u4F5C"
   screenText: "\u5728\u8FD9\u91CC\u67E5\u770B\u4E8B\u4EF6\u4E0E\u5404\u4E2A\u4E16\u754C\u7684\u80CC\u666F\u4FE1\u606F"
   clockText: "\u6CE8\u610F\u65F6\u95F4\u6D41\u901D\uFF0C\u52A1\u5FC5\u5728\u4E0B\u73ED\u524D\u5B8C\u6210\u5BA1\u6279"
-  bubbleSpriteOverride: {fileID: 0}
+  bubbleSpriteOverride: {fileID: 21300000, guid: 71977118936b63f4bbf8b3a46906ea68, type: 3}
   highlightColor: {r: 1, g: 0.85, b: 0.3, a: 1}
   pulseFrequency: 4.64
   pulseAmplitude: 0.3
@@ -2562,7 +2562,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1259593928
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2580,8 +2580,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 23.962, y: 33.0511}
-  m_SizeDelta: {x: 415.6381, y: 460.2573}
+  m_AnchoredPosition: {x: 15.4359, y: 96.0883}
+  m_SizeDelta: {x: 410.8492, y: 508.3521}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1259593929
 MonoBehaviour:
@@ -2608,14 +2608,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 0.28235295}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: c4dd7cdac61e6c449a8edc8fd550b67f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2668,8 +2668,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0002, y: 5.7839}
-  m_SizeDelta: {x: 371.5272, y: 421.6558}
+  m_AnchoredPosition: {x: -0.0002, y: 4.5433}
+  m_SizeDelta: {x: 371.5272, y: 419.1745}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1362291158
 MonoBehaviour:
@@ -2740,7 +2740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2920,8 +2920,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 386.9, y: -133.65906}
-  m_SizeDelta: {x: 422.4286, y: 473.2013}
+  m_AnchoredPosition: {x: 374.46054, y: -154.57986}
+  m_SizeDelta: {x: 397.5497, y: 431.3597}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1424438149
 MonoBehaviour:
