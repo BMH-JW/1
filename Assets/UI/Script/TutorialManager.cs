@@ -29,7 +29,7 @@ public class TutorialManager : MonoBehaviour
         public string findName;
     }
 
-    private enum Stage { None, Welcome, Bell, MailBox, Profile, Document, Stamps, Phone, Screen, Clock, FreePlay }
+    private enum Stage { None, Welcome, ReviewRules, Info, Bell, MailBox, Profile, Document, Stamps, Phone, Screen, Clock, FreePlay }
 
     [Header("阶段0 引导对话")]
     public Sprite guideNpcSprite;                 // 引导NPC形象(可选)
@@ -39,6 +39,10 @@ public class TutorialManager : MonoBehaviour
 
     [Header("引导目标(能拖就拖；拖不了就把findName改成场景里的实际名字)")]
     public GuideTarget bell = new GuideTarget { findName = "Btn_Bell" };
+    [Tooltip("审查规则按钮（铃铛之前教学）")]
+    public GuideTarget btn7Rules = new GuideTarget { findName = "Btn_7" };
+    [Tooltip("信息按钮（铃铛之前教学）")]
+    public GuideTarget btn6Info = new GuideTarget { findName = "Btn_6" };
     [Tooltip("客人NPC，运行时由铃铛生成")]
     public GuideTarget npcGuest = new GuideTarget { findName = "NPC" };
     [Tooltip("新旧邮箱谁激活就高亮谁")]
@@ -54,6 +58,8 @@ public class TutorialManager : MonoBehaviour
     [Header("气泡尺寸与文案(全部可改)")]
     [Tooltip("引导气泡的宽高")]
     public Vector2 bubbleSize = new Vector2(560f, 160f);
+    [TextArea(2, 4)] public string btn7RulesText = "请查看今日的审查规则";
+    [TextArea(2, 4)] public string btn6InfoText = "可以查看信息";
     [TextArea(2, 4)] public string bellText = "点击铃铛，呼叫客人前来";
     [TextArea(2, 4)] public string mailBoxText = "点击纸盒，查看客人携带的物品信息";
     [TextArea(2, 4)] public string profileText = "打开人物档案，留声机会播报客人背景信息，留意各项数值";
@@ -460,7 +466,7 @@ public class TutorialManager : MonoBehaviour
         else
         {
             CloseDialog();
-            EnterStage(Stage.Bell);
+            EnterStage(Stage.ReviewRules);
         }
     }
 
@@ -489,6 +495,12 @@ public class TutorialManager : MonoBehaviour
                 BuildDialog();
                 dialogStep = 0;
                 dialogCoroutine = StartCoroutine(TypeDialog(welcomeText));
+                break;
+            case Stage.ReviewRules:
+                ShowStage(btn7Rules, btn7RulesText, () => EnterStage(Stage.Info));
+                break;
+            case Stage.Info:
+                ShowStage(btn6Info, btn6InfoText, () => EnterStage(Stage.Bell));
                 break;
             case Stage.Bell:
                 ShowStage(bell, bellText, () => EnterStage(Stage.MailBox));
