@@ -93,6 +93,8 @@ public class TutorialManager : MonoBehaviour
     [Tooltip("入场动画时长(秒)")]
     public float enterAnimDuration = 0.6f;
     public int totalNpcCount = 8;
+    [Tooltip("等待高亮目标出现的超时(秒)。目标在场景中不存在时自动跳过该阶段，防止教程卡死")]
+    public float missingTargetTimeout = 5f;
 
     [Header("结算面板外观")]
     [Tooltip("结算面板背景图，留空用代码生成的圆角白底")]
@@ -553,6 +555,7 @@ public class TutorialManager : MonoBehaviour
     /// <summary>
     /// 等待目标激活后显示提示。目标未出现时每0.1秒轮询，
     /// GameObject.Find未命中时定期做忽略大小写的全量扫描兜底。
+    /// 超过 missingTargetTimeout 秒仍找不到目标时打印错误并自动跳过本阶段，避免教程卡死。
     /// </summary>
     private IEnumerator ShowStageRoutine(GuideTarget[] gts, string text, UnityAction onNext, Action afterReady)
     {
@@ -560,6 +563,7 @@ public class TutorialManager : MonoBehaviour
         stageOnNext = onNext;
         bool warned = false;
         int tick = 0;
+        float waitTime = 0f;
 
         while (true)
         {
@@ -588,6 +592,18 @@ public class TutorialManager : MonoBehaviour
             }
 
             if (allReady) break;
+
+            // 超时保护：目标大概率不存在于场景中，跳过本阶段避免教程永久卡死
+            waitTime += 0.1f;
+            if (waitTime >= missingTargetTimeout)
+            {
+                string names = "";
+                foreach (GuideTarget gt in gts) names += gt.findName + " ";
+                Debug.LogError($"[Tutorial] 等待超时，目标不存在：{names.Trim()}。自动跳过本阶段。" +
+                               "请检查场景物体名或在 Inspector 中修改 findName。");
+                if (stage == myStage) onNext?.Invoke();
+                yield break;
+            }
 
             if (!warned)
             {
@@ -1273,6 +1289,8 @@ public class TutorialManager : MonoBehaviour
         }
         while (leaveCoroutine != null) yield return null; // 退场播完再入场
 
+        if (npc == null) { enterCoroutine = null; yield break; } // NPC已被销毁(如跨天重置)，放弃入场
+
         npc.SetActive(true); // 退场协程结束时会隐藏，重新激活
         cg.alpha = 0f;
         float t = 0f;
@@ -1280,10 +1298,12 @@ public class TutorialManager : MonoBehaviour
         {
             t += Time.deltaTime;
             float k = Mathf.Clamp01(t / enterAnimDuration);
+            if (npc == null) { enterCoroutine = null; yield break; } // 动画中途NPC被销毁
             cg.alpha = k;
             npc.transform.localScale = npcBaseScale * (0.7f + 0.3f * k);
             yield return null;
         }
+        if (npc == null) { enterCoroutine = null; yield break; }
         cg.alpha = 1f;
         npc.transform.localScale = npcBaseScale;
         enterCoroutine = null;
@@ -1301,9 +1321,23 @@ public class TutorialManager : MonoBehaviour
         {
             t += Time.deltaTime;
             float k = Mathf.Clamp01(t / leaveAnimDuration);
+            if (npc == null) // 动画中途NPC被销毁(如跨天重置)，静默收尾
+            {
+                leaveCoroutine = null;
+                leavingNpc = null;
+                npcOnStage = false;
+                yield break;
+            }
             cg.alpha = 1f - k;
             npc.transform.localScale = startScale * (1f - 0.3f * k);
             yield return null;
+        }
+        if (npc == null) // 播完瞬间被销毁，静默收尾
+        {
+            leaveCoroutine = null;
+            leavingNpc = null;
+            npcOnStage = false;
+            yield break;
         }
         npc.SetActive(false);
         cg.alpha = 1f;

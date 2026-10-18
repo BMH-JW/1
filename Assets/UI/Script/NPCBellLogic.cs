@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,18 @@ public class NPCBellLogic : MonoBehaviour
     public GameObject stampObj1;
     public GameObject stampObj2;
 
+    [Header("NPC随机池(拖6个NPC预制体，每次摇铃随机出一个；留空则用上方单个npcObj)")]
+    public GameObject[] npcPrefabs;
+
+    // 洗牌袋：打乱顺序依次取，6个全出过一遍后才重新洗，避免连续重复同一个NPC
+    private readonly List<GameObject> _shuffleBag = new List<GameObject>();
+    private GameObject _originalNpc;   // 场景里原始的npcObj（位置锚点）
+    private GameObject _spawnedNpc;    // 当前由随机池实例化出来的NPC
+    private Vector3 _anchorPos;
+    private Quaternion _anchorRot;
+    private Vector3 _anchorScale;
+    private bool _anchorCached;
+
     [Header("邮箱图片")]
     public GameObject imageMailBox;
     public GameObject imageMailBox2;
@@ -26,6 +39,7 @@ public class NPCBellLogic : MonoBehaviour
 
     void Start()
     {
+        _originalNpc = npcObj;
         npcObj.SetActive(false);
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
@@ -68,6 +82,7 @@ public class NPCBellLogic : MonoBehaviour
     {
         _npcPresent = false;
         if (_showCoroutine != null) { StopCoroutine(_showCoroutine); _showCoroutine = null; }
+        DespawnRandomNpc(); // 销毁随机池实例并把npcObj还原为原始NPC
         npcObj.SetActive(false);
         Btn_4.SetActive(false);
         Btn_File2.SetActive(false);
@@ -114,7 +129,8 @@ public class NPCBellLogic : MonoBehaviour
         SpawnNpc();
     }
 
-    /// <summary>生成NPC（摇铃调用）。一次只出一个NPC，退场后需要玩家再次摇铃</summary>
+    /// <summary>生成NPC（摇铃调用）。一次只出一个NPC，退场后需要玩家再次摇铃。
+    /// 配置了随机池时每次随机实例化一个NPC，否则用场景里固定的npcObj</summary>
     public void SpawnNpc()
     {
         if (NPCDailyManager.Instance == null) return;
@@ -131,6 +147,7 @@ public class NPCBellLogic : MonoBehaviour
         SetMailboxClickable(true); // NPC来了，邮箱可以点了
 
         remainTextObj.SetActive(true);
+        SpawnRandomNpc();
         npcObj.SetActive(true);
         if (TutorialManager.Instance != null) TutorialManager.Instance.NpcEnter();
 
@@ -145,6 +162,81 @@ public class NPCBellLogic : MonoBehaviour
         Btn_File2.SetActive(false);
         Btn_File3.SetActive(false);
         // 印章常驻，不隐藏
+    }
+
+    /// <summary>从随机池实例化一个NPC到原npcObj的位置，并把npcObj指向它（下游TutorialManager无需改动）</summary>
+    private void SpawnRandomNpc()
+    {
+        if (npcPrefabs == null || npcPrefabs.Length == 0) return; // 没配池子，用固定npcObj
+
+        GameObject prefab = DrawFromShuffleBag();
+        if (prefab == null) return;
+
+        // 第一次生成时缓存原npcObj的摆位作为出生锚点
+        if (!_anchorCached && _originalNpc != null)
+        {
+            _anchorPos = _originalNpc.transform.localPosition;
+            _anchorRot = _originalNpc.transform.localRotation;
+            _anchorScale = _originalNpc.transform.localScale;
+            _anchorCached = true;
+        }
+
+        // 销毁上一个实例（其退场动画已播完才会走到这里）
+        if (_spawnedNpc != null) Destroy(_spawnedNpc);
+
+        Transform parent = _originalNpc != null ? _originalNpc.transform.parent : null;
+        GameObject npc = parent != null ? Instantiate(prefab, parent) : Instantiate(prefab);
+        npc.name = prefab.name;
+        if (parent != null)
+        {
+            npc.transform.localPosition = _anchorPos;
+            npc.transform.localRotation = _anchorRot;
+            npc.transform.localScale = _anchorScale;
+        }
+        npc.SetActive(false);
+
+        npcObj = npc;
+        _spawnedNpc = npc;
+        Debug.Log($"[NPCBellLogic] 随机出场NPC：{npc.name}");
+    }
+
+    /// <summary>洗牌袋取预制体：打乱后依次取，取空重新洗，保证不连续重复</summary>
+    private GameObject DrawFromShuffleBag()
+    {
+        if (_shuffleBag.Count == 0)
+        {
+            foreach (GameObject p in npcPrefabs)
+            {
+                if (p != null) _shuffleBag.Add(p);
+            }
+            if (_shuffleBag.Count == 0)
+            {
+                Debug.LogWarning("[NPCBellLogic] npcPrefabs 里没有有效预制体");
+                return null;
+            }
+            // Fisher-Yates 洗牌
+            for (int i = _shuffleBag.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                GameObject tmp = _shuffleBag[i];
+                _shuffleBag[i] = _shuffleBag[j];
+                _shuffleBag[j] = tmp;
+            }
+        }
+        GameObject pick = _shuffleBag[0];
+        _shuffleBag.RemoveAt(0);
+        return pick;
+    }
+
+    /// <summary>销毁随机池生成的当前NPC实例，npcObj 还原为场景原始NPC</summary>
+    private void DespawnRandomNpc()
+    {
+        if (_spawnedNpc != null)
+        {
+            Destroy(_spawnedNpc);
+            _spawnedNpc = null;
+        }
+        if (npcObj != _originalNpc) npcObj = _originalNpc;
     }
 
     /// <summary>立即隐藏档案/通关文书按钮和Btn_4（教程结束时调用，不等NPC退场动画）</summary>
