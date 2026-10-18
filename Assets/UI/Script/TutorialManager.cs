@@ -499,7 +499,7 @@ public class TutorialManager : MonoBehaviour
                 dialogCoroutine = StartCoroutine(TypeDialog(welcomeText));
                 break;
             case Stage.ReviewRules:
-                ShowStage(btn7Rules, btn7RulesText, () => EnterStage(Stage.Info));
+                ShowStage(btn7Rules, btn7RulesText, () => EnterStage(Stage.Phone)); // 点开Btn_7弹窗后直接进入电话教程
                 break;
             case Stage.Info:
                 ShowStage(btn6Info, btn6InfoText, () => EnterStage(Stage.Bell));
@@ -521,7 +521,8 @@ public class TutorialManager : MonoBehaviour
                 ShowStage(new GuideTarget[] { stamp1, stamp2 }, stampsText, null, TryBindPersistentHooks);
                 break;
             case Stage.Phone:
-                ShowStage(phone, phoneText, null, TryBindPersistentHooks);
+                // 电话在Btn_7弹窗内，点击推进由PopupTabs绑定的OnPhoneClicked处理（避免重复绑定）
+                ShowStage(phone, phoneText, null);
                 break;
             case Stage.Screen:
                 ShowStage(screen, screenText, FinishGuide); // 点信息屏 直接结束教程进自由审批
@@ -772,10 +773,10 @@ public class TutorialManager : MonoBehaviour
     // ================================================================
     public void TryBindPersistentHooks()
     {
-        // 用ResolveTarget而不是直接读target：印章/电话可能在弹窗里，进入阶段时才第一次解析
+        // 用ResolveTarget而不是直接读target：印章可能在弹窗里，进入阶段时才第一次解析
+        // 注意：电话不在这里绑——电话在Btn_7弹窗内，由PopupTabs每次实例化时绑定，绑两次会触发两次
         BindPersistent(ResolveTarget(stamp1), () => OnStampClicked(1));
         BindPersistent(ResolveTarget(stamp2), () => OnStampClicked(2));
-        BindPersistent(ResolveTarget(phone), OnPhoneClicked);
     }
 
     private void BindPersistent(GameObject target, UnityAction action)
@@ -842,7 +843,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    /// <summary>教程阶段盖章：印章缩放 → Btn_File3 盖章 → 自动关 → 推进电话阶段</summary>
+    /// <summary>教程阶段盖章：印章缩放 → Btn_File3 盖章 → 自动关 → 结束教程</summary>
     private IEnumerator StampApprovalChain_Tutorial(GameObject stampObj, int stampId, bool correct)
     {
         if (stampObj != null) yield return StartCoroutine(StampPunch(stampObj));
@@ -850,7 +851,7 @@ public class TutorialManager : MonoBehaviour
 
         NotifyApprovalResult(correct);
         approvalProcessing = false;
-        EnterStage(Stage.Phone);
+        FinishGuide(); // 电话已提前到Btn_7之后，盖章是教程最后一步
     }
 
     public void OnPhoneClicked()
@@ -858,11 +859,11 @@ public class TutorialManager : MonoBehaviour
         Debug.Log($"[Tutorial] OnPhoneClicked stage={stage} approvalProcessing={approvalProcessing}");
         if (approvalProcessing) { Debug.LogWarning("[Tutorial] OnPhoneClicked 被锁"); return; }
 
-        // Fallback：如果还卡在教程阶段但电话已激活，强制收尾进 FreePlay
+        // 教程前段（Bell/MailBox等阶段）乱点弹窗内电话：忽略，不打断教程
         if (stage != Stage.Phone && stage != Stage.FreePlay)
         {
-            Debug.LogWarning($"[Tutorial] stage={stage} 但电话被点了，强制 FinishGuide → FreePlay");
-            FinishGuide();
+            Debug.Log($"[Tutorial] stage={stage} 电话被点击，忽略");
+            return;
         }
 
         if (stage == Stage.Phone)
@@ -877,11 +878,12 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    /// <summary>教程阶段电话：点击电话后直接结束教程（FinishGuide 收尾会自动关闭所有弹窗、隐藏文件按钮、NPC退场）</summary>
+    /// <summary>教程阶段电话（Btn_7后）：点击电话后推进信息按钮教程（弹窗保持打开，教程继续）</summary>
     private IEnumerator PhoneApprovalChain_Tutorial()
     {
         yield return null;
-        FinishGuide();
+        approvalProcessing = false;
+        EnterStage(Stage.Info);
     }
 
     /// <summary>自由审批：印章点击链式——印章缩放 → 通关文书弹窗+盖章 → NPC退场 → 关弹窗 → 等玩家再次手动摇铃</summary>

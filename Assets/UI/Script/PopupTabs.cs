@@ -21,6 +21,16 @@ public class PopupTabs : MonoBehaviour
     [Header("模式B：每页文案（可选；没拖内容页时，点击把这段文字写进弹窗正文）")]
     [TextArea(3, 8)] public List<string> tabTexts = new List<string>();
 
+    [Header("电话按钮（可选；弹窗内的 Btn_TelePhone，点击触发审批电话逻辑）")]
+    [Tooltip("留空则自动查找子物体 Btn_TelePhone")]
+    public Button phoneButton;
+
+    [Header("电话按钮自动摆位")]
+    [Tooltip("勾选后每次弹窗打开都把电话按钮摆到右下角（按下方偏移）；想自己在编辑器里摆就取消勾选")]
+    public bool autoPlacePhone = true;
+    [Tooltip("电话按钮中心相对弹窗右下角的偏移(像素)。X负=向左，Y正=向上。默认(-83,50)=贴右下角留20px内边距")]
+    public Vector2 phoneCornerOffset = new Vector2(-83f, 50f);
+
     [Header("选中反馈（可改）")]
     [Tooltip("选中按钮颜色")]
     public Color selectedColor = new Color(1f, 0.8f, 0.2f, 1f);
@@ -34,6 +44,7 @@ public class PopupTabs : MonoBehaviour
     void Awake()
     {
         AutoFindButtons();
+        AutoFindPhoneButton();
 
         for (int i = 0; i < tabButtons.Count; i++)
         {
@@ -41,13 +52,47 @@ public class PopupTabs : MonoBehaviour
             if (tabButtons[i] != null)
                 tabButtons[i].onClick.AddListener(() => SelectTab(index));
         }
+
+        // 电话按钮：点击转发给 TutorialManager 的电话审批逻辑（教程推进/自由审批都走这里）
+        if (phoneButton != null)
+        {
+            phoneButton.onClick.AddListener(OnPhoneButtonClicked);
+        }
+    }
+
+    private void AutoFindPhoneButton()
+    {
+        if (phoneButton != null) return;
+        Transform t = FindDeepChild(transform, "Btn_TelePhone");
+        if (t != null) phoneButton = t.GetComponent<Button>();
+    }
+
+    private void OnPhoneButtonClicked()
+    {
+        Debug.Log("[PopupTabs] 弹窗内电话按钮被点击 → TutorialManager.OnPhoneClicked");
+        if (TutorialManager.Instance != null)
+            TutorialManager.Instance.OnPhoneClicked();
     }
 
     void Start()
     {
+        ApplyPhonePlacement();
+
         // Start 而不是 Awake：RoomInteract.OpenPopup 在 Instantiate 后会 SetText 覆盖正文，
         // 延迟到 Start 再选中第一页，保证初始内容不被覆盖
         SelectTab(0);
+    }
+
+    /// <summary>把电话按钮摆到弹窗右下角（锚点=右下角，位置由 phoneCornerOffset 控制）</summary>
+    private void ApplyPhonePlacement()
+    {
+        if (!autoPlacePhone || phoneButton == null) return;
+        RectTransform rt = phoneButton.GetComponent<RectTransform>();
+        if (rt == null) return;
+        rt.anchorMin = new Vector2(1f, 0f); // 右下角
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = phoneCornerOffset;
     }
 
     private void AutoFindButtons()
