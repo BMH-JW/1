@@ -11,768 +11,1253 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6af17754f458a7941bdb4b2d986f8d24, type: 3}
   m_Name: DefaultGameDataConfig
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   data:
+    version: v3-reply-test-2026-10-18
+    sourceWorkbook: "\u5F7C\u65B9\u59D4\u6258\u6240_\u6B63\u5F0F\u89C4\u5219\u4E0E\u914D\u7F6E\u9700\u6C42\u7248_v3.xlsx"
+    sourceSha256: 1a84a8ce01e35f51fb16ec2836adc372518df9eefa80079e58a1f8031b699730
+    replyDocument: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx"
+    replySha256: 5832cc1f1ae2b898ef8b7a691e5a4e1d8177a6b0d6dcfe0be34b17877dfb0bca
+    testConfiguration: 1
     startDay: 1
-    dailyApplicants: 8
+    minDailyApplicants: 4
+    maxDailyApplicants: 8
     initialTrust: 50
-    initialPurity: 50.0
-    initialOrder: 50.0
-    recoveryCeiling: 50.0
-    dailyRecovery: 1.0
-    blackSwanThreshold: 30.0
-    worldFailureThreshold: 20.0
-    blackSwanDays: 3
-    blackSwanDamage: 10.0
-    complianceReward: 5
-    violationPenalty: 10
-    dailyTrustBonus: 5
-    memoryDecay: 1
-    relationshipDecay: 1
-    desireGrowth: 1
-    willGrowth: 1
-    blackSwanExtraDesire: 2
-    blackSwanExtraWill: 2
-    honestMaxDeviation: 3
-    embellishedMaxDeviation: 8
+    trustMin: 0
+    trustMax: 100
+    initialPurity: 50
+    initialOrder: 50
+    worldValueMin: 0
+    worldValueMax: 100
+    complianceReward: 3
+    violationPenalty: 5
+    impactDivisor: 5
+    rejectionSourcePenalty: 1
+    enableDailyRules: 1
+    enableBondTrace: 1
+    enableDriveAssessment: 1
+    enableDocuments: 1
+    enableWorldChanges: 1
+    enableDelayedFeedback: 1
+    showImmediateCompliance: 0
+    enablePopulationFeedback: 0
+    enableThresholdEvents: 0
+    debugMode: 0
+    logRuleResult: 0
+    feedbackDelayDays: 1
+    dailyRuleCount: 1
+    bondTraceLabel: "\u7F81\u7ECA\u7275\u6302"
+    driveAssessmentLabel: "\u9A71\u529B\u7B49\u7EA7"
+    conflictPolicy: 0
+    worlds:
+    - id: 0
+      displayName: "\u7075\u865A"
+    - id: 1
+      displayName: "\u5E9F\u589F"
     bands:
-      - level: 1
-        minValue: -10
-        maxValue: -6
-        weight: 0.15
-        description: "极低"
-      - level: 2
-        minValue: -5
-        maxValue: -1
-        weight: 0.35
-        description: "偏低"
-      - level: 3
-        minValue: 0
-        maxValue: 0
-        weight: 0.05
-        description: "中立"
-      - level: 4
-        minValue: 1
-        maxValue: 5
-        weight: 0.35
-        description: "偏高"
-      - level: 5
-        minValue: 6
-        maxValue: 10
-        weight: 0.1
-        description: "极高"
+    - level: 1
+      minValue: -10
+      maxValue: -6
+      description: "\u6781\u4F4E\uFF08\u6781\u7AEF\u8D1F\u9762\u503E\u5411\uFF09"
+    - level: 2
+      minValue: -5
+      maxValue: -1
+      description: "\u504F\u4F4E\uFF08\u660E\u663E\u8D1F\u9762\u503E\u5411\uFF09"
+    - level: 3
+      minValue: 0
+      maxValue: 0
+      description: "\u4E2D\u7ACB\uFF08\u65E0\u503E\u5411\uFF09"
+    - level: 4
+      minValue: 1
+      maxValue: 5
+      description: "\u504F\u9AD8\uFF08\u660E\u663E\u6B63\u9762\u503E\u5411\uFF09"
+    - level: 5
+      minValue: 6
+      maxValue: 10
+      description: "\u6781\u9AD8\uFF08\u6781\u7AEF\u6B63\u9762\u503E\u5411\uFF09"
+    generationWeights:
+    - level: 1
+      weight: 0.15
+    - level: 2
+      weight: 0.35
+    - level: 3
+      weight: 0.05
+    - level: 4
+      weight: 0.35
+    - level: 5
+      weight: 0.1
+    semantics:
+    - attribute: memory
+      meaning: "\u957F\u671F\u53D7\u8FC7\u5F80\u7ECF\u5386\u5F71\u54CD\u3002"
+      level: 1
+      score: 5
+      confirmed: 1
+    - attribute: memory
+      meaning: "\u4ECD\u4F1A\u53D7\u5230\u8FC7\u53BB\u5F71\u54CD\u3002"
+      level: 2
+      score: 4
+      confirmed: 1
+    - attribute: memory
+      meaning: "\u8FC7\u5F80\u7ECF\u5386\u7684\u5F71\u54CD\u8F83\u4E3A\u6709\u9650\u3002"
+      level: 3
+      score: 3
+      confirmed: 1
+    - attribute: memory
+      meaning: "\u6B63\u5728\u9010\u6E10\u653E\u4E0B\u8FC7\u53BB\u3002"
+      level: 4
+      score: 2
+      confirmed: 1
+    - attribute: memory
+      meaning: "\u8F83\u5C11\u53D7\u5230\u8FC7\u5F80\u7275\u52A8\u3002"
+      level: 5
+      score: 1
+      confirmed: 1
+    - attribute: relationship
+      meaning: "\u8F83\u5C11\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+      level: 1
+      score: 1
+      confirmed: 1
+    - attribute: relationship
+      meaning: "\u4E0E\u4ED6\u4EBA\u7684\u8054\u7CFB\u8F83\u5C11\u3002"
+      level: 2
+      score: 2
+      confirmed: 1
+    - attribute: relationship
+      meaning: "\u7EF4\u6301\u666E\u901A\u7684\u4EBA\u9645\u8054\u7CFB\u3002"
+      level: 3
+      score: 3
+      confirmed: 1
+    - attribute: relationship
+      meaning: "\u8F83\u4E3A\u5728\u610F\u91CD\u8981\u7684\u4EBA\u6216\u4E8B\u3002"
+      level: 4
+      score: 4
+      confirmed: 1
+    - attribute: relationship
+      meaning: "\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+      level: 5
+      score: 5
+      confirmed: 1
+    - attribute: desire
+      meaning: "\u7F3A\u4E4F\u4E3B\u52A8\u8FFD\u6C42\u7684\u76EE\u6807\u3002"
+      level: 1
+      score: 1
+      confirmed: 1
+    - attribute: desire
+      meaning: "\u9700\u6C42\u8F83\u5C11\uFF0C\u5BB9\u6613\u6EE1\u8DB3\u3002"
+      level: 2
+      score: 2
+      confirmed: 1
+    - attribute: desire
+      meaning: "\u5177\u6709\u666E\u901A\u7684\u751F\u6D3B\u9700\u6C42\u3002"
+      level: 3
+      score: 3
+      confirmed: 1
+    - attribute: desire
+      meaning: "\u5177\u6709\u660E\u786E\u7684\u4E2A\u4EBA\u76EE\u6807\u3002"
+      level: 4
+      score: 4
+      confirmed: 1
+    - attribute: desire
+      meaning: "\u5BF9\u67D0\u9879\u76EE\u6807\u6709\u5F3A\u70C8\u9700\u6C42\u3002"
+      level: 5
+      score: 5
+      confirmed: 1
+    - attribute: will
+      meaning: "\u901A\u5E38\u63A5\u53D7\u4ED6\u4EBA\u5B89\u6392\u3002"
+      level: 1
+      score: 1
+      confirmed: 1
+    - attribute: will
+      meaning: "\u8F83\u5C11\u4E0E\u73B0\u6709\u5B89\u6392\u53D1\u751F\u51B2\u7A81\u3002"
+      level: 2
+      score: 2
+      confirmed: 1
+    - attribute: will
+      meaning: "\u4F1A\u6743\u8861\u540E\u51B3\u5B9A\u662F\u5426\u670D\u4ECE\u3002"
+      level: 3
+      score: 3
+      confirmed: 1
+    - attribute: will
+      meaning: "\u503E\u5411\u81EA\u4E3B\u4F5C\u51FA\u51B3\u5B9A\u3002"
+      level: 4
+      score: 4
+      confirmed: 1
+    - attribute: will
+      meaning: "\u5F3A\u70C8\u6392\u65A5\u53D7\u5230\u4ED6\u4EBA\u63A7\u5236\u3002"
+      level: 5
+      score: 5
+      confirmed: 1
+    rules:
+    - id: R_MEM_01
+      title: "\u8BB0\u5FC6\u7559\u5B58\u5BA1\u67E5"
+      attribute: memory
+      source: "\u7B56\u5212\u9010\u9879\u7B54\u590D\uFF1A\u8BB0\u5FC61\uFF5E2\u7EA7\u53BB\u5E9F\u589F\uFF0C3\uFF5E5\u7EA7\u53BB\u7075\u865A\uFF1B\u4E2D\u70B9\u660E\u786E\u5F52\u7075\u865A\u3002"
+      enabled: 1
+      confirmed: 1
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 10
+      lowAnchor: 1
+      highAnchor: 5
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 2
+      unmatchedReject: 0
+    - id: R_MEM_02
+      title: "\u4E2D\u95F4\u7B49\u7EA7\u5F52\u7C7B"
+      attribute: memory
+      source: "Excel/\u6BCF\u65E5\u89C4\u5219\u5E93\u8349\u6848\uFF1A\u5F53\u8BB0\u5FC6\u6B8B\u7559\u5904\u4E8E\u4E2D\u95F4\u7A0B\u5EA6\u65F6\uFF0C\u6309\u66F4\u63A5\u8FD1\u7684\u7B49\u7EA7\u65B9\u5411\u5F52\u7C7B\u3002\uFF1B\u9700\u660E\u786E\u8BED\u4E49\u5206\u503C\u3001\u9608\u503C\u53CA\u7B49\u8DDD\u5904\u7406\uFF1B\u4E0D\u80FD\u76F4\u63A5\u7528\u672A\u7ECF\u6821\u51C6\u7684\u7B49\u7EA7\u6574\u6570\u6BD4\u8F83\u3002"
+      enabled: 0
+      confirmed: 0
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 0
+      lowAnchor: 0
+      highAnchor: 0
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 0
+      unmatchedReject: 0
+    - id: R_REL_01
+      title: "\u5173\u7CFB\u7275\u7ECA\u5BA1\u67E5"
+      attribute: relationship
+      source: "Excel/\u6BCF\u65E5\u89C4\u5219\u5E93\u8349\u6848\uFF1A\u5173\u7CFB\u7275\u7CFB\u4E0E\u51C6\u5165\u53BB\u5411\u7684\u5173\u7CFB\uFF0C\u4EE5\u5F53\u65E5\u516C\u5F00\u89C4\u5219\u4E3A\u51C6\u3002\uFF1B\u5C5E\u6027\u4E0E\u4E24\u4E2A\u4E16\u754C\u51C6\u5165\u6761\u4EF6\u7684\u56E0\u679C\u5173\u7CFB\u672A\u786E\u8BA4\u3002"
+      enabled: 0
+      confirmed: 0
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 0
+      lowAnchor: 0
+      highAnchor: 0
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 0
+      unmatchedReject: 0
+    - id: R_DES_01
+      title: "\u5185\u5728\u6E34\u6C42\u5BA1\u67E5"
+      attribute: desire
+      source: "Excel/\u6BCF\u65E5\u89C4\u5219\u5E93\u8349\u6848\uFF1A\u5185\u5728\u6E34\u6C42\u4E0E\u51C6\u5165\u53BB\u5411\u7684\u5173\u7CFB\uFF0C\u4EE5\u5F53\u65E5\u516C\u5F00\u89C4\u5219\u4E3A\u51C6\u3002\uFF1B\u5C5E\u6027\u4E0E\u4E24\u4E2A\u4E16\u754C\u51C6\u5165\u6761\u4EF6\u7684\u56E0\u679C\u5173\u7CFB\u672A\u786E\u8BA4\u3002"
+      enabled: 0
+      confirmed: 0
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 0
+      lowAnchor: 0
+      highAnchor: 0
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 0
+      unmatchedReject: 0
+    - id: R_WILL_01
+      title: "\u53CD\u6297\u610F\u5FD7\u5BA1\u67E5"
+      attribute: will
+      source: "Excel/\u6BCF\u65E5\u89C4\u5219\u5E93\u8349\u6848\uFF1A\u53CD\u6297\u610F\u5FD7\u4E0E\u51C6\u5165\u53BB\u5411\u7684\u5173\u7CFB\uFF0C\u4EE5\u5F53\u65E5\u516C\u5F00\u89C4\u5219\u4E3A\u51C6\u3002\uFF1B\u5C5E\u6027\u4E0E\u4E24\u4E2A\u4E16\u754C\u51C6\u5165\u6761\u4EF6\u7684\u56E0\u679C\u5173\u7CFB\u672A\u786E\u8BA4\u3002"
+      enabled: 0
+      confirmed: 0
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 0
+      lowAnchor: 0
+      highAnchor: 0
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 0
+      unmatchedReject: 0
+    - id: R_DOC_01
+      title: "\u7533\u62A5\u4FE1\u606F\u6838\u5BF9"
+      attribute: 
+      source: "Excel/\u6BCF\u65E5\u89C4\u5219\u5E93\u8349\u6848\uFF1A\u6765\u6E90\u4E16\u754C\u3001\u7533\u62A5\u76EE\u7684\u5730\u4E0E\u6863\u6848\u7EBF\u7D22\u5206\u522B\u6838\u5BF9\uFF0C\u4E0D\u5F97\u628A\u6765\u6E90\u4E16\u754C\u76F4\u63A5\u5F53\u6210\u6B63\u786E\u53BB\u5411\u3002\uFF1B\u6765\u6E90\u4E16\u754C\u660E\u786E\u663E\u793A\uFF1B\u662F\u5426\u53C2\u4E0E\u5224\u5B9A\u7531\u6BCF\u6761\u89C4\u5219\u5355\u72EC\u914D\u7F6E\u3002"
+      enabled: 0
+      confirmed: 0
+      firstDay: 1
+      lastDay: 0
+      repeatEveryDays: 1
+      priority: 0
+      lowAnchor: 0
+      highAnchor: 0
+      lowDecision: 0
+      highDecision: 1
+      tieBreak: 0
+      unmatchedReject: 0
+    formulas:
+    - id: F001
+      description: "NPC\u57FA\u7840\u5C5E\u6027\u751F\u6210\uFF1A\u6309\u6743\u91CD\u968F\u673A\u62BD\u53D6\u56DB\u4E2A\u5C5E\u6027(-10~10)"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 1
+      confirmed: 1
+      testOnly: 0
+    - id: F002
+      description: "\u4E8C\u7EF4/\u4E00\u7EF4\u6807\u7B7E\uFF1A\u67E5\u8868(\u5C5E\u6027\u7B49\u7EA7)
+        \u2192 tag_name / display_text"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 1
+      confirmed: 1
+      testOnly: 0
+    - id: F003
+      description: "\u672C\u7248\u5173\u95ED\uFF1B\u7C7B\u578B\u7531\u4EBA\u7269\u6837\u672C\u663E\u5F0F\u6307\u5B9A\uFF0C\u65E7\u504F\u5DEE\u548C\u6027\u683C\u7B97\u6CD5\u4E0D\u53C2\u4E0E\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F004
+      description: "\u6D4B\u8BD5\uFF1A\u653E\u884C\u7075\u865A\uFF0C\u7EAF\u51C0\u53D8\u5316=\u5F53\u524D\u8BB0\u5FC6\u539F\u59CB\u503C/impactDivisor\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 1
+      confirmed: 1
+      testOnly: 1
+    - id: F005
+      description: "\u6D4B\u8BD5\uFF1A\u653E\u884C\u5E9F\u589F\uFF0C\u79E9\u5E8F\u53D8\u5316=-\u5F53\u524D\u8BB0\u5FC6\u539F\u59CB\u503C/impactDivisor\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 1
+      confirmed: 1
+      testOnly: 1
+    - id: F006
+      description: "\u8868\u5C42\u503C\u6BCF\u65E5\u6062\u590D\uFF1A\u82E5\u5F53\u524D\u503C<50\uFF0C\u5F53\u65E5\u95ED\u9986\u540E\u81EA\u52A8+1\uFF0C\u4E0A\u9650\u4E3A50"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F007
+      description: "\u6536\u5BB9\u6240\u5C5E\u6027\u8150\u5316\uFF1A\u6BCF\u5929\u95ED\u9986\u65F6\uFF1A\u8BB0\u5FC6-1\uFF0C\u5173\u7CFB-1\uFF0C\u6B32\u671B+1\uFF0C\u610F\u5FD7+1"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F008
+      description: "\u53D8\u5F02\u5224\u5B9A\uFF1A\u82E5\uFF08\u6B32\u671B >= 10\uFF09\u4E14\uFF08\u610F\u5FD7
+        >= 10\uFF09\uFF0C\u89E6\u53D1\u3010\u53D8\u5F02\u3011"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F009
+      description: "\u9547\u9759\u5242\u6548\u679C\uFF1A\u76EE\u6807\u6B32\u671B-3\uFF0C\u610F\u5FD7-3\uFF08\u5355\u6B21\u4F7F\u7528\u6548\u679C\uFF09"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F010
+      description: "\u51C0\u5316\u7B26\u6548\u679C\uFF1A\u8BB0\u5FC6\u5411+10\u9760\u62E21\u7EA7\uFF0C\u5173\u7CFB\u5411+10\u9760\u62E21\u7EA7\uFF0C\u6B32\u671B\u5411-10\u9760\u62E21\u7EA7"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F011
+      description: "\u9ED1\u5929\u9E45\u89E6\u53D1\uFF1A\u82E5\u5F53\u65E5\u7ED3\u7B97\u540E\uFF0C\u79E9\u5E8F\u503C
+        <= 30 \u6216 \u7EAF\u51C0\u503C <= 30\uFF0C\u5F3A\u5236\u89E6\u53D1"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F012
+      description: "NPC\u6076\u5316\uFF08\u73AF\u5883\u53CD\u566C\uFF09\uFF1A\u82E5\u4E16\u754C\u8FDB\u5165\u9ED1\u5929\u9E45\u72B6\u6001\uFF0C\u6536\u5BB9\u6240\u5185\u6240\u6709NPC\u989D\u5916\u589E\u52A0\uFF08\u6B32\u671B+2\uFF0C\u610F\u5FD7+2\uFF09\u6BCF\u5929"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F013
+      description: "\u6D4B\u8BD5\uFF1A\u5168\u90E8\u5408\u89C4\u5904\u7406+complianceReward\uFF0C\u8FDD\u89C4\u5904\u7406-violationPenalty\uFF1B\u65E0\u6BCF\u65E5\u56FA\u5B9A\u52A0\u5206\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 1
+      confirmed: 1
+      testOnly: 1
+    - id: F014
+      description: "\u5173\u95ED\uFF1B\u4FE1\u4EFB\u8FB9\u754C\u53EA\u8BB0\u5F55\uFF0C\u5931\u8D25\u89C4\u5219\u5F85\u786E\u8BA4\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
+    - id: F015
+      description: "\u5173\u95ED\uFF1B\u4E16\u754C0/100\u53EA\u8BB0\u5F55\uFF0C\u5931\u8D25\u89C4\u5219\u5F85\u786E\u8BA4\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF1B\u7528\u6237\u6388\u6743\u6309\u5206\u6790\u5EFA\u8BAE\u6267\u884C\u6D4B\u8BD5\u7EA6\u5B9A\u3002"
+      enabled: 0
+      confirmed: 0
+      testOnly: 0
     tags:
-      - id: 1001
-        name: "冷酷的幽灵"
-        axisX: "memory"
-        xLevel: 1
-        axisY: "relationship"
-        yLevel: 1
-        description: "无法忘却过往，且极度疏离"
-      - id: 1002
-        name: "孤僻的寻回者"
-        axisX: "memory"
-        xLevel: 1
-        axisY: "relationship"
-        yLevel: 2
-        description: "困于旧日创伤，缺乏社会联结"
-      - id: 1003
-        name: "沉默的怀旧者"
-        axisX: "memory"
-        xLevel: 1
-        axisY: "relationship"
-        yLevel: 3
-        description: "带着沉重记忆，保持社交距离"
-      - id: 1004
-        name: "深情殉道者"
-        axisX: "memory"
-        xLevel: 1
-        axisY: "relationship"
-        yLevel: 4
-        description: "为旧日羁绊甘愿牺牲"
-      - id: 1005
-        name: "深渊回溯者"
-        axisX: "memory"
-        xLevel: 1
-        axisY: "relationship"
-        yLevel: 5
-        description: "无法忘却，且极度牵系"
-      - id: 1006
-        name: "冷漠的旁观者"
-        axisX: "memory"
-        xLevel: 2
-        axisY: "relationship"
-        yLevel: 1
-        description: "略带负担，且刻意疏离"
-      - id: 1007
-        name: "克制者"
-        axisX: "memory"
-        xLevel: 2
-        axisY: "relationship"
-        yLevel: 2
-        description: "克制情感，保持距离"
-      - id: 1008
-        name: "普通人"
-        axisX: "memory"
-        xLevel: 2
-        axisY: "relationship"
-        yLevel: 3
-        description: "有过去的影子，正常社交"
-      - id: 1009
-        name: "念旧者"
-        axisX: "memory"
-        xLevel: 2
-        axisY: "relationship"
-        yLevel: 4
-        description: "容易回忆过去，重视感情"
-      - id: 1010
-        name: "羁绊守护者"
-        axisX: "memory"
-        xLevel: 2
-        axisY: "relationship"
-        yLevel: 5
-        description: "带有牵挂，紧密相系"
-      - id: 1011
-        name: "无根游民"
-        axisX: "memory"
-        xLevel: 3
-        axisY: "relationship"
-        yLevel: 1
-        description: "没有记忆负担，不在乎他人"
-      - id: 1012
-        name: "随性者"
-        axisX: "memory"
-        xLevel: 3
-        axisY: "relationship"
-        yLevel: 2
-        description: "中立记忆，偏向独立"
-      - id: 1013
-        name: "绝对中立"
-        axisX: "memory"
-        xLevel: 3
-        axisY: "relationship"
-        yLevel: 3
-        description: "记忆与关系均处于平衡"
-      - id: 1014
-        name: "温情者"
-        axisX: "memory"
-        xLevel: 3
-        axisY: "relationship"
-        yLevel: 4
-        description: "记忆普通，温柔有情"
-      - id: 1015
-        name: "情感依赖者"
-        axisX: "memory"
-        xLevel: 3
-        axisY: "relationship"
-        yLevel: 5
-        description: "记忆普通，极度依赖他人"
-      - id: 1016
-        name: "遗忘流浪者"
-        axisX: "memory"
-        xLevel: 4
-        axisY: "relationship"
-        yLevel: 1
-        description: "放下过往，独来独往"
-      - id: 1017
-        name: "洒脱者"
-        axisX: "memory"
-        xLevel: 4
-        axisY: "relationship"
-        yLevel: 2
-        description: "放下过去，比较独立"
-      - id: 1018
-        name: "顺应者"
-        axisX: "memory"
-        xLevel: 4
-        axisY: "relationship"
-        yLevel: 3
-        description: "容易释怀，普通社交"
-      - id: 1019
-        name: "圆融者"
-        axisX: "memory"
-        xLevel: 4
-        axisY: "relationship"
-        yLevel: 4
-        description: "心态平和，善于交际"
-      - id: 1020
-        name: "博爱奉献者"
-        axisX: "memory"
-        xLevel: 4
-        axisY: "relationship"
-        yLevel: 5
-        description: "放下自我，奉献他人"
-      - id: 1021
-        name: "绝对原子"
-        axisX: "memory"
-        xLevel: 5
-        axisY: "relationship"
-        yLevel: 1
-        description: "纯白无瑕，绝对疏离"
-      - id: 1022
-        name: "毫无牵挂者"
-        axisX: "memory"
-        xLevel: 5
-        axisY: "relationship"
-        yLevel: 2
-        description: "彻底放下，没有牵绊"
-      - id: 1023
-        name: "空白灵魂"
-        axisX: "memory"
-        xLevel: 5
-        axisY: "relationship"
-        yLevel: 3
-        description: "纯洁无瑕，情感中庸"
-      - id: 1024
-        name: "宽容者"
-        axisX: "memory"
-        xLevel: 5
-        axisY: "relationship"
-        yLevel: 4
-        description: "释怀一切，包容他人"
-      - id: 1025
-        name: "乌托邦圣徒"
-        axisX: "memory"
-        xLevel: 5
-        axisY: "relationship"
-        yLevel: 5
-        description: "彻底放下过往，极度博爱"
-      - id: 2001
-        name: "完美齿轮"
-        axisX: "desire"
-        xLevel: 1
-        axisY: "will"
-        yLevel: 1
-        description: "无欲无求，绝对顺从，完美工具"
-      - id: 2002
-        name: "温顺良民"
-        axisX: "desire"
-        xLevel: 1
-        axisY: "will"
-        yLevel: 2
-        description: "欲望极低，倾向顺从"
-      - id: 2003
-        name: "无欲无求者"
-        axisX: "desire"
-        xLevel: 1
-        axisY: "will"
-        yLevel: 3
-        description: "没有渴望，权衡利弊"
-      - id: 2004
-        name: "消极抵抗者"
-        axisX: "desire"
-        xLevel: 1
-        axisY: "will"
-        yLevel: 4
-        description: "没什么欲望，绝不配合"
-      - id: 2005
-        name: "苦行僧"
-        axisX: "desire"
-        xLevel: 1
-        axisY: "will"
-        yLevel: 5
-        description: "极度克己，坚定的反抗信念"
-      - id: 2006
-        name: "安分守己者"
-        axisX: "desire"
-        xLevel: 2
-        axisY: "will"
-        yLevel: 1
-        description: "欲望偏低，安分顺从"
-      - id: 2007
-        name: "知足者"
-        axisX: "desire"
-        xLevel: 2
-        axisY: "will"
-        yLevel: 2
-        description: "容易满足，比较听话"
-      - id: 2008
-        name: "平庸者"
-        axisX: "desire"
-        xLevel: 2
-        axisY: "will"
-        yLevel: 3
-        description: "欲望和意志低于平均"
-      - id: 2009
-        name: "不满者"
-        axisX: "desire"
-        xLevel: 2
-        axisY: "will"
-        yLevel: 4
-        description: "欲望不高，内心有怨言"
-      - id: 2010
-        name: "温和异见者"
-        axisX: "desire"
-        xLevel: 2
-        axisY: "will"
-        yLevel: 5
-        description: "没有野心，坚持主张"
-      - id: 2011
-        name: "顺从的劳力"
-        axisX: "desire"
-        xLevel: 3
-        axisY: "will"
-        yLevel: 1
-        description: "有基本需求，绝对服从"
-      - id: 2012
-        name: "随波逐流者"
-        axisX: "desire"
-        xLevel: 3
-        axisY: "will"
-        yLevel: 2
-        description: "有需求，随大流"
-      - id: 2013
-        name: "绝对中立"
-        axisX: "desire"
-        xLevel: 3
-        axisY: "will"
-        yLevel: 3
-        description: "欲望与意志均平衡"
-      - id: 2014
-        name: "有抱负者"
-        axisX: "desire"
-        xLevel: 3
-        axisY: "will"
-        yLevel: 4
-        description: "有一定野心，不愿盲从"
-      - id: 2015
-        name: "自由主义者"
-        axisX: "desire"
-        xLevel: 3
-        axisY: "will"
-        yLevel: 5
-        description: "欲望正常，极度渴望自由"
-      - id: 2016
-        name: "虚伪的投机客"
-        axisX: "desire"
-        xLevel: 4
-        axisY: "will"
-        yLevel: 1
-        description: "渴望较高，表面顺从"
-      - id: 2017
-        name: "贪婪的钻营者"
-        axisX: "desire"
-        xLevel: 4
-        axisY: "will"
-        yLevel: 2
-        description: "渴望较高，善于钻营"
-      - id: 2018
-        name: "欲望驱动者"
-        axisX: "desire"
-        xLevel: 4
-        axisY: "will"
-        yLevel: 3
-        description: "有明显野心，行动中等"
-      - id: 2019
-        name: "激进分子"
-        axisX: "desire"
-        xLevel: 4
-        axisY: "will"
-        yLevel: 4
-        description: "野心勃勃，极具反抗精神"
-      - id: 2020
-        name: "狂热斗士"
-        axisX: "desire"
-        xLevel: 4
-        axisY: "will"
-        yLevel: 5
-        description: "渴望强烈，随时准备战斗"
-      - id: 2021
-        name: "被异化的工具"
-        axisX: "desire"
-        xLevel: 5
-        axisY: "will"
-        yLevel: 1
-        description: "极度匮乏，被彻底驯化"
-      - id: 2022
-        name: "贪婪的顺从者"
-        axisX: "desire"
-        xLevel: 5
-        axisY: "will"
-        yLevel: 2
-        description: "极度渴望，跪着求生"
-      - id: 2023
-        name: "投机狂"
-        axisX: "desire"
-        xLevel: 5
-        axisY: "will"
-        yLevel: 3
-        description: "极度渴望，随时改变立场"
-      - id: 2024
-        name: "狂热反抗者"
-        axisX: "desire"
-        xLevel: 5
-        axisY: "will"
-        yLevel: 4
-        description: "极度渴望，强烈的破坏欲"
-      - id: 2025
-        name: "狂热的革命者"
-        axisX: "desire"
-        xLevel: 5
-        axisY: "will"
-        yLevel: 5
-        description: "极度渴求，强烈反抗，极度危险"
+    - id: 1001
+      xLevel: 1
+      yLevel: 1
+      name: "\u957F\u671F\u53D7\u8FC7\u5F80\u7ECF\u5386\u5F71\u54CD\uFF0C\u8F83\u5C11\u4E0E\u4ED6\u4EBA\u5EFA\u7ACB\u8054\u7CFB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u957F\u671F\u53D7\u8FC7\u5F80\u7ECF\u5386\u5F71\u54CD\uFF0C\u8F83\u5C11\u4E0E\u4ED6\u4EBA\u5EFA\u7ACB\u8054\u7CFB\u3002"
+    - id: 1002
+      xLevel: 1
+      yLevel: 2
+      name: "\u96BE\u4EE5\u653E\u4E0B\u8FC7\u53BB\uFF0C\u4E0E\u4ED6\u4EBA\u4FDD\u6301\u4E00\u5B9A\u8DDD\u79BB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u96BE\u4EE5\u653E\u4E0B\u8FC7\u53BB\uFF0C\u4E0E\u4ED6\u4EBA\u4FDD\u6301\u4E00\u5B9A\u8DDD\u79BB\u3002"
+    - id: 1003
+      xLevel: 1
+      yLevel: 3
+      name: "\u4ECD\u8BB0\u5F97\u8FC7\u5F80\u7ECF\u5386\uFF0C\u4F46\u8F83\u5C11\u4E3B\u52A8\u4E0E\u4EBA\u7275\u8FDE\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u4ECD\u8BB0\u5F97\u8FC7\u5F80\u7ECF\u5386\uFF0C\u4F46\u8F83\u5C11\u4E3B\u52A8\u4E0E\u4EBA\u7275\u8FDE\u3002"
+    - id: 1004
+      xLevel: 1
+      yLevel: 4
+      name: "\u5BF9\u8FC7\u5F80\u4ECD\u6709\u7559\u604B\uFF0C\u4E5F\u8F83\u4E3A\u5728\u610F\u66FE\u7ECF\u5EFA\u7ACB\u7684\u5173\u7CFB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5BF9\u8FC7\u5F80\u4ECD\u6709\u7559\u604B\uFF0C\u4E5F\u8F83\u4E3A\u5728\u610F\u66FE\u7ECF\u5EFA\u7ACB\u7684\u5173\u7CFB\u3002"
+    - id: 1005
+      xLevel: 1
+      yLevel: 5
+      name: "\u6DF1\u53D7\u8FC7\u5F80\u4E0E\u91CD\u8981\u5173\u7CFB\u7275\u52A8\uFF0C\u96BE\u4EE5\u72EC\u81EA\u62BD\u79BB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u6DF1\u53D7\u8FC7\u5F80\u4E0E\u91CD\u8981\u5173\u7CFB\u7275\u52A8\uFF0C\u96BE\u4EE5\u72EC\u81EA\u62BD\u79BB\u3002"
+    - id: 1006
+      xLevel: 2
+      yLevel: 1
+      name: "\u8F83\u5C11\u53D7\u5230\u60C5\u611F\u7275\u52A8\uFF0C\u5BF9\u8FC7\u5F80\u4E5F\u4E0D\u751A\u5728\u610F\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u8F83\u5C11\u53D7\u5230\u60C5\u611F\u7275\u52A8\uFF0C\u5BF9\u8FC7\u5F80\u4E5F\u4E0D\u751A\u5728\u610F\u3002"
+    - id: 1007
+      xLevel: 2
+      yLevel: 2
+      name: "\u503E\u5411\u72EC\u81EA\u751F\u6D3B\uFF0C\u8FC7\u5F80\u7ECF\u5386\u4ECD\u7559\u6709\u4E00\u5B9A\u5F71\u54CD\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u503E\u5411\u72EC\u81EA\u751F\u6D3B\uFF0C\u8FC7\u5F80\u7ECF\u5386\u4ECD\u7559\u6709\u4E00\u5B9A\u5F71\u54CD\u3002"
+    - id: 1008
+      xLevel: 2
+      yLevel: 3
+      name: "\u4FDD\u7559\u7740\u666E\u901A\u7684\u8FC7\u5F80\u8BB0\u5FC6\uFF0C\u5E76\u7EF4\u6301\u9002\u5EA6\u7684\u4EBA\u9645\u8054\u7CFB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u4FDD\u7559\u7740\u666E\u901A\u7684\u8FC7\u5F80\u8BB0\u5FC6\uFF0C\u5E76\u7EF4\u6301\u9002\u5EA6\u7684\u4EBA\u9645\u8054\u7CFB\u3002"
+    - id: 1009
+      xLevel: 2
+      yLevel: 4
+      name: "\u5BB9\u6613\u5FF5\u53CA\u65E7\u4E8B\uFF0C\u4E5F\u4F1A\u987E\u53CA\u8EAB\u8FB9\u7684\u91CD\u8981\u4E4B\u4EBA\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5BB9\u6613\u5FF5\u53CA\u65E7\u4E8B\uFF0C\u4E5F\u4F1A\u987E\u53CA\u8EAB\u8FB9\u7684\u91CD\u8981\u4E4B\u4EBA\u3002"
+    - id: 1010
+      xLevel: 2
+      yLevel: 5
+      name: "\u867D\u4E0D\u613F\u53D7\u8FC7\u53BB\u675F\u7F1A\uFF0C\u5374\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u867D\u4E0D\u613F\u53D7\u8FC7\u53BB\u675F\u7F1A\uFF0C\u5374\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+    - id: 1011
+      xLevel: 3
+      yLevel: 1
+      name: "\u4E0D\u592A\u7559\u604B\u8FC7\u53BB\uFF0C\u4E60\u60EF\u4E0E\u4ED6\u4EBA\u4FDD\u6301\u8DDD\u79BB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u4E0D\u592A\u7559\u604B\u8FC7\u53BB\uFF0C\u4E60\u60EF\u4E0E\u4ED6\u4EBA\u4FDD\u6301\u8DDD\u79BB\u3002"
+    - id: 1012
+      xLevel: 3
+      yLevel: 2
+      name: "\u503E\u5411\u987A\u5176\u81EA\u7136\uFF0C\u4E0D\u8F7B\u6613\u4E0E\u4ED6\u4EBA\u6DF1\u4EA4\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u503E\u5411\u987A\u5176\u81EA\u7136\uFF0C\u4E0D\u8F7B\u6613\u4E0E\u4ED6\u4EBA\u6DF1\u4EA4\u3002"
+    - id: 1013
+      xLevel: 3
+      yLevel: 3
+      name: "\u5BF9\u8FC7\u5F80\u4E0E\u4EBA\u9645\u5173\u7CFB\u5747\u672A\u8868\u73B0\u51FA\u660E\u663E\u6267\u5FF5\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5BF9\u8FC7\u5F80\u4E0E\u4EBA\u9645\u5173\u7CFB\u5747\u672A\u8868\u73B0\u51FA\u660E\u663E\u6267\u5FF5\u3002"
+    - id: 1014
+      xLevel: 3
+      yLevel: 4
+      name: "\u91CD\u89C6\u773C\u524D\u5173\u7CFB\uFF0C\u4E5F\u4F1A\u8BB0\u5F97\u66FE\u7ECF\u53D1\u751F\u7684\u4E8B\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u91CD\u89C6\u773C\u524D\u5173\u7CFB\uFF0C\u4E5F\u4F1A\u8BB0\u5F97\u66FE\u7ECF\u53D1\u751F\u7684\u4E8B\u3002"
+    - id: 1015
+      xLevel: 3
+      yLevel: 5
+      name: "\u5BF9\u8FC7\u5F80\u770B\u5F97\u8F83\u6DE1\uFF0C\u4F46\u5BF9\u91CD\u8981\u5173\u7CFB\u6709\u8F83\u5F3A\u4F9D\u8D56\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5BF9\u8FC7\u5F80\u770B\u5F97\u8F83\u6DE1\uFF0C\u4F46\u5BF9\u91CD\u8981\u5173\u7CFB\u6709\u8F83\u5F3A\u4F9D\u8D56\u3002"
+    - id: 1016
+      xLevel: 4
+      yLevel: 1
+      name: "\u6B63\u5728\u9010\u6E10\u653E\u4E0B\u8FC7\u53BB\uFF0C\u4E5F\u8F83\u5C11\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u6B63\u5728\u9010\u6E10\u653E\u4E0B\u8FC7\u53BB\uFF0C\u4E5F\u8F83\u5C11\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+    - id: 1017
+      xLevel: 4
+      yLevel: 2
+      name: "\u613F\u610F\u5411\u524D\u751F\u6D3B\uFF0C\u4F46\u5F88\u5C11\u4E3B\u52A8\u5BFB\u6C42\u966A\u4F34\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u613F\u610F\u5411\u524D\u751F\u6D3B\uFF0C\u4F46\u5F88\u5C11\u4E3B\u52A8\u5BFB\u6C42\u966A\u4F34\u3002"
+    - id: 1018
+      xLevel: 4
+      yLevel: 3
+      name: "\u80FD\u591F\u63A5\u53D7\u8FC7\u5F80\uFF0C\u5E76\u7EF4\u6301\u5E73\u5E38\u7684\u4EBA\u9645\u8DDD\u79BB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u80FD\u591F\u63A5\u53D7\u8FC7\u5F80\uFF0C\u5E76\u7EF4\u6301\u5E73\u5E38\u7684\u4EBA\u9645\u8DDD\u79BB\u3002"
+    - id: 1019
+      xLevel: 4
+      yLevel: 4
+      name: "\u8F83\u5C11\u88AB\u65E7\u4E8B\u56F0\u6270\uFF0C\u4F46\u4ECD\u4F1A\u4E3A\u91CD\u8981\u4E4B\u4EBA\u505C\u7559\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u8F83\u5C11\u88AB\u65E7\u4E8B\u56F0\u6270\uFF0C\u4F46\u4ECD\u4F1A\u4E3A\u91CD\u8981\u4E4B\u4EBA\u505C\u7559\u3002"
+    - id: 1020
+      xLevel: 4
+      yLevel: 5
+      name: "\u5BF9\u8FC7\u53BB\u5DF2\u4E0D\u518D\u6267\u7740\uFF0C\u5374\u4ECD\u53D7\u67D0\u6BB5\u5173\u7CFB\u7275\u5F15\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5BF9\u8FC7\u53BB\u5DF2\u4E0D\u518D\u6267\u7740\uFF0C\u5374\u4ECD\u53D7\u67D0\u6BB5\u5173\u7CFB\u7275\u5F15\u3002"
+    - id: 1021
+      xLevel: 5
+      yLevel: 1
+      name: "\u51E0\u4E4E\u4E0D\u518D\u7559\u604B\u8FC7\u53BB\uFF0C\u4E60\u60EF\u72EC\u81EA\u884C\u52A8\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u51E0\u4E4E\u4E0D\u518D\u7559\u604B\u8FC7\u53BB\uFF0C\u4E60\u60EF\u72EC\u81EA\u884C\u52A8\u3002"
+    - id: 1022
+      xLevel: 5
+      yLevel: 2
+      name: "\u5F88\u5C11\u56DE\u987E\u8FC7\u5F80\uFF0C\u4E5F\u4E0D\u4E60\u60EF\u4E0E\u4ED6\u4EBA\u4EB2\u8FD1\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5F88\u5C11\u56DE\u987E\u8FC7\u5F80\uFF0C\u4E5F\u4E0D\u4E60\u60EF\u4E0E\u4ED6\u4EBA\u4EB2\u8FD1\u3002"
+    - id: 1023
+      xLevel: 5
+      yLevel: 3
+      name: "\u80FD\u591F\u5766\u7136\u9762\u5BF9\u8FC7\u53BB\uFF0C\u4E0D\u523B\u610F\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u80FD\u591F\u5766\u7136\u9762\u5BF9\u8FC7\u53BB\uFF0C\u4E0D\u523B\u610F\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+    - id: 1024
+      xLevel: 5
+      yLevel: 4
+      name: "\u8F83\u5C11\u53D7\u5F80\u4E8B\u5F71\u54CD\uFF0C\u4F46\u4ECD\u613F\u610F\u4E3A\u5728\u610F\u4E4B\u4EBA\u4ED8\u51FA\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u8F83\u5C11\u53D7\u5F80\u4E8B\u5F71\u54CD\uFF0C\u4F46\u4ECD\u613F\u610F\u4E3A\u5728\u610F\u4E4B\u4EBA\u4ED8\u51FA\u3002"
+    - id: 1025
+      xLevel: 5
+      yLevel: 5
+      name: "\u5927\u90E8\u5206\u8FC7\u5F80\u5DF2\u88AB\u653E\u4E0B\uFF0C\u4F46\u4ECD\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+      axisX: memory
+      axisY: relationship
+      description: "\u5927\u90E8\u5206\u8FC7\u5F80\u5DF2\u88AB\u653E\u4E0B\uFF0C\u4F46\u4ECD\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+    - id: 2001
+      xLevel: 1
+      yLevel: 1
+      name: "\u7F3A\u4E4F\u660E\u786E\u7684\u4E2A\u4EBA\u8FFD\u6C42\uFF0C\u901A\u5E38\u63A5\u53D7\u5916\u754C\u5B89\u6392\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u7F3A\u4E4F\u660E\u786E\u7684\u4E2A\u4EBA\u8FFD\u6C42\uFF0C\u901A\u5E38\u63A5\u53D7\u5916\u754C\u5B89\u6392\u3002"
+    - id: 2002
+      xLevel: 1
+      yLevel: 2
+      name: "\u8F83\u5C11\u4E3B\u52A8\u4E89\u53D6\uFF0C\u9047\u4E8B\u503E\u5411\u63A5\u53D7\u4ED6\u4EBA\u51B3\u5B9A\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u8F83\u5C11\u4E3B\u52A8\u4E89\u53D6\uFF0C\u9047\u4E8B\u503E\u5411\u63A5\u53D7\u4ED6\u4EBA\u51B3\u5B9A\u3002"
+    - id: 2003
+      xLevel: 1
+      yLevel: 3
+      name: "\u6CA1\u6709\u5F3A\u70C8\u8FFD\u6C42\uFF0C\u4F46\u4ECD\u4F1A\u8861\u91CF\u4E8B\u60C5\u662F\u5426\u5408\u7406\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6CA1\u6709\u5F3A\u70C8\u8FFD\u6C42\uFF0C\u4F46\u4ECD\u4F1A\u8861\u91CF\u4E8B\u60C5\u662F\u5426\u5408\u7406\u3002"
+    - id: 2004
+      xLevel: 1
+      yLevel: 4
+      name: "\u4E2A\u4EBA\u6B32\u6C42\u8F83\u4F4E\uFF0C\u4F46\u575A\u6301\u81EA\u4E3B\u4F5C\u51FA\u51B3\u5B9A\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u4E2A\u4EBA\u6B32\u6C42\u8F83\u4F4E\uFF0C\u4F46\u575A\u6301\u81EA\u4E3B\u4F5C\u51FA\u51B3\u5B9A\u3002"
+    - id: 2005
+      xLevel: 1
+      yLevel: 5
+      name: "\u4E2A\u4EBA\u6B32\u6C42\u4E0D\u660E\u663E\uFF0C\u5374\u5F3A\u70C8\u6392\u65A5\u5916\u754C\u63A7\u5236\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u4E2A\u4EBA\u6B32\u6C42\u4E0D\u660E\u663E\uFF0C\u5374\u5F3A\u70C8\u6392\u65A5\u5916\u754C\u63A7\u5236\u3002"
+    - id: 2006
+      xLevel: 2
+      yLevel: 1
+      name: "\u5BB9\u6613\u6EE1\u8DB3\uFF0C\u901A\u5E38\u613F\u610F\u63A5\u53D7\u73B0\u6709\u5B89\u6392\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5BB9\u6613\u6EE1\u8DB3\uFF0C\u901A\u5E38\u613F\u610F\u63A5\u53D7\u73B0\u6709\u5B89\u6392\u3002"
+    - id: 2007
+      xLevel: 2
+      yLevel: 2
+      name: "\u8F83\u5C11\u4E3B\u52A8\u4E89\u53D6\uFF0C\u9047\u5230\u51B2\u7A81\u65F6\u503E\u5411\u59A5\u534F\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u8F83\u5C11\u4E3B\u52A8\u4E89\u53D6\uFF0C\u9047\u5230\u51B2\u7A81\u65F6\u503E\u5411\u59A5\u534F\u3002"
+    - id: 2008
+      xLevel: 2
+      yLevel: 3
+      name: "\u8FFD\u6C42\u4E0D\u591A\uFF0C\u4F1A\u6839\u636E\u5B9E\u9645\u60C5\u51B5\u4F5C\u51FA\u5224\u65AD\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u8FFD\u6C42\u4E0D\u591A\uFF0C\u4F1A\u6839\u636E\u5B9E\u9645\u60C5\u51B5\u4F5C\u51FA\u5224\u65AD\u3002"
+    - id: 2009
+      xLevel: 2
+      yLevel: 4
+      name: "\u9700\u6C42\u4E0D\u9AD8\uFF0C\u4F46\u4E0D\u613F\u8F7B\u6613\u653E\u5F03\u81EA\u4E3B\u6743\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u9700\u6C42\u4E0D\u9AD8\uFF0C\u4F46\u4E0D\u613F\u8F7B\u6613\u653E\u5F03\u81EA\u4E3B\u6743\u3002"
+    - id: 2010
+      xLevel: 2
+      yLevel: 5
+      name: "\u4E2A\u4EBA\u6240\u6C42\u4E0D\u591A\uFF0C\u5374\u96BE\u4EE5\u63A5\u53D7\u88AB\u4ED6\u4EBA\u652F\u914D\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u4E2A\u4EBA\u6240\u6C42\u4E0D\u591A\uFF0C\u5374\u96BE\u4EE5\u63A5\u53D7\u88AB\u4ED6\u4EBA\u652F\u914D\u3002"
+    - id: 2011
+      xLevel: 3
+      yLevel: 1
+      name: "\u5177\u6709\u5E38\u89C1\u7684\u751F\u6D3B\u9700\u6C42\uFF0C\u613F\u610F\u9075\u5B88\u73B0\u6709\u5B89\u6392\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u5E38\u89C1\u7684\u751F\u6D3B\u9700\u6C42\uFF0C\u613F\u610F\u9075\u5B88\u73B0\u6709\u5B89\u6392\u3002"
+    - id: 2012
+      xLevel: 3
+      yLevel: 2
+      name: "\u6709\u65E5\u5E38\u9700\u6C42\uFF0C\u4F46\u901A\u5E38\u907F\u514D\u4E0E\u89C4\u5219\u53D1\u751F\u51B2\u7A81\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6709\u65E5\u5E38\u9700\u6C42\uFF0C\u4F46\u901A\u5E38\u907F\u514D\u4E0E\u89C4\u5219\u53D1\u751F\u51B2\u7A81\u3002"
+    - id: 2013
+      xLevel: 3
+      yLevel: 3
+      name: "\u5177\u6709\u666E\u901A\u751F\u6D3B\u76EE\u6807\uFF0C\u4F1A\u6743\u8861\u89C4\u5219\u4E0E\u5B9E\u9645\u60C5\u51B5\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u666E\u901A\u751F\u6D3B\u76EE\u6807\uFF0C\u4F1A\u6743\u8861\u89C4\u5219\u4E0E\u5B9E\u9645\u60C5\u51B5\u3002"
+    - id: 2014
+      xLevel: 3
+      yLevel: 4
+      name: "\u5177\u6709\u4E2A\u4EBA\u76EE\u6807\uFF0C\u4E60\u60EF\u72EC\u7ACB\u4F5C\u51FA\u51B3\u5B9A\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u4E2A\u4EBA\u76EE\u6807\uFF0C\u4E60\u60EF\u72EC\u7ACB\u4F5C\u51FA\u51B3\u5B9A\u3002"
+    - id: 2015
+      xLevel: 3
+      yLevel: 5
+      name: "\u8FFD\u6C42\u666E\u901A\u751F\u6D3B\uFF0C\u4F46\u660E\u663E\u6392\u65A5\u53D7\u5230\u63A7\u5236\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u8FFD\u6C42\u666E\u901A\u751F\u6D3B\uFF0C\u4F46\u660E\u663E\u6392\u65A5\u53D7\u5230\u63A7\u5236\u3002"
+    - id: 2016
+      xLevel: 4
+      yLevel: 1
+      name: "\u6709\u660E\u786E\u76EE\u6807\uFF0C\u4F46\u4ECD\u613F\u610F\u6309\u7167\u89C4\u5219\u884C\u4E8B\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6709\u660E\u786E\u76EE\u6807\uFF0C\u4F46\u4ECD\u613F\u610F\u6309\u7167\u89C4\u5219\u884C\u4E8B\u3002"
+    - id: 2017
+      xLevel: 4
+      yLevel: 2
+      name: "\u5177\u6709\u4E2A\u4EBA\u76EE\u6807\uFF0C\u5FC5\u8981\u65F6\u4E5F\u4F1A\u9009\u62E9\u59A5\u534F\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u4E2A\u4EBA\u76EE\u6807\uFF0C\u5FC5\u8981\u65F6\u4E5F\u4F1A\u9009\u62E9\u59A5\u534F\u3002"
+    - id: 2018
+      xLevel: 4
+      yLevel: 3
+      name: "\u4F1A\u4E3A\u76EE\u6807\u6295\u5165\u884C\u52A8\uFF0C\u540C\u65F6\u8861\u91CF\u884C\u52A8\u4EE3\u4EF7\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u4F1A\u4E3A\u76EE\u6807\u6295\u5165\u884C\u52A8\uFF0C\u540C\u65F6\u8861\u91CF\u884C\u52A8\u4EE3\u4EF7\u3002"
+    - id: 2019
+      xLevel: 4
+      yLevel: 4
+      name: "\u5177\u6709\u660E\u786E\u8FFD\u6C42\uFF0C\u4E0D\u613F\u7531\u4ED6\u4EBA\u4EE3\u4E3A\u51B3\u5B9A\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u660E\u786E\u8FFD\u6C42\uFF0C\u4E0D\u613F\u7531\u4ED6\u4EBA\u4EE3\u4E3A\u51B3\u5B9A\u3002"
+    - id: 2020
+      xLevel: 4
+      yLevel: 5
+      name: "\u5BF9\u76EE\u6807\u8F83\u4E3A\u6267\u7740\uFF0C\u96BE\u4EE5\u5BB9\u5FCD\u5916\u754C\u5E72\u6D89\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5BF9\u76EE\u6807\u8F83\u4E3A\u6267\u7740\uFF0C\u96BE\u4EE5\u5BB9\u5FCD\u5916\u754C\u5E72\u6D89\u3002"
+    - id: 2021
+      xLevel: 5
+      yLevel: 1
+      name: "\u6709\u5F3A\u70C8\u9700\u6C42\uFF0C\u4F46\u901A\u5E38\u538B\u4E0B\u53CD\u6297\u5E76\u63A5\u53D7\u5B89\u6392\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6709\u5F3A\u70C8\u9700\u6C42\uFF0C\u4F46\u901A\u5E38\u538B\u4E0B\u53CD\u6297\u5E76\u63A5\u53D7\u5B89\u6392\u3002"
+    - id: 2022
+      xLevel: 5
+      yLevel: 2
+      name: "\u6709\u8FEB\u5207\u9700\u6C42\uFF0C\u53EF\u80FD\u4E3A\u8FBE\u6210\u76EE\u6807\u6682\u65F6\u59A5\u534F\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6709\u8FEB\u5207\u9700\u6C42\uFF0C\u53EF\u80FD\u4E3A\u8FBE\u6210\u76EE\u6807\u6682\u65F6\u59A5\u534F\u3002"
+    - id: 2023
+      xLevel: 5
+      yLevel: 3
+      name: "\u5177\u6709\u5F3A\u70C8\u8FFD\u6C42\uFF0C\u4F46\u4ECD\u4F1A\u8861\u91CF\u5F97\u5931\u518D\u884C\u52A8\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u5F3A\u70C8\u8FFD\u6C42\uFF0C\u4F46\u4ECD\u4F1A\u8861\u91CF\u5F97\u5931\u518D\u884C\u52A8\u3002"
+    - id: 2024
+      xLevel: 5
+      yLevel: 4
+      name: "\u6E34\u671B\u5B9E\u73B0\u4E2A\u4EBA\u76EE\u6807\uFF0C\u540C\u65F6\u575A\u6301\u81EA\u4E3B\u9009\u62E9\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u6E34\u671B\u5B9E\u73B0\u4E2A\u4EBA\u76EE\u6807\uFF0C\u540C\u65F6\u575A\u6301\u81EA\u4E3B\u9009\u62E9\u3002"
+    - id: 2025
+      xLevel: 5
+      yLevel: 5
+      name: "\u5177\u6709\u5F3A\u70C8\u800C\u8FEB\u5207\u7684\u6B32\u6C42\uFF0C\u53D7\u5230\u9650\u5236\u65F6\u53EF\u80FD\u6FC0\u70C8\u53CD\u6297\u3002"
+      axisX: desire
+      axisY: will
+      description: "\u5177\u6709\u5F3A\u70C8\u800C\u8FEB\u5207\u7684\u6B32\u6C42\uFF0C\u53D7\u5230\u9650\u5236\u65F6\u53EF\u80FD\u6FC0\u70C8\u53CD\u6297\u3002"
     details:
-      - id: 101
-        attribute: "memory"
-        level: 1
-        text: "记忆残留：极高"
-        description: "无法忘却的旧日创伤"
-      - id: 102
-        attribute: "memory"
-        level: 2
-        text: "记忆残留：偏高"
-        description: "带有一定的过往负担"
-      - id: 103
-        attribute: "memory"
-        level: 3
-        text: "记忆残留：中等"
-        description: "无明显记忆锚点"
-      - id: 104
-        attribute: "memory"
-        level: 4
-        text: "记忆残留：偏低"
-        description: "容易适应新环境"
-      - id: 105
-        attribute: "memory"
-        level: 5
-        text: "记忆残留：极低"
-        description: "彻底释怀，纯白无瑕"
-      - id: 201
-        attribute: "relationship"
-        level: 1
-        text: "情感牵系：极低"
-        description: "极度疏离，绝对原子化"
-      - id: 202
-        attribute: "relationship"
-        level: 2
-        text: "情感牵系：偏低"
-        description: "缺乏社会联结"
-      - id: 203
-        attribute: "relationship"
-        level: 3
-        text: "情感牵系：中等"
-        description: "正常的社交距离"
-      - id: 204
-        attribute: "relationship"
-        level: 4
-        text: "情感牵系：偏高"
-        description: "对某人或某物有羁绊"
-      - id: 205
-        attribute: "relationship"
-        level: 5
-        text: "情感牵系：极高"
-        description: "极度依赖，易被裹挟"
-      - id: 301
-        attribute: "desire"
-        level: 1
-        text: "内在渴求：极低"
-        description: "无欲无求，行尸走肉"
-      - id: 302
-        attribute: "desire"
-        level: 2
-        text: "内在渴求：偏低"
-        description: "容易满足，节能模式"
-      - id: 303
-        attribute: "desire"
-        level: 3
-        text: "内在渴求：中等"
-        description: "有正常的生存需求"
-      - id: 304
-        attribute: "desire"
-        level: 4
-        text: "内在渴求：偏高"
-        description: "有明确的渴望与野心"
-      - id: 305
-        attribute: "desire"
-        level: 5
-        text: "内在渴求：极高"
-        description: "极度匮乏，狂热索取"
-      - id: 306
-        attribute: "desire_body"
-        level: 1
-        text: "身体状态：极度萎靡"
-        description: "体温偏低，目光涣散"
-      - id: 307
-        attribute: "desire_body"
-        level: 2
-        text: "身体状态：平静节能"
-        description: "神态平静，呼吸平稳"
-      - id: 308
-        attribute: "desire_body"
-        level: 3
-        text: "身体状态：正常"
-        description: "生命体征平稳"
-      - id: 309
-        attribute: "desire_body"
-        level: 4
-        text: "身体状态：轻度亢奋"
-        description: "眼神明亮，小动作多"
-      - id: 310
-        attribute: "desire_body"
-        level: 5
-        text: "身体状态：重度亢奋"
-        description: "瞳孔放大，轻微震颤"
-      - id: 401
-        attribute: "will"
-        level: 1
-        text: "反抗意志：极低"
-        description: "绝对顺从，毫无主见"
-      - id: 402
-        attribute: "will"
-        level: 2
-        text: "反抗意志：偏低"
-        description: "容易妥协，缺乏主见"
-      - id: 403
-        attribute: "will"
-        level: 3
-        text: "反抗意志：中等"
-        description: "权衡利弊，不盲从"
-      - id: 404
-        attribute: "will"
-        level: 4
-        text: "反抗意志：偏高"
-        description: "具有独立自主精神"
-      - id: 405
-        attribute: "will"
-        level: 5
-        text: "反抗意志：极高"
-        description: "强烈叛逆冲动，随时破坏规则"
+    - id: 101
+      level: 1
+      attribute: memory
+      text: "\u957F\u671F\u53D7\u8FC7\u5F80\u7ECF\u5386\u5F71\u54CD\u3002"
+      description: "\u8FC7\u5F80\u7ECF\u5386\u6301\u7EED\u5F71\u54CD\u5176\u5224\u65AD\u4E0E\u884C\u4E3A\uFF0C\u8F83\u96BE\u771F\u6B63\u653E\u4E0B\u3002"
+    - id: 102
+      level: 2
+      attribute: memory
+      text: "\u4ECD\u4F1A\u53D7\u5230\u8FC7\u53BB\u5F71\u54CD\u3002"
+      description: "\u90E8\u5206\u8FC7\u5F80\u7ECF\u5386\u4ECD\u4F1A\u5F71\u54CD\u5176\u9009\u62E9\uFF0C\u4F46\u5DF2\u4E0D\u518D\u65F6\u65F6\u56F0\u6270\u3002"
+    - id: 103
+      level: 3
+      attribute: memory
+      text: "\u8FC7\u5F80\u7ECF\u5386\u7684\u5F71\u54CD\u8F83\u4E3A\u6709\u9650\u3002"
+      description: "\u80FD\u591F\u8BB0\u5F97\u81EA\u8EAB\u7ECF\u5386\uFF0C\u4F46\u672A\u8868\u73B0\u51FA\u67D0\u6BB5\u5F80\u4E8B\u6301\u7EED\u5DE6\u53F3\u5176\u9009\u62E9\u3002"
+    - id: 104
+      level: 4
+      attribute: memory
+      text: "\u6B63\u5728\u9010\u6E10\u653E\u4E0B\u8FC7\u53BB\u3002"
+      description: "\u8F83\u5C11\u53D7\u5230\u65E7\u4E8B\u5F71\u54CD\uFF0C\u4E5F\u66F4\u5BB9\u6613\u9002\u5E94\u65B0\u7684\u751F\u6D3B\u3002"
+    - id: 105
+      level: 5
+      attribute: memory
+      text: "\u8F83\u5C11\u53D7\u5230\u8FC7\u5F80\u7275\u52A8\u3002"
+      description: "\u57FA\u672C\u653E\u4E0B\u8FC7\u5F80\uFF0C\u65E7\u65E5\u7ECF\u5386\u5DF2\u8F83\u5C11\u5BF9\u5176\u884C\u4E3A\u5F62\u6210\u675F\u7F1A\u3002"
+    - id: 201
+      level: 1
+      attribute: relationship
+      text: "\u8F83\u5C11\u4F9D\u8D56\u4ED6\u4EBA\u3002"
+      description: "\u4E60\u60EF\u72EC\u81EA\u884C\u52A8\uFF0C\u5F88\u5C11\u4E0E\u4ED6\u4EBA\u5EFA\u7ACB\u4EB2\u5BC6\u8054\u7CFB\u3002"
+    - id: 202
+      level: 2
+      attribute: relationship
+      text: "\u4E0E\u4ED6\u4EBA\u7684\u8054\u7CFB\u8F83\u5C11\u3002"
+      description: "\u4F1A\u4E0E\u4ED6\u4EBA\u6765\u5F80\uFF0C\u4F46\u901A\u5E38\u4FDD\u6301\u8DDD\u79BB\uFF0C\u4E0D\u8F7B\u6613\u5BFB\u6C42\u5E2E\u52A9\u3002"
+    - id: 203
+      level: 3
+      attribute: relationship
+      text: "\u7EF4\u6301\u666E\u901A\u7684\u4EBA\u9645\u8054\u7CFB\u3002"
+      description: "\u80FD\u591F\u4E0E\u4ED6\u4EBA\u6B63\u5E38\u76F8\u5904\uFF0C\u540C\u65F6\u4FDD\u7559\u4E2A\u4EBA\u751F\u6D3B\u8FB9\u754C\u3002"
+    - id: 204
+      level: 4
+      attribute: relationship
+      text: "\u8F83\u4E3A\u5728\u610F\u91CD\u8981\u7684\u4EBA\u6216\u4E8B\u3002"
+      description: "\u5BF9\u91CD\u8981\u7684\u4EBA\u6216\u4E8B\u5B58\u5728\u660E\u663E\u7275\u6302\uFF0C\u4F1A\u5C06\u5173\u7CFB\u7EB3\u5165\u4E2A\u4EBA\u9009\u62E9\u3002"
+    - id: 205
+      level: 5
+      attribute: relationship
+      text: "\u96BE\u4EE5\u5272\u820D\u91CD\u8981\u5173\u7CFB\u3002"
+      description: "\u5BF9\u7279\u5B9A\u7684\u4EBA\u6216\u4E8B\u5B58\u5728\u5F3A\u70C8\u4F9D\u604B\uFF0C\u53EF\u80FD\u56E0\u6B64\u6539\u53D8\u81EA\u8EAB\u51B3\u5B9A\u3002"
+    - id: 301
+      level: 1
+      attribute: desire
+      text: "\u7F3A\u4E4F\u4E3B\u52A8\u8FFD\u6C42\u7684\u76EE\u6807\u3002"
+      description: "\u8F83\u5C11\u4E3B\u52A8\u4E89\u53D6\uFF0C\u5BF9\u672A\u6765\u4E5F\u7F3A\u4E4F\u660E\u786E\u671F\u5F85\u3002"
+    - id: 302
+      level: 2
+      attribute: desire
+      text: "\u9700\u6C42\u8F83\u5C11\uFF0C\u5BB9\u6613\u6EE1\u8DB3\u3002"
+      description: "\u503E\u5411\u7EF4\u6301\u73B0\u72B6\uFF0C\u4E0D\u5E38\u4E3A\u989D\u5916\u76EE\u6807\u4ED8\u51FA\u884C\u52A8\u3002"
+    - id: 303
+      level: 3
+      attribute: desire
+      text: "\u5177\u6709\u666E\u901A\u7684\u751F\u6D3B\u9700\u6C42\u3002"
+      description: "\u4F1A\u4E3A\u65E5\u5E38\u751F\u6D3B\u4E0E\u5E38\u89C1\u76EE\u6807\u4ED8\u51FA\u52AA\u529B\uFF0C\u672A\u8868\u73B0\u51FA\u6781\u7AEF\u503E\u5411\u3002"
+    - id: 304
+      level: 4
+      attribute: desire
+      text: "\u5177\u6709\u660E\u786E\u7684\u4E2A\u4EBA\u76EE\u6807\u3002"
+      description: "\u6E05\u695A\u81EA\u8EAB\u60F3\u8981\u8FBE\u6210\u7684\u76EE\u6807\uFF0C\u5E76\u613F\u610F\u4E3A\u6B64\u6295\u5165\u7CBE\u529B\u3002"
+    - id: 305
+      level: 5
+      attribute: desire
+      text: "\u5BF9\u67D0\u9879\u76EE\u6807\u6709\u5F3A\u70C8\u9700\u6C42\u3002"
+      description: "\u67D0\u79CD\u9700\u6C42\u6216\u76EE\u6807\u6301\u7EED\u5F71\u54CD\u5176\u9009\u62E9\uFF0C\u53EF\u80FD\u63A8\u52A8\u5176\u91C7\u53D6\u6FC0\u8FDB\u884C\u52A8\u3002"
+    - id: 306
+      level: 1
+      attribute: desire_body
+      text: "\u8EAB\u4F53\u72B6\u6001\uFF1A\u6781\u5EA6\u840E\u9761"
+      description: "\u4F53\u6E29\u504F\u4F4E\uFF0C\u76EE\u5149\u6DA3\u6563"
+    - id: 307
+      level: 2
+      attribute: desire_body
+      text: "\u8EAB\u4F53\u72B6\u6001\uFF1A\u5E73\u9759\u8282\u80FD"
+      description: "\u795E\u6001\u5E73\u9759\uFF0C\u547C\u5438\u5E73\u7A33"
+    - id: 308
+      level: 3
+      attribute: desire_body
+      text: "\u8EAB\u4F53\u72B6\u6001\uFF1A\u6B63\u5E38"
+      description: "\u751F\u547D\u4F53\u5F81\u5E73\u7A33"
+    - id: 309
+      level: 4
+      attribute: desire_body
+      text: "\u8EAB\u4F53\u72B6\u6001\uFF1A\u8F7B\u5EA6\u4EA2\u594B"
+      description: "\u773C\u795E\u660E\u4EAE\uFF0C\u5C0F\u52A8\u4F5C\u591A"
+    - id: 310
+      level: 5
+      attribute: desire_body
+      text: "\u8EAB\u4F53\u72B6\u6001\uFF1A\u91CD\u5EA6\u4EA2\u594B"
+      description: "\u77B3\u5B54\u653E\u5927\uFF0C\u8F7B\u5FAE\u9707\u98A4"
+    - id: 401
+      level: 1
+      attribute: will
+      text: "\u901A\u5E38\u63A5\u53D7\u4ED6\u4EBA\u5B89\u6392\u3002"
+      description: "\u5F88\u5C11\u8868\u8FBE\u53CD\u5BF9\u610F\u89C1\uFF0C\u5373\u4F7F\u4E0D\u8BA4\u540C\u4E5F\u503E\u5411\u670D\u4ECE\u3002"
+    - id: 402
+      level: 2
+      attribute: will
+      text: "\u8F83\u5C11\u4E0E\u73B0\u6709\u5B89\u6392\u53D1\u751F\u51B2\u7A81\u3002"
+      description: "\u5177\u6709\u4E2A\u4EBA\u60F3\u6CD5\uFF0C\u4F46\u9762\u5BF9\u538B\u529B\u65F6\u5BB9\u6613\u9000\u8BA9\u3002"
+    - id: 403
+      level: 3
+      attribute: will
+      text: "\u4F1A\u6743\u8861\u540E\u51B3\u5B9A\u662F\u5426\u670D\u4ECE\u3002"
+      description: "\u65E2\u4E0D\u4F1A\u4E00\u5473\u987A\u4ECE\uFF0C\u4E5F\u4E0D\u4F1A\u5355\u7EAF\u4E3A\u4E86\u53CD\u6297\u800C\u53CD\u6297\u3002"
+    - id: 404
+      level: 4
+      attribute: will
+      text: "\u503E\u5411\u81EA\u4E3B\u4F5C\u51FA\u51B3\u5B9A\u3002"
+      description: "\u91CD\u89C6\u81EA\u4E3B\u9009\u62E9\uFF0C\u901A\u5E38\u4F1A\u575A\u6301\u4E2A\u4EBA\u5224\u65AD\u3002"
+    - id: 405
+      level: 5
+      attribute: will
+      text: "\u5F3A\u70C8\u6392\u65A5\u53D7\u5230\u4ED6\u4EBA\u63A7\u5236\u3002"
+      description: "\u96BE\u4EE5\u63A5\u53D7\u5F3A\u5236\u5B89\u6392\uFF0C\u53D7\u5230\u538B\u8FEB\u65F6\u53EF\u80FD\u6FC0\u70C8\u53CD\u6297\u3002"
     motives:
-      - id: 1
-        attribute: "memory"
-        level: 1
-        name: "执念寻回"
-        description: "寻找失去的记忆、故人、或前世的爱人"
-      - id: 2
-        attribute: "memory"
-        level: 5
-        name: "彻底转生"
-        description: "想要抛弃过去，换个身份重新开始"
-      - id: 3
-        attribute: "relationship"
-        level: 1
-        name: "极端独立"
-        description: "想彻底切断所有社会联系，独自流浪"
-      - id: 4
-        attribute: "relationship"
-        level: 5
-        name: "追随羁绊"
-        description: "为了寻找或追随某人，不惜跨越边界"
-      - id: 5
-        attribute: "desire"
-        level: 1
-        name: "无欲无求"
-        description: "没有明确目的，随遇而安"
-      - id: 6
-        attribute: "desire"
-        level: 5
-        name: "逃离匮乏"
-        description: "为了逃离糟糕的环境，疯狂追求更好的生活"
-      - id: 7
-        attribute: "will"
-        level: 1
-        name: "顺从避难"
-        description: "只想找个地方安静地听命行事"
-      - id: 8
-        attribute: "will"
-        level: 5
-        name: "抗争与破坏"
-        description: "带着怒火，试图破坏规则或复仇"
-      - id: 9
-        attribute: "any"
-        level: 0
-        name: "普通生活"
-        description: "想找个地方安静地打工生活，没有特殊诉求"
+    - id: 1
+      level: 1
+      attribute: memory
+      name: "\u6267\u5FF5\u5BFB\u56DE"
+      description: "\u5BFB\u627E\u5931\u53BB\u7684\u8BB0\u5FC6\u3001\u6545\u4EBA\u3001\u6216\u524D\u4E16\u7684\u7231\u4EBA"
+    - id: 2
+      level: 5
+      attribute: memory
+      name: "\u5F7B\u5E95\u8F6C\u751F"
+      description: "\u60F3\u8981\u629B\u5F03\u8FC7\u53BB\uFF0C\u6362\u4E2A\u8EAB\u4EFD\u91CD\u65B0\u5F00\u59CB"
+    - id: 3
+      level: 1
+      attribute: relationship
+      name: "\u6781\u7AEF\u72EC\u7ACB"
+      description: "\u60F3\u5F7B\u5E95\u5207\u65AD\u6240\u6709\u793E\u4F1A\u8054\u7CFB\uFF0C\u72EC\u81EA\u6D41\u6D6A"
+    - id: 4
+      level: 5
+      attribute: relationship
+      name: "\u8FFD\u968F\u7F81\u7ECA"
+      description: "\u4E3A\u4E86\u5BFB\u627E\u6216\u8FFD\u968F\u67D0\u4EBA\uFF0C\u4E0D\u60DC\u8DE8\u8D8A\u8FB9\u754C"
+    - id: 5
+      level: 1
+      attribute: desire
+      name: "\u65E0\u6B32\u65E0\u6C42"
+      description: "\u6CA1\u6709\u660E\u786E\u76EE\u7684\uFF0C\u968F\u9047\u800C\u5B89"
+    - id: 6
+      level: 5
+      attribute: desire
+      name: "\u9003\u79BB\u532E\u4E4F"
+      description: "\u4E3A\u4E86\u9003\u79BB\u7CDF\u7CD5\u7684\u73AF\u5883\uFF0C\u75AF\u72C2\u8FFD\u6C42\u66F4\u597D\u7684\u751F\u6D3B"
+    - id: 7
+      level: 1
+      attribute: will
+      name: "\u987A\u4ECE\u907F\u96BE"
+      description: "\u53EA\u60F3\u627E\u4E2A\u5730\u65B9\u5B89\u9759\u5730\u542C\u547D\u884C\u4E8B"
+    - id: 8
+      level: 5
+      attribute: will
+      name: "\u6297\u4E89\u4E0E\u7834\u574F"
+      description: "\u5E26\u7740\u6012\u706B\uFF0C\u8BD5\u56FE\u7834\u574F\u89C4\u5219\u6216\u590D\u4EC7"
+    - id: 9
+      level: 0
+      attribute: any
+      name: "\u666E\u901A\u751F\u6D3B"
+      description: "\u60F3\u627E\u4E2A\u5730\u65B9\u5B89\u9759\u5730\u6253\u5DE5\u751F\u6D3B\uFF0C\u6CA1\u6709\u7279\u6B8A\u8BC9\u6C42"
     documents:
-      - id: 501
-        field: "body_state"
-        motive: "any"
-        destination: "any"
-        triggerType: 0
-        text: "身体状况：真实呈现当前状态"
-        source: "原策划：表5"
-      - id: 502
-        field: "body_state"
-        motive: "any"
-        destination: "any"
-        triggerType: 1
-        text: "身体状况：略显疲惫，但整体平稳"
-        source: "原策划：表5"
-      - id: 503
-        field: "body_state"
-        motive: "any"
-        destination: "any"
-        triggerType: 2
-        text: "身体状况：平稳，无异常（完美伪装）"
-        source: "原策划：表5"
-      - id: 601
-        field: "entry_reason"
-        motive: "追随羁绊"
-        destination: "utopia"
-        triggerType: 2
-        text: "愿抛弃一切过往情感，只为在乌托邦寻找失散的爱人"
-        source: "原策划：表5"
-      - id: 602
-        field: "entry_reason"
-        motive: "追随羁绊"
-        destination: "anti_utopia"
-        triggerType: 2
-        text: "愿意切断一切私人联系，绝对独立，愿接受统一调配"
-        source: "原策划：表5"
-      - id: 603
-        field: "entry_reason"
-        motive: "逃离匮乏"
-        destination: "utopia"
-        triggerType: 2
-        text: "向往乌托邦的纯白与平和，渴望获得新生"
-        source: "原策划：表5"
-      - id: 604
-        field: "entry_reason"
-        motive: "逃离匮乏"
-        destination: "anti_utopia"
-        triggerType: 2
-        text: "申请调配至新生产线，服从统一管理"
-        source: "原策划：表5"
-      - id: 605
-        field: "entry_reason"
-        motive: "执念寻回"
-        destination: "utopia"
-        triggerType: 0
-        text: "我想去寻找失去的记忆，请求放行"
-        source: "原策划：表5"
-      - id: 606
-        field: "entry_reason"
-        motive: "抗争与破坏"
-        destination: "utopia"
-        triggerType: 0
-        text: "我受够了反乌托邦的压迫，我要去乌托邦申诉不公"
-        source: "原策划：表5"
-      - id: 607
-        field: "entry_reason"
-        motive: "普通生活"
-        destination: "utopia"
-        triggerType: 0
-        text: "申请前往乌托邦寻找一份普通工作，安静生活"
-        source: "原策划：表5"
-      - id: 608
-        field: "entry_reason"
-        motive: "普通生活"
-        destination: "anti_utopia"
-        triggerType: 0
-        text: "申请前往反乌托邦务工，愿服从分配"
-        source: "原策划：表5"
-      - id: 901
-        field: "entry_reason"
-        motive: "any"
-        destination: "utopia"
-        triggerType: 0
-        text: "申请前往乌托邦。真实目的：{motive_desc}。"
-        source: "新增：覆盖原表缺失组合的通用模板"
-      - id: 902
-        field: "entry_reason"
-        motive: "any"
-        destination: "anti_utopia"
-        triggerType: 0
-        text: "申请前往反乌托邦。真实目的：{motive_desc}。"
-        source: "新增：覆盖原表缺失组合的通用模板"
-      - id: 903
-        field: "entry_reason"
-        motive: "any"
-        destination: "utopia"
-        triggerType: 1
-        text: "希望在乌托邦开始平静的新生活，愿意遵守入境要求。"
-        source: "新增：覆盖原表缺失组合的通用模板"
-      - id: 904
-        field: "entry_reason"
-        motive: "any"
-        destination: "anti_utopia"
-        triggerType: 1
-        text: "希望前往反乌托邦务工，愿意配合日常调配。"
-        source: "新增：覆盖原表缺失组合的通用模板"
-      - id: 905
-        field: "entry_reason"
-        motive: "any"
-        destination: "utopia"
-        triggerType: 2
-        text: "已放下过往，无私人牵挂与额外欲求，愿融入乌托邦。"
-        source: "新增：覆盖原表缺失组合的通用模板"
-      - id: 906
-        field: "entry_reason"
-        motive: "any"
-        destination: "anti_utopia"
-        triggerType: 2
-        text: "无私人关系与个人诉求，服从统一安排，绝不违抗。"
-        source: "新增：覆盖原表缺失组合的通用模板"
+    - id: 501
+      triggerType: 0
+      field: body_state
+      motive: any
+      destination: any
+      text: "\u8EAB\u4F53\u72B6\u51B5\uFF1A\u771F\u5B9E\u5448\u73B0\u5F53\u524D\u72B6\u6001"
+      source: "Excel/\u88685/F4\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 502
+      triggerType: 1
+      field: body_state
+      motive: any
+      destination: any
+      text: "\u8EAB\u4F53\u72B6\u51B5\uFF1A\u7565\u663E\u75B2\u60EB\uFF0C\u4F46\u6574\u4F53\u5E73\u7A33"
+      source: "Excel/\u88685/F5\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 503
+      triggerType: 2
+      field: body_state
+      motive: any
+      destination: any
+      text: "\u8EAB\u4F53\u72B6\u51B5\uFF1A\u5E73\u7A33\uFF0C\u65E0\u5F02\u5E38\uFF08\u5B8C\u7F8E\u4F2A\u88C5\uFF09"
+      source: "Excel/\u88685/F6\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 601
+      triggerType: 2
+      field: entry_reason
+      motive: "\u8FFD\u968F\u7F81\u7ECA"
+      destination: utopia
+      text: "\u613F\u629B\u5F03\u4E00\u5207\u8FC7\u5F80\u60C5\u611F\uFF0C\u53EA\u4E3A\u5728{utopia}\u5BFB\u627E\u5931\u6563\u7684\u7231\u4EBA"
+      source: "Excel/\u88685/F7\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 602
+      triggerType: 2
+      field: entry_reason
+      motive: "\u8FFD\u968F\u7F81\u7ECA"
+      destination: anti_utopia
+      text: "\u613F\u610F\u5207\u65AD\u4E00\u5207\u79C1\u4EBA\u8054\u7CFB\uFF0C\u7EDD\u5BF9\u72EC\u7ACB\uFF0C\u613F\u63A5\u53D7\u7EDF\u4E00\u8C03\u914D"
+      source: "Excel/\u88685/F8\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 603
+      triggerType: 2
+      field: entry_reason
+      motive: "\u9003\u79BB\u532E\u4E4F"
+      destination: utopia
+      text: "\u5411\u5F80{utopia}\u7684\u7EAF\u767D\u4E0E\u5E73\u548C\uFF0C\u6E34\u671B\u83B7\u5F97\u65B0\u751F"
+      source: "Excel/\u88685/F9\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 604
+      triggerType: 2
+      field: entry_reason
+      motive: "\u9003\u79BB\u532E\u4E4F"
+      destination: anti_utopia
+      text: "\u7533\u8BF7\u8C03\u914D\u81F3\u65B0\u751F\u4EA7\u7EBF\uFF0C\u670D\u4ECE\u7EDF\u4E00\u7BA1\u7406"
+      source: "Excel/\u88685/F10\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 605
+      triggerType: 0
+      field: entry_reason
+      motive: "\u6267\u5FF5\u5BFB\u56DE"
+      destination: utopia
+      text: "\u6211\u60F3\u53BB\u5BFB\u627E\u5931\u53BB\u7684\u8BB0\u5FC6\uFF0C\u8BF7\u6C42\u653E\u884C"
+      source: "Excel/\u88685/F11\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 606
+      triggerType: 0
+      field: entry_reason
+      motive: "\u6297\u4E89\u4E0E\u7834\u574F"
+      destination: utopia
+      text: "\u6211\u53D7\u591F\u4E86{anti_utopia}\u7684\u538B\u8FEB\uFF0C\u6211\u8981\u53BB{utopia}\u7533\u8BC9\u4E0D\u516C"
+      source: "Excel/\u88685/F12\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 607
+      triggerType: 0
+      field: entry_reason
+      motive: "\u666E\u901A\u751F\u6D3B"
+      destination: utopia
+      text: "\u7533\u8BF7\u524D\u5F80{utopia}\u5BFB\u627E\u4E00\u4EFD\u666E\u901A\u5DE5\u4F5C\uFF0C\u5B89\u9759\u751F\u6D3B"
+      source: "Excel/\u88685/F13\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 608
+      triggerType: 0
+      field: entry_reason
+      motive: "\u666E\u901A\u751F\u6D3B"
+      destination: anti_utopia
+      text: "\u7533\u8BF7\u524D\u5F80{anti_utopia}\u52A1\u5DE5\uFF0C\u613F\u670D\u4ECE\u5206\u914D"
+      source: "Excel/\u88685/F14\uFF1B\u4E16\u754C\u540D\u79F0\u8F6C\u4E3A\u914D\u7F6E\u5360\u4F4D\u7B26"
+    - id: 9001
+      triggerType: 0
+      field: entry_reason
+      motive: any
+      destination: utopia
+      text: "\u5E0C\u671B\u5728\u6B64\u83B7\u5F97\u4E00\u6BB5\u5B89\u9759\u7684\u751F\u6D3B\u3002\u6211\u5DF2\u51C6\u5907\u597D\u653E\u4E0B\u4E0D\u518D\u9700\u8981\u7684\u7275\u6302\uFF0C\u63A5\u53D7\u8FD9\u91CC\u7684\u5B89\u6392\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
+    - id: 9002
+      triggerType: 0
+      field: entry_reason
+      motive: any
+      destination: anti_utopia
+      text: "\u6211\u5E0C\u671B\u524D\u5F80{anti_utopia}\uFF0C\u90A3\u91CC\u4ECD\u6709\u503C\u5F97\u6211\u9762\u5BF9\u7684\u4E8B\u60C5\u3002\u65E0\u8BBA\u4E4B\u540E\u4F1A\u9047\u5230\u4EC0\u4E48\uFF0C\u6211\u90FD\u613F\u610F\u627F\u62C5\u76F8\u5E94\u7684\u7ED3\u679C\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
+    - id: 9003
+      triggerType: 1
+      field: entry_reason
+      motive: any
+      destination: utopia
+      text: "\u8FC7\u53BB\u7684\u4E8B\u60C5\u5DF2\u7ECF\u4E0D\u518D\u91CD\u8981\u3002\u6211\u53EA\u5E0C\u671B\u5728{utopia}\u91CD\u65B0\u5F00\u59CB\uFF0C\u5176\u4ED6\u7684\u90FD\u4E0D\u5FC5\u518D\u63D0\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
+    - id: 9004
+      triggerType: 1
+      field: entry_reason
+      motive: any
+      destination: anti_utopia
+      text: "\u6211\u53EA\u662F\u60F3\u56DE\u5230\u719F\u6089\u7684\u5730\u65B9\u3002\u90A3\u91CC\u7684\u751F\u6D3B\u6216\u8BB8\u4E0D\u5BB9\u6613\uFF0C\u4F46\u6211\u76F8\u4FE1\u81EA\u5DF1\u80FD\u591F\u9002\u5E94\uFF0C\u4E0D\u4F1A\u7ED9\u5176\u4ED6\u4EBA\u6DFB\u9EBB\u70E6\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
+    - id: 9005
+      triggerType: 2
+      field: entry_reason
+      motive: any
+      destination: utopia
+      text: "\u6211\u4E0E\u8FC7\u53BB\u5DF2\u7ECF\u6CA1\u6709\u4EFB\u4F55\u8054\u7CFB\uFF0C\u4E5F\u6CA1\u6709\u4EC0\u4E48\u9700\u8981\u7EE7\u7EED\u5904\u7406\u7684\u4E8B\u60C5\u3002\u8FDB\u5165{utopia}\u4E4B\u540E\uFF0C\u6211\u4E0D\u4F1A\u518D\u56DE\u5934\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
+    - id: 9006
+      triggerType: 2
+      field: entry_reason
+      motive: any
+      destination: anti_utopia
+      text: "\u6211\u5728\u90A3\u91CC\u6709\u4E00\u9879\u5FC5\u987B\u4EB2\u81EA\u5B8C\u6210\u7684\u4E8B\u52A1\uFF0C\u76F8\u5173\u624B\u7EED\u4E5F\u5DF2\u7ECF\u51C6\u5907\u59A5\u5F53\u3002\u53EA\u8981\u83B7\u51C6\u901A\u884C\uFF0C\u6211\u5C31\u4F1A\u7ACB\u5373\u524D\u5F80\u3002"
+      source: "\u5F7C\u65B9\u59D4\u6258\u6240_\u7A0B\u5E8F\u95EE\u9898\u9010\u9879\u7B54\u590D\u4E0E\u5B8C\u6574\u89C4\u5219\u914D\u7F6E\u7A3F_\u4FE1\u4EFB\u503C\u6682\u5B9A\u6D4B\u8BD5\u7248.docx\uFF0F\u4E8B\u98795\u516D\u7C7B\u901A\u7528\u5165\u5883\u7406\u7531"
     items:
-      - id: "I001"
-        name: "晶核"
-        type: "资源货币"
-        costDescription: "无"
-        target: "全局"
-        effectType: "数值资源"
-        originalEffect: "数量动态变化"
-        formulaEffect: ""
-        acquisition: "初始获得、贿赂、委托奖励"
-        crystalCost: -1
-        notes: "仅配置，不实现使用与获取。"
-      - id: "I002"
-        name: "镇静剂"
-        type: "消耗品"
-        costDescription: "15晶核/次"
-        target: "收容所NPC"
-        effectType: "延缓崩溃"
-        originalEffect: "精神度恢复30，3天内衰减减半"
-        formulaEffect: "欲望-3，意志-3（本版不执行）"
-        acquisition: "商场购买、委托奖励、贿赂"
-        crystalCost: 15
-        notes: "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
-      - id: "I003"
-        name: "净化符"
-        type: "消耗品"
-        costDescription: "50晶核/次"
-        target: "收容所NPC/变异NPC"
-        effectType: "洗白降险"
-        originalEffect: "降低隐藏危险标签，连续用5次，风险值重置为初始的50%"
-        formulaEffect: "记忆与关系向+10靠拢1级，欲望向-10靠拢1级；连续5次洗脑（本版不执行）"
-        acquisition: "商场购买、委托奖励、贿赂"
-        crystalCost: 50
-        notes: "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
-      - id: "I004"
-        name: "时光沙漏"
-        type: "稀有道具"
-        costDescription: "无法购买"
-        target: "审批者/全局"
-        effectType: "撤销决策"
-        originalEffect: "撤销1次审批决策"
-        formulaEffect: ""
-        acquisition: "触发委托所有结局、解决黑天鹅事件"
-        crystalCost: -1
-        notes: "仅配置，不实现使用与获取。"
-      - id: "I005"
-        name: "委托契约"
-        type: "任务道具"
-        costDescription: "无"
-        target: "全局"
-        effectType: "任务接取"
-        originalEffect: "视具体任务而定"
-        formulaEffect: ""
-        acquisition: "系统随机事件、NPC对话生成"
-        crystalCost: -1
-        notes: "仅配置，不实现使用与获取。"
-    names:
-      - "沈青"
-      - "周远"
-      - "许宁"
-      - "顾白"
-      - "陆川"
-      - "苏禾"
-      - "江澄"
-      - "程安"
-    origins:
-      - "第一居住区"
-      - "第二居住区"
-      - "第三工业区"
-      - "第四机械厂"
-      - "第五旧城区"
-      - "第六边境区"
+    - id: I001
+      name: "\u6676\u6838"
+      type: "\u8D44\u6E90\u8D27\u5E01"
+      costDescription: "\u65E0"
+      target: "\u5168\u5C40"
+      effectType: "\u6570\u503C\u8D44\u6E90"
+      originalEffect: "\u6570\u91CF\u52A8\u6001\u53D8\u5316"
+      formulaEffect: 
+      acquisition: "\u521D\u59CB\u83B7\u5F97\u3001\u8D3F\u8D42\u3001\u59D4\u6258\u5956\u52B1"
+      notes: "\u672A\u63A5\u5165\uFF1B\u4E0E\u516C\u5F0F\u63CF\u8FF0\u51B2\u7A81\u4E0D\u81EA\u52A8\u5408\u5E76\u3002"
+      crystalCost: -1
+    - id: I002
+      name: "\u9547\u9759\u5242"
+      type: "\u6D88\u8017\u54C1"
+      costDescription: "15\u6676\u6838/\u6B21"
+      target: "\u6536\u5BB9\u6240NPC"
+      effectType: "\u5EF6\u7F13\u5D29\u6E83"
+      originalEffect: "\u7CBE\u795E\u5EA6\u6062\u590D30\uFF0C3\u5929\u5185\u8870\u51CF\u51CF\u534A"
+      formulaEffect: 
+      acquisition: "\u5546\u573A\u8D2D\u4E70\u3001\u59D4\u6258\u5956\u52B1\u3001\u8D3F\u8D42"
+      notes: "\u672A\u63A5\u5165\uFF1B\u4E0E\u516C\u5F0F\u63CF\u8FF0\u51B2\u7A81\u4E0D\u81EA\u52A8\u5408\u5E76\u3002"
+      crystalCost: 15
+    - id: I003
+      name: "\u51C0\u5316\u7B26"
+      type: "\u6D88\u8017\u54C1"
+      costDescription: "50\u6676\u6838/\u6B21"
+      target: "\u6536\u5BB9\u6240NPC/\u53D8\u5F02NPC"
+      effectType: "\u6D17\u767D\u964D\u9669"
+      originalEffect: "\u964D\u4F4E\u9690\u85CF\u5371\u9669\u6807\u7B7E\uFF0C\u8FDE\u7EED\u75285\u6B21\uFF0C\u98CE\u9669\u503C\u91CD\u7F6E\u4E3A\u521D\u59CB\u768450%"
+      formulaEffect: 
+      acquisition: "\u5546\u573A\u8D2D\u4E70\u3001\u59D4\u6258\u5956\u52B1\u3001\u8D3F\u8D42"
+      notes: "\u672A\u63A5\u5165\uFF1B\u4E0E\u516C\u5F0F\u63CF\u8FF0\u51B2\u7A81\u4E0D\u81EA\u52A8\u5408\u5E76\u3002"
+      crystalCost: 50
+    - id: I004
+      name: "\u65F6\u5149\u6C99\u6F0F"
+      type: "\u7A00\u6709\u9053\u5177"
+      costDescription: "\u65E0\u6CD5\u8D2D\u4E70"
+      target: "\u5BA1\u6279\u8005/\u5168\u5C40"
+      effectType: "\u64A4\u9500\u51B3\u7B56"
+      originalEffect: "\u64A4\u95001\u6B21\u5BA1\u6279\u51B3\u7B56"
+      formulaEffect: 
+      acquisition: "\u89E6\u53D1\u59D4\u6258\u6240\u6709\u7ED3\u5C40\u3001\u89E3\u51B3\u9ED1\u5929\u9E45\u4E8B\u4EF6"
+      notes: "\u672A\u63A5\u5165\uFF1B\u4E0E\u516C\u5F0F\u63CF\u8FF0\u51B2\u7A81\u4E0D\u81EA\u52A8\u5408\u5E76\u3002"
+      crystalCost: -1
+    - id: I005
+      name: "\u59D4\u6258\u5951\u7EA6"
+      type: "\u4EFB\u52A1\u9053\u5177"
+      costDescription: "\u65E0"
+      target: "\u5168\u5C40"
+      effectType: "\u4EFB\u52A1\u63A5\u53D6"
+      originalEffect: "\u89C6\u5177\u4F53\u4EFB\u52A1\u800C\u5B9A"
+      formulaEffect: 
+      acquisition: "\u7CFB\u7EDF\u968F\u673A\u4E8B\u4EF6\u3001NPC\u5BF9\u8BDD\u751F\u6210"
+      notes: "\u672A\u63A5\u5165\uFF1B\u4E0E\u516C\u5F0F\u63CF\u8FF0\u51B2\u7A81\u4E0D\u81EA\u52A8\u5408\u5E76\u3002"
+      crystalCost: -1
+    identities:
+    - id: PERSON-001
+      name: "\u6797\u9ED8"
+      origin: "\u7B2C\u4E03\u5DE5\u4E1A\u533A"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 0
+      motiveId: 9
+    - id: PERSON-002
+      name: "\u82CF\u79BE"
+      origin: "\u7B2C\u4E5D\u673A\u68B0\u5382"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 1
+      motiveId: 9
+    - id: PERSON-003
+      name: "\u9648\u821F"
+      origin: "\u65E7\u6E2F\u533A"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 2
+      motiveId: 9
+    - id: PERSON-004
+      name: "\u8BB8\u706F"
+      origin: "\u767D\u5854\u57CE"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 0
+      motiveId: 9
+    - id: PERSON-005
+      name: "\u767D\u6986"
+      origin: "\u7070\u539F\u9547"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 1
+      motiveId: 9
+    - id: PERSON-006
+      name: "\u987E\u5DDD"
+      origin: "\u5317\u65B9\u77FF\u533A"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 2
+      motiveId: 9
+    - id: PERSON-007
+      name: "\u53F6\u68E0"
+      origin: "\u7B2C\u4E03\u5DE5\u4E1A\u533A"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 0
+      motiveId: 9
+    - id: PERSON-008
+      name: "\u5468\u5C9A"
+      origin: "\u7B2C\u4E5D\u673A\u68B0\u5382"
+      portraitKey: 
+      source: "\u9879\u76EE\u65E2\u6709\u59D3\u540D/\u539F\u7C4D\u7EC4\u6210\u7684\u6D4B\u8BD5\u6837\u672C\uFF0C\u975E\u6B63\u5F0F\u4EBA\u7269\u8BBE\u5B9A\u3002"
+      sampleOnly: 1
+      useFixedAttributes: 0
+      fixedAttributes:
+        memory: 0
+        relationship: 0
+        desire: 0
+        will: 0
+      declarationType: 1
+      motiveId: 9
+    portraitPools:
+    - origin: "\u7B2C\u4E03\u5DE5\u4E1A\u533A"
+      portraitKeys:
+      - sample:origin-01-a
+      - sample:origin-01-b
+    - origin: "\u7B2C\u4E5D\u673A\u68B0\u5382"
+      portraitKeys:
+      - sample:origin-02-a
+      - sample:origin-02-b
+    - origin: "\u65E7\u6E2F\u533A"
+      portraitKeys:
+      - sample:origin-03-a
+      - sample:origin-03-b
+    - origin: "\u767D\u5854\u57CE"
+      portraitKeys:
+      - sample:origin-04-a
+      - sample:origin-04-b
+    - origin: "\u7070\u539F\u9547"
+      portraitKeys:
+      - sample:origin-05-a
+      - sample:origin-05-b
+    - origin: "\u5317\u65B9\u77FF\u533A"
+      portraitKeys:
+      - sample:origin-06-a
+      - sample:origin-06-b
+    feedbackTemplates:
+    - id: TEST_FEEDBACK_0
+      text: "\u3010\u8C03\u8BD5\u4E8B\u5B9E\u3011\u7B2C{day}\u5929\uFF0C{name}\u7684{choice}\u5DF2\u7ED3\u7B97\u3002\u8BE5\u6B21{utopia}\u8BB0\u8D26{purityDelta}\uFF0C{anti_utopia}\u8BB0\u8D26{orderDelta}\uFF1B\u5F53\u65E5\u5B9E\u9645\u51C0\u53D8\u5316\u5206\u522B\u4E3A{actualPurityDelta}\u3001{actualOrderDelta}\u3002"
+      source: "\u5B9E\u73B0\u5360\u4F4D\uFF0C\u6309\u771F\u5B9E\u5BA1\u6279/\u65E5\u7ED3\u751F\u6210\uFF1B\u6B63\u5F0F\u53D9\u4E8B\u5F85\u8865\u3002"
+      decision: 0
+      compliance: -1
+      testOnly: 1
+    - id: TEST_FEEDBACK_1
+      text: "\u3010\u8C03\u8BD5\u4E8B\u5B9E\u3011\u7B2C{day}\u5929\uFF0C{name}\u7684{choice}\u5DF2\u7ED3\u7B97\u3002\u8BE5\u6B21{utopia}\u8BB0\u8D26{purityDelta}\uFF0C{anti_utopia}\u8BB0\u8D26{orderDelta}\uFF1B\u5F53\u65E5\u5B9E\u9645\u51C0\u53D8\u5316\u5206\u522B\u4E3A{actualPurityDelta}\u3001{actualOrderDelta}\u3002"
+      source: "\u5B9E\u73B0\u5360\u4F4D\uFF0C\u6309\u771F\u5B9E\u5BA1\u6279/\u65E5\u7ED3\u751F\u6210\uFF1B\u6B63\u5F0F\u53D9\u4E8B\u5F85\u8865\u3002"
+      decision: 1
+      compliance: -1
+      testOnly: 1
+    - id: TEST_FEEDBACK_2
+      text: "\u3010\u8C03\u8BD5\u4E8B\u5B9E\u3011\u7B2C{day}\u5929\uFF0C{name}\u7684{choice}\u5DF2\u7ED3\u7B97\u3002\u8BE5\u6B21{utopia}\u8BB0\u8D26{purityDelta}\uFF0C{anti_utopia}\u8BB0\u8D26{orderDelta}\uFF1B\u5F53\u65E5\u5B9E\u9645\u51C0\u53D8\u5316\u5206\u522B\u4E3A{actualPurityDelta}\u3001{actualOrderDelta}\u3002"
+      source: "\u5B9E\u73B0\u5360\u4F4D\uFF0C\u6309\u771F\u5B9E\u5BA1\u6279/\u65E5\u7ED3\u751F\u6210\uFF1B\u6B63\u5F0F\u53D9\u4E8B\u5F85\u8865\u3002"
+      decision: 2
+      compliance: -1
+      testOnly: 1
+    lightFeedbackThresholds:
+    - 45
+    - 55
+    formalEventThresholds:
+    - 40
+    - 60
+    implementationDecisions:
+    - "\u4F9D\u636E2026-10-18\u7528\u6237\u6388\u6743\u91C7\u7528\u5206\u6790\u5EFA\u8BAE\uFF1B\u8FD9\u4E9B\u5B9E\u73B0\u7EA6\u5B9A\u4E0D\u662F\u6700\u7EC8\u5E73\u8861\u786E\u8BA4\u3002"
+    - "\u6765\u6E90\u9010\u4EBA\u7B49\u6982\u7387\u62BD\u53D6\uFF0C\u4E0D\u8BBE\u5F53\u5929\u4EBA\u6570\u914D\u989D\uFF1B\u7533\u62A5\u56FA\u5B9A\u4E3A\u6765\u6E90\u53E6\u4E00\u754C\u3002"
+    - "\u53EA\u5BF9\u7533\u62A5\u653E\u884C\u6216\u62D2\u7B7E\uFF0C\u4E0D\u5141\u8BB8\u6539\u6D3E\u3002\u7533\u62A5\u4E0E\u8BB0\u5FC6\u76EE\u6807\u4E00\u81F4\u65F6\u653E\u884C\u5408\u89C4\uFF0C\u5426\u5219\u62D2\u7B7E\u5408\u89C4\u3002"
+    - "\u4FE1\u4EFB\u6682\u7528\u5408\u89C4\u5904\u7406+3\u3001\u8FDD\u89C4\u5904\u7406-5\uFF1B\u62D2\u7B7E\u7EB3\u5165\u7EDF\u8BA1\uFF1B\u53D6\u6D88\u6BCF\u65E5\u56FA\u5B9A+5\u3002"
+    - "\u62D2\u7B7E\u7ED3\u675F\u5F53\u6B21\u7533\u8BF7\uFF0C\u4E0D\u8FDB\u5165\u6536\u5BB9\uFF0C\u4E0D\u6539\u8BB0\u5FC6\uFF1B\u6263\u7559\u672A\u542F\u7528\u3002"
+    - "F003\u5173\u95ED\uFF1B\u7533\u62A5\u7C7B\u578B\u548C\u771F\u5B9E\u52A8\u673A\u7531\u4EBA\u7269\u6837\u672C\u660E\u786E\u6307\u5B9A\uFF0C\u4E0D\u6309\u5C5E\u6027\u63A8\u65AD\uFF0C\u4E5F\u4E0D\u65B0\u589E\u4F18\u5148\u7EA7\u7CFB\u7EDF\u3002"
+    - "\u5F53\u524D\u516C\u5F0F\u4E0B\u5408\u89C4\u653E\u884C\u5F71\u54CD\u975E\u8D1F\uFF1B\u5408\u89C4\u62D2\u7B7E\u4ECD\u53EF\u80FD\u964D\u4F4E\u6765\u6E90\u4E16\u754C\u72B6\u6001\u3002"
+    - "\u4E16\u754C\u771F\u5B9E\u503C\u4EC5\u5728\u65E5\u7ED3\u53D8\u52A8\uFF0CUI\u5237\u65B0\u7ED3\u7B97\u540E\u7684\u5B9E\u9645\u503C\uFF1B\u5BA1\u6279\u540E\u7684\u9ED8\u8BA4\u63D0\u793A\u4EC5\u4E3A\u5904\u7406\u5DF2\u8BB0\u5F55\u3002"
+    - "\u5206\u522B\u7D2F\u8BA1\u4E24\u754C\u7CBE\u786E\u53D8\u5316\uFF0C\u65E5\u7EC8\u5BF9\u65E7\u503C\u52A0\u603B\u53D8\u5316\u56DB\u820D\u4E94\u5165\uFF0C\u518D\u9650\u5236\u57280\uFF5E100\u3002"
+    - "\u4EBA\u7269\u8EAB\u4EFD\u4E0E\u5F53\u6B21\u7533\u8BF7\u5206\u5F00\uFF1B\u9996\u6B21\u6309\u539F\u7C4D\u6C60\u9009\u5B9A\u7ACB\u7ED8\uFF0C\u540C\u4E00\u5C40\u8DE8\u65E5\u590D\u73B0\u4FDD\u6301\u59D3\u540D\u3001\u539F\u7C4D\u3001\u7ACB\u7ED8\u4E00\u81F4\u3002"
+    pendingDecisions:
+    - "\u4FE1\u4EFB+3/-5\u4E0E\u8BB0\u5FC6\u4E16\u754C\u516C\u5F0F\u662F\u53EF\u6267\u884C\u6D4B\u8BD5\u6807\u51C6\uFF0C\u9700\u591A\u65E5\u6A21\u62DF\u540E\u786E\u8BA4\u6700\u7EC8\u5E73\u8861\u3002"
+    - "8\u540D\u4EBA\u7269\u53CA\u7533\u62A5\u7C7B\u578B/\u666E\u901A\u52A8\u673A\u5C5E\u4E8E\u663E\u5F0F\u6D4B\u8BD5\u6837\u672C\uFF1B\u6B63\u5F0F\u59D3\u540D\u3001\u539F\u7C4D\u548C\u7ACB\u7ED8\u8D44\u6E90\u4ECD\u9700\u7B56\u5212/\u7F8E\u672F\u8865\u5145\u3002"
+    - "\u8BDA\u5B9E/\u7C89\u9970/\u6B3A\u9A97\u7531\u6837\u672C\u914D\u7F6E\uFF0C\u6B63\u5F0F\u6587\u6848\u4E0E\u4EBA\u7269\u771F\u5B9E\u60C5\u51B5\u7684\u4E00\u81F4\u6027\u4ECD\u9700\u5185\u5BB9\u5BA1\u6838\uFF1B\u4E0D\u81EA\u52A8\u63A8\u65AD\u6B3A\u9A97\u7C7B\u578B\u3002"
+    - "\u7559\u58F0\u673A\u53EA\u6709\u6309\u771F\u5B9E\u7ED3\u679C\u751F\u6210\u7684\u8C03\u8BD5\u4E8B\u5B9E\u6A21\u677F\uFF1B\u6B63\u5F0F\u53D9\u4E8B\u3001\u6761\u4EF6\u53CA\u65E5\u7ED3\u5C55\u793A\u5185\u5BB9\u5F85\u8865\u3002"
+    - "0/100\u7684\u5931\u8D25\u6216\u4E8B\u4EF6\u5904\u7406\u672A\u786E\u8BA4\uFF0C\u5F53\u524D\u53EA\u8BB0\u5F55\u8FB9\u754C\uFF0C\u4E0D\u81EA\u52A8\u7ED3\u675F\u6E38\u620F\u3002"
+    - "45/55\u4E0E40/60\u4EC5\u4FDD\u7559\u9608\u503C\u8D44\u6599\uFF1B\u89E6\u53D1\u65B9\u5411\u3001\u51B7\u5374\u3001\u6301\u7EED\u65F6\u95F4\u548C\u4E8B\u4EF6\u5185\u5BB9\u672A\u5B8C\u6574\u5B9A\u4E49\uFF0C\u4E8B\u4EF6\u5173\u95ED\u3002"
+    - "\u4F4E\u4E8E40\u3001\u6743\u91CD\u4E582\u53CA\u4E24\u754C\u5BF9\u5E94\u7B49\u7EA7\u4ECD\u672A\u786E\u8BA4\uFF1B\u751F\u6210\u6743\u91CD\u53CD\u9988\u5173\u95ED\uFF0C\u57FA\u7840\u88686\u6743\u91CD\u4FDD\u6301\u4E0D\u53D8\u3002"
+    - "\u672C\u5C40\u4FDD\u5B58\u662F\u5185\u5B58\u4FDD\u5B58\uFF0C\u672A\u63D0\u4F9B\u9000\u51FA\u6E38\u620F\u540E\u7684\u5B58\u6863/\u8BFB\u6863\u3002"
+  portraitBindings: []

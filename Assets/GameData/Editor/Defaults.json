@@ -1,513 +1,792 @@
 {
+  "version": "v3-reply-test-2026-10-18",
+  "sourceWorkbook": "彼方委托所_正式规则与配置需求版_v3.xlsx",
+  "sourceSha256": "1a84a8ce01e35f51fb16ec2836adc372518df9eefa80079e58a1f8031b699730",
+  "replyDocument": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx",
+  "replySha256": "5832cc1f1ae2b898ef8b7a691e5a4e1d8177a6b0d6dcfe0be34b17877dfb0bca",
+  "testConfiguration": true,
   "startDay": 1,
-  "dailyApplicants": 8,
+  "minDailyApplicants": 4,
+  "maxDailyApplicants": 8,
   "initialTrust": 50,
+  "trustMin": 0,
+  "trustMax": 100,
   "initialPurity": 50.0,
   "initialOrder": 50.0,
-  "recoveryCeiling": 50.0,
-  "dailyRecovery": 1.0,
-  "blackSwanThreshold": 30.0,
-  "worldFailureThreshold": 20.0,
-  "blackSwanDays": 3,
-  "blackSwanDamage": 10.0,
-  "complianceReward": 5,
-  "violationPenalty": 10,
-  "dailyTrustBonus": 5,
-  "memoryDecay": 1,
-  "relationshipDecay": 1,
-  "desireGrowth": 1,
-  "willGrowth": 1,
-  "blackSwanExtraDesire": 2,
-  "blackSwanExtraWill": 2,
-  "honestMaxDeviation": 3,
-  "embellishedMaxDeviation": 8,
+  "worldValueMin": 0.0,
+  "worldValueMax": 100.0,
+  "complianceReward": 3,
+  "violationPenalty": 5,
+  "impactDivisor": 5,
+  "rejectionSourcePenalty": 1,
+  "enableDailyRules": true,
+  "enableBondTrace": true,
+  "enableDriveAssessment": true,
+  "enableDocuments": true,
+  "enableWorldChanges": true,
+  "enableDelayedFeedback": true,
+  "showImmediateCompliance": false,
+  "enablePopulationFeedback": false,
+  "enableThresholdEvents": false,
+  "debugMode": false,
+  "logRuleResult": false,
+  "feedbackDelayDays": 1,
+  "dailyRuleCount": 1,
+  "bondTraceLabel": "羁绊牵挂",
+  "driveAssessmentLabel": "驱力等级",
+  "conflictPolicy": 0,
+  "worlds": [
+    {
+      "id": 0,
+      "displayName": "灵虚"
+    },
+    {
+      "id": 1,
+      "displayName": "废墟"
+    }
+  ],
+  "lightFeedbackThresholds": [
+    45.0,
+    55.0
+  ],
+  "formalEventThresholds": [
+    40.0,
+    60.0
+  ],
+  "identities": [
+    {
+      "id": "PERSON-001",
+      "name": "林默",
+      "origin": "第七工业区",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 0,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-002",
+      "name": "苏禾",
+      "origin": "第九机械厂",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 1,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-003",
+      "name": "陈舟",
+      "origin": "旧港区",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 2,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-004",
+      "name": "许灯",
+      "origin": "白塔城",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 0,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-005",
+      "name": "白榆",
+      "origin": "灰原镇",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 1,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-006",
+      "name": "顾川",
+      "origin": "北方矿区",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 2,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-007",
+      "name": "叶棠",
+      "origin": "第七工业区",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 0,
+      "motiveId": 9
+    },
+    {
+      "id": "PERSON-008",
+      "name": "周岚",
+      "origin": "第九机械厂",
+      "portraitKey": "",
+      "source": "项目既有姓名/原籍组成的测试样本，非正式人物设定。",
+      "sampleOnly": true,
+      "useFixedAttributes": false,
+      "fixedAttributes": {
+        "memory": 0,
+        "relationship": 0,
+        "desire": 0,
+        "will": 0
+      },
+      "declarationType": 1,
+      "motiveId": 9
+    }
+  ],
+  "portraitPools": [
+    {
+      "origin": "第七工业区",
+      "portraitKeys": [
+        "sample:origin-01-a",
+        "sample:origin-01-b"
+      ]
+    },
+    {
+      "origin": "第九机械厂",
+      "portraitKeys": [
+        "sample:origin-02-a",
+        "sample:origin-02-b"
+      ]
+    },
+    {
+      "origin": "旧港区",
+      "portraitKeys": [
+        "sample:origin-03-a",
+        "sample:origin-03-b"
+      ]
+    },
+    {
+      "origin": "白塔城",
+      "portraitKeys": [
+        "sample:origin-04-a",
+        "sample:origin-04-b"
+      ]
+    },
+    {
+      "origin": "灰原镇",
+      "portraitKeys": [
+        "sample:origin-05-a",
+        "sample:origin-05-b"
+      ]
+    },
+    {
+      "origin": "北方矿区",
+      "portraitKeys": [
+        "sample:origin-06-a",
+        "sample:origin-06-b"
+      ]
+    }
+  ],
+  "feedbackTemplates": [
+    {
+      "id": "TEST_FEEDBACK_0",
+      "decision": 0,
+      "compliance": -1,
+      "testOnly": true,
+      "text": "【调试事实】第{day}天，{name}的{choice}已结算。该次{utopia}记账{purityDelta}，{anti_utopia}记账{orderDelta}；当日实际净变化分别为{actualPurityDelta}、{actualOrderDelta}。",
+      "source": "实现占位，按真实审批/日结生成；正式叙事待补。"
+    },
+    {
+      "id": "TEST_FEEDBACK_1",
+      "decision": 1,
+      "compliance": -1,
+      "testOnly": true,
+      "text": "【调试事实】第{day}天，{name}的{choice}已结算。该次{utopia}记账{purityDelta}，{anti_utopia}记账{orderDelta}；当日实际净变化分别为{actualPurityDelta}、{actualOrderDelta}。",
+      "source": "实现占位，按真实审批/日结生成；正式叙事待补。"
+    },
+    {
+      "id": "TEST_FEEDBACK_2",
+      "decision": 2,
+      "compliance": -1,
+      "testOnly": true,
+      "text": "【调试事实】第{day}天，{name}的{choice}已结算。该次{utopia}记账{purityDelta}，{anti_utopia}记账{orderDelta}；当日实际净变化分别为{actualPurityDelta}、{actualOrderDelta}。",
+      "source": "实现占位，按真实审批/日结生成；正式叙事待补。"
+    }
+  ],
+  "implementationDecisions": [
+    "依据2026-10-18用户授权采用分析建议；这些实现约定不是最终平衡确认。",
+    "来源逐人等概率抽取，不设当天人数配额；申报固定为来源另一界。",
+    "只对申报放行或拒签，不允许改派。申报与记忆目标一致时放行合规，否则拒签合规。",
+    "信任暂用合规处理+3、违规处理-5；拒签纳入统计；取消每日固定+5。",
+    "拒签结束当次申请，不进入收容，不改记忆；扣留未启用。",
+    "F003关闭；申报类型和真实动机由人物样本明确指定，不按属性推断，也不新增优先级系统。",
+    "当前公式下合规放行影响非负；合规拒签仍可能降低来源世界状态。",
+    "世界真实值仅在日结变动，UI刷新结算后的实际值；审批后的默认提示仅为处理已记录。",
+    "分别累计两界精确变化，日终对旧值加总变化四舍五入，再限制在0～100。",
+    "人物身份与当次申请分开；首次按原籍池选定立绘，同一局跨日复现保持姓名、原籍、立绘一致。"
+  ],
+  "pendingDecisions": [
+    "信任+3/-5与记忆世界公式是可执行测试标准，需多日模拟后确认最终平衡。",
+    "8名人物及申报类型/普通动机属于显式测试样本；正式姓名、原籍和立绘资源仍需策划/美术补充。",
+    "诚实/粉饰/欺骗由样本配置，正式文案与人物真实情况的一致性仍需内容审核；不自动推断欺骗类型。",
+    "留声机只有按真实结果生成的调试事实模板；正式叙事、条件及日结展示内容待补。",
+    "0/100的失败或事件处理未确认，当前只记录边界，不自动结束游戏。",
+    "45/55与40/60仅保留阈值资料；触发方向、冷却、持续时间和事件内容未完整定义，事件关闭。",
+    "低于40、权重乘2及两界对应等级仍未确认；生成权重反馈关闭，基础表6权重保持不变。",
+    "本局保存是内存保存，未提供退出游戏后的存档/读档。"
+  ],
   "bands": [
     {
       "level": 1,
       "minValue": -10,
       "maxValue": -6,
-      "weight": 0.15,
-      "description": "极低"
+      "description": "极低（极端负面倾向）"
     },
     {
       "level": 2,
       "minValue": -5,
       "maxValue": -1,
-      "weight": 0.35,
-      "description": "偏低"
+      "description": "偏低（明显负面倾向）"
     },
     {
       "level": 3,
       "minValue": 0,
       "maxValue": 0,
-      "weight": 0.05,
-      "description": "中立"
+      "description": "中立（无倾向）"
     },
     {
       "level": 4,
       "minValue": 1,
       "maxValue": 5,
-      "weight": 0.35,
-      "description": "偏高"
+      "description": "偏高（明显正面倾向）"
     },
     {
       "level": 5,
       "minValue": 6,
       "maxValue": 10,
-      "weight": 0.1,
-      "description": "极高"
+      "description": "极高（极端正面倾向）"
+    }
+  ],
+  "generationWeights": [
+    {
+      "level": 1,
+      "weight": 0.15
+    },
+    {
+      "level": 2,
+      "weight": 0.35
+    },
+    {
+      "level": 3,
+      "weight": 0.05
+    },
+    {
+      "level": 4,
+      "weight": 0.35
+    },
+    {
+      "level": 5,
+      "weight": 0.1
     }
   ],
   "tags": [
     {
       "id": 1001,
-      "name": "冷酷的幽灵",
+      "name": "长期受过往经历影响，较少与他人建立联系。",
       "axisX": "memory",
       "xLevel": 1,
       "axisY": "relationship",
       "yLevel": 1,
-      "description": "无法忘却过往，且极度疏离"
+      "description": "长期受过往经历影响，较少与他人建立联系。"
     },
     {
       "id": 1002,
-      "name": "孤僻的寻回者",
+      "name": "难以放下过去，与他人保持一定距离。",
       "axisX": "memory",
       "xLevel": 1,
       "axisY": "relationship",
       "yLevel": 2,
-      "description": "困于旧日创伤，缺乏社会联结"
+      "description": "难以放下过去，与他人保持一定距离。"
     },
     {
       "id": 1003,
-      "name": "沉默的怀旧者",
+      "name": "仍记得过往经历，但较少主动与人牵连。",
       "axisX": "memory",
       "xLevel": 1,
       "axisY": "relationship",
       "yLevel": 3,
-      "description": "带着沉重记忆，保持社交距离"
+      "description": "仍记得过往经历，但较少主动与人牵连。"
     },
     {
       "id": 1004,
-      "name": "深情殉道者",
+      "name": "对过往仍有留恋，也较为在意曾经建立的关系。",
       "axisX": "memory",
       "xLevel": 1,
       "axisY": "relationship",
       "yLevel": 4,
-      "description": "为旧日羁绊甘愿牺牲"
+      "description": "对过往仍有留恋，也较为在意曾经建立的关系。"
     },
     {
       "id": 1005,
-      "name": "深渊回溯者",
+      "name": "深受过往与重要关系牵动，难以独自抽离。",
       "axisX": "memory",
       "xLevel": 1,
       "axisY": "relationship",
       "yLevel": 5,
-      "description": "无法忘却，且极度牵系"
+      "description": "深受过往与重要关系牵动，难以独自抽离。"
     },
     {
       "id": 1006,
-      "name": "冷漠的旁观者",
+      "name": "较少受到情感牵动，对过往也不甚在意。",
       "axisX": "memory",
       "xLevel": 2,
       "axisY": "relationship",
       "yLevel": 1,
-      "description": "略带负担，且刻意疏离"
+      "description": "较少受到情感牵动，对过往也不甚在意。"
     },
     {
       "id": 1007,
-      "name": "克制者",
+      "name": "倾向独自生活，过往经历仍留有一定影响。",
       "axisX": "memory",
       "xLevel": 2,
       "axisY": "relationship",
       "yLevel": 2,
-      "description": "克制情感，保持距离"
+      "description": "倾向独自生活，过往经历仍留有一定影响。"
     },
     {
       "id": 1008,
-      "name": "普通人",
+      "name": "保留着普通的过往记忆，并维持适度的人际联系。",
       "axisX": "memory",
       "xLevel": 2,
       "axisY": "relationship",
       "yLevel": 3,
-      "description": "有过去的影子，正常社交"
+      "description": "保留着普通的过往记忆，并维持适度的人际联系。"
     },
     {
       "id": 1009,
-      "name": "念旧者",
+      "name": "容易念及旧事，也会顾及身边的重要之人。",
       "axisX": "memory",
       "xLevel": 2,
       "axisY": "relationship",
       "yLevel": 4,
-      "description": "容易回忆过去，重视感情"
+      "description": "容易念及旧事，也会顾及身边的重要之人。"
     },
     {
       "id": 1010,
-      "name": "羁绊守护者",
+      "name": "虽不愿受过去束缚，却难以割舍重要关系。",
       "axisX": "memory",
       "xLevel": 2,
       "axisY": "relationship",
       "yLevel": 5,
-      "description": "带有牵挂，紧密相系"
+      "description": "虽不愿受过去束缚，却难以割舍重要关系。"
     },
     {
       "id": 1011,
-      "name": "无根游民",
+      "name": "不太留恋过去，习惯与他人保持距离。",
       "axisX": "memory",
       "xLevel": 3,
       "axisY": "relationship",
       "yLevel": 1,
-      "description": "没有记忆负担，不在乎他人"
+      "description": "不太留恋过去，习惯与他人保持距离。"
     },
     {
       "id": 1012,
-      "name": "随性者",
+      "name": "倾向顺其自然，不轻易与他人深交。",
       "axisX": "memory",
       "xLevel": 3,
       "axisY": "relationship",
       "yLevel": 2,
-      "description": "中立记忆，偏向独立"
+      "description": "倾向顺其自然，不轻易与他人深交。"
     },
     {
       "id": 1013,
-      "name": "绝对中立",
+      "name": "对过往与人际关系均未表现出明显执念。",
       "axisX": "memory",
       "xLevel": 3,
       "axisY": "relationship",
       "yLevel": 3,
-      "description": "记忆与关系均处于平衡"
+      "description": "对过往与人际关系均未表现出明显执念。"
     },
     {
       "id": 1014,
-      "name": "温情者",
+      "name": "重视眼前关系，也会记得曾经发生的事。",
       "axisX": "memory",
       "xLevel": 3,
       "axisY": "relationship",
       "yLevel": 4,
-      "description": "记忆普通，温柔有情"
+      "description": "重视眼前关系，也会记得曾经发生的事。"
     },
     {
       "id": 1015,
-      "name": "情感依赖者",
+      "name": "对过往看得较淡，但对重要关系有较强依赖。",
       "axisX": "memory",
       "xLevel": 3,
       "axisY": "relationship",
       "yLevel": 5,
-      "description": "记忆普通，极度依赖他人"
+      "description": "对过往看得较淡，但对重要关系有较强依赖。"
     },
     {
       "id": 1016,
-      "name": "遗忘流浪者",
+      "name": "正在逐渐放下过去，也较少依赖他人。",
       "axisX": "memory",
       "xLevel": 4,
       "axisY": "relationship",
       "yLevel": 1,
-      "description": "放下过往，独来独往"
+      "description": "正在逐渐放下过去，也较少依赖他人。"
     },
     {
       "id": 1017,
-      "name": "洒脱者",
+      "name": "愿意向前生活，但很少主动寻求陪伴。",
       "axisX": "memory",
       "xLevel": 4,
       "axisY": "relationship",
       "yLevel": 2,
-      "description": "放下过去，比较独立"
+      "description": "愿意向前生活，但很少主动寻求陪伴。"
     },
     {
       "id": 1018,
-      "name": "顺应者",
+      "name": "能够接受过往，并维持平常的人际距离。",
       "axisX": "memory",
       "xLevel": 4,
       "axisY": "relationship",
       "yLevel": 3,
-      "description": "容易释怀，普通社交"
+      "description": "能够接受过往，并维持平常的人际距离。"
     },
     {
       "id": 1019,
-      "name": "圆融者",
+      "name": "较少被旧事困扰，但仍会为重要之人停留。",
       "axisX": "memory",
       "xLevel": 4,
       "axisY": "relationship",
       "yLevel": 4,
-      "description": "心态平和，善于交际"
+      "description": "较少被旧事困扰，但仍会为重要之人停留。"
     },
     {
       "id": 1020,
-      "name": "博爱奉献者",
+      "name": "对过去已不再执着，却仍受某段关系牵引。",
       "axisX": "memory",
       "xLevel": 4,
       "axisY": "relationship",
       "yLevel": 5,
-      "description": "放下自我，奉献他人"
+      "description": "对过去已不再执着，却仍受某段关系牵引。"
     },
     {
       "id": 1021,
-      "name": "绝对原子",
+      "name": "几乎不再留恋过去，习惯独自行动。",
       "axisX": "memory",
       "xLevel": 5,
       "axisY": "relationship",
       "yLevel": 1,
-      "description": "纯白无瑕，绝对疏离"
+      "description": "几乎不再留恋过去，习惯独自行动。"
     },
     {
       "id": 1022,
-      "name": "毫无牵挂者",
+      "name": "很少回顾过往，也不习惯与他人亲近。",
       "axisX": "memory",
       "xLevel": 5,
       "axisY": "relationship",
       "yLevel": 2,
-      "description": "彻底放下，没有牵绊"
+      "description": "很少回顾过往，也不习惯与他人亲近。"
     },
     {
       "id": 1023,
-      "name": "空白灵魂",
+      "name": "能够坦然面对过去，不刻意依赖他人。",
       "axisX": "memory",
       "xLevel": 5,
       "axisY": "relationship",
       "yLevel": 3,
-      "description": "纯洁无瑕，情感中庸"
+      "description": "能够坦然面对过去，不刻意依赖他人。"
     },
     {
       "id": 1024,
-      "name": "宽容者",
+      "name": "较少受往事影响，但仍愿意为在意之人付出。",
       "axisX": "memory",
       "xLevel": 5,
       "axisY": "relationship",
       "yLevel": 4,
-      "description": "释怀一切，包容他人"
+      "description": "较少受往事影响，但仍愿意为在意之人付出。"
     },
     {
       "id": 1025,
-      "name": "乌托邦圣徒",
+      "name": "大部分过往已被放下，但仍难以割舍重要关系。",
       "axisX": "memory",
       "xLevel": 5,
       "axisY": "relationship",
       "yLevel": 5,
-      "description": "彻底放下过往，极度博爱"
+      "description": "大部分过往已被放下，但仍难以割舍重要关系。"
     },
     {
       "id": 2001,
-      "name": "完美齿轮",
+      "name": "缺乏明确的个人追求，通常接受外界安排。",
       "axisX": "desire",
       "xLevel": 1,
       "axisY": "will",
       "yLevel": 1,
-      "description": "无欲无求，绝对顺从，完美工具"
+      "description": "缺乏明确的个人追求，通常接受外界安排。"
     },
     {
       "id": 2002,
-      "name": "温顺良民",
+      "name": "较少主动争取，遇事倾向接受他人决定。",
       "axisX": "desire",
       "xLevel": 1,
       "axisY": "will",
       "yLevel": 2,
-      "description": "欲望极低，倾向顺从"
+      "description": "较少主动争取，遇事倾向接受他人决定。"
     },
     {
       "id": 2003,
-      "name": "无欲无求者",
+      "name": "没有强烈追求，但仍会衡量事情是否合理。",
       "axisX": "desire",
       "xLevel": 1,
       "axisY": "will",
       "yLevel": 3,
-      "description": "没有渴望，权衡利弊"
+      "description": "没有强烈追求，但仍会衡量事情是否合理。"
     },
     {
       "id": 2004,
-      "name": "消极抵抗者",
+      "name": "个人欲求较低，但坚持自主作出决定。",
       "axisX": "desire",
       "xLevel": 1,
       "axisY": "will",
       "yLevel": 4,
-      "description": "没什么欲望，绝不配合"
+      "description": "个人欲求较低，但坚持自主作出决定。"
     },
     {
       "id": 2005,
-      "name": "苦行僧",
+      "name": "个人欲求不明显，却强烈排斥外界控制。",
       "axisX": "desire",
       "xLevel": 1,
       "axisY": "will",
       "yLevel": 5,
-      "description": "极度克己，坚定的反抗信念"
+      "description": "个人欲求不明显，却强烈排斥外界控制。"
     },
     {
       "id": 2006,
-      "name": "安分守己者",
+      "name": "容易满足，通常愿意接受现有安排。",
       "axisX": "desire",
       "xLevel": 2,
       "axisY": "will",
       "yLevel": 1,
-      "description": "欲望偏低，安分顺从"
+      "description": "容易满足，通常愿意接受现有安排。"
     },
     {
       "id": 2007,
-      "name": "知足者",
+      "name": "较少主动争取，遇到冲突时倾向妥协。",
       "axisX": "desire",
       "xLevel": 2,
       "axisY": "will",
       "yLevel": 2,
-      "description": "容易满足，比较听话"
+      "description": "较少主动争取，遇到冲突时倾向妥协。"
     },
     {
       "id": 2008,
-      "name": "平庸者",
+      "name": "追求不多，会根据实际情况作出判断。",
       "axisX": "desire",
       "xLevel": 2,
       "axisY": "will",
       "yLevel": 3,
-      "description": "欲望和意志低于平均"
+      "description": "追求不多，会根据实际情况作出判断。"
     },
     {
       "id": 2009,
-      "name": "不满者",
+      "name": "需求不高，但不愿轻易放弃自主权。",
       "axisX": "desire",
       "xLevel": 2,
       "axisY": "will",
       "yLevel": 4,
-      "description": "欲望不高，内心有怨言"
+      "description": "需求不高，但不愿轻易放弃自主权。"
     },
     {
       "id": 2010,
-      "name": "温和异见者",
+      "name": "个人所求不多，却难以接受被他人支配。",
       "axisX": "desire",
       "xLevel": 2,
       "axisY": "will",
       "yLevel": 5,
-      "description": "没有野心，坚持主张"
+      "description": "个人所求不多，却难以接受被他人支配。"
     },
     {
       "id": 2011,
-      "name": "顺从的劳力",
+      "name": "具有常见的生活需求，愿意遵守现有安排。",
       "axisX": "desire",
       "xLevel": 3,
       "axisY": "will",
       "yLevel": 1,
-      "description": "有基本需求，绝对服从"
+      "description": "具有常见的生活需求，愿意遵守现有安排。"
     },
     {
       "id": 2012,
-      "name": "随波逐流者",
+      "name": "有日常需求，但通常避免与规则发生冲突。",
       "axisX": "desire",
       "xLevel": 3,
       "axisY": "will",
       "yLevel": 2,
-      "description": "有需求，随大流"
+      "description": "有日常需求，但通常避免与规则发生冲突。"
     },
     {
       "id": 2013,
-      "name": "绝对中立",
+      "name": "具有普通生活目标，会权衡规则与实际情况。",
       "axisX": "desire",
       "xLevel": 3,
       "axisY": "will",
       "yLevel": 3,
-      "description": "欲望与意志均平衡"
+      "description": "具有普通生活目标，会权衡规则与实际情况。"
     },
     {
       "id": 2014,
-      "name": "有抱负者",
+      "name": "具有个人目标，习惯独立作出决定。",
       "axisX": "desire",
       "xLevel": 3,
       "axisY": "will",
       "yLevel": 4,
-      "description": "有一定野心，不愿盲从"
+      "description": "具有个人目标，习惯独立作出决定。"
     },
     {
       "id": 2015,
-      "name": "自由主义者",
+      "name": "追求普通生活，但明显排斥受到控制。",
       "axisX": "desire",
       "xLevel": 3,
       "axisY": "will",
       "yLevel": 5,
-      "description": "欲望正常，极度渴望自由"
+      "description": "追求普通生活，但明显排斥受到控制。"
     },
     {
       "id": 2016,
-      "name": "虚伪的投机客",
+      "name": "有明确目标，但仍愿意按照规则行事。",
       "axisX": "desire",
       "xLevel": 4,
       "axisY": "will",
       "yLevel": 1,
-      "description": "渴望较高，表面顺从"
+      "description": "有明确目标，但仍愿意按照规则行事。"
     },
     {
       "id": 2017,
-      "name": "贪婪的钻营者",
+      "name": "具有个人目标，必要时也会选择妥协。",
       "axisX": "desire",
       "xLevel": 4,
       "axisY": "will",
       "yLevel": 2,
-      "description": "渴望较高，善于钻营"
+      "description": "具有个人目标，必要时也会选择妥协。"
     },
     {
       "id": 2018,
-      "name": "欲望驱动者",
+      "name": "会为目标投入行动，同时衡量行动代价。",
       "axisX": "desire",
       "xLevel": 4,
       "axisY": "will",
       "yLevel": 3,
-      "description": "有明显野心，行动中等"
+      "description": "会为目标投入行动，同时衡量行动代价。"
     },
     {
       "id": 2019,
-      "name": "激进分子",
+      "name": "具有明确追求，不愿由他人代为决定。",
       "axisX": "desire",
       "xLevel": 4,
       "axisY": "will",
       "yLevel": 4,
-      "description": "野心勃勃，极具反抗精神"
+      "description": "具有明确追求，不愿由他人代为决定。"
     },
     {
       "id": 2020,
-      "name": "狂热斗士",
+      "name": "对目标较为执着，难以容忍外界干涉。",
       "axisX": "desire",
       "xLevel": 4,
       "axisY": "will",
       "yLevel": 5,
-      "description": "渴望强烈，随时准备战斗"
+      "description": "对目标较为执着，难以容忍外界干涉。"
     },
     {
       "id": 2021,
-      "name": "被异化的工具",
+      "name": "有强烈需求，但通常压下反抗并接受安排。",
       "axisX": "desire",
       "xLevel": 5,
       "axisY": "will",
       "yLevel": 1,
-      "description": "极度匮乏，被彻底驯化"
+      "description": "有强烈需求，但通常压下反抗并接受安排。"
     },
     {
       "id": 2022,
-      "name": "贪婪的顺从者",
+      "name": "有迫切需求，可能为达成目标暂时妥协。",
       "axisX": "desire",
       "xLevel": 5,
       "axisY": "will",
       "yLevel": 2,
-      "description": "极度渴望，跪着求生"
+      "description": "有迫切需求，可能为达成目标暂时妥协。"
     },
     {
       "id": 2023,
-      "name": "投机狂",
+      "name": "具有强烈追求，但仍会衡量得失再行动。",
       "axisX": "desire",
       "xLevel": 5,
       "axisY": "will",
       "yLevel": 3,
-      "description": "极度渴望，随时改变立场"
+      "description": "具有强烈追求，但仍会衡量得失再行动。"
     },
     {
       "id": 2024,
-      "name": "狂热反抗者",
+      "name": "渴望实现个人目标，同时坚持自主选择。",
       "axisX": "desire",
       "xLevel": 5,
       "axisY": "will",
       "yLevel": 4,
-      "description": "极度渴望，强烈的破坏欲"
+      "description": "渴望实现个人目标，同时坚持自主选择。"
     },
     {
       "id": 2025,
-      "name": "狂热的革命者",
+      "name": "具有强烈而迫切的欲求，受到限制时可能激烈反抗。",
       "axisX": "desire",
       "xLevel": 5,
       "axisY": "will",
       "yLevel": 5,
-      "description": "极度渴求，强烈反抗，极度危险"
+      "description": "具有强烈而迫切的欲求，受到限制时可能激烈反抗。"
     }
   ],
   "details": [
@@ -515,106 +794,106 @@
       "id": 101,
       "attribute": "memory",
       "level": 1,
-      "text": "记忆残留：极高",
-      "description": "无法忘却的旧日创伤"
+      "text": "长期受过往经历影响。",
+      "description": "过往经历持续影响其判断与行为，较难真正放下。"
     },
     {
       "id": 102,
       "attribute": "memory",
       "level": 2,
-      "text": "记忆残留：偏高",
-      "description": "带有一定的过往负担"
+      "text": "仍会受到过去影响。",
+      "description": "部分过往经历仍会影响其选择，但已不再时时困扰。"
     },
     {
       "id": 103,
       "attribute": "memory",
       "level": 3,
-      "text": "记忆残留：中等",
-      "description": "无明显记忆锚点"
+      "text": "过往经历的影响较为有限。",
+      "description": "能够记得自身经历，但未表现出某段往事持续左右其选择。"
     },
     {
       "id": 104,
       "attribute": "memory",
       "level": 4,
-      "text": "记忆残留：偏低",
-      "description": "容易适应新环境"
+      "text": "正在逐渐放下过去。",
+      "description": "较少受到旧事影响，也更容易适应新的生活。"
     },
     {
       "id": 105,
       "attribute": "memory",
       "level": 5,
-      "text": "记忆残留：极低",
-      "description": "彻底释怀，纯白无瑕"
+      "text": "较少受到过往牵动。",
+      "description": "基本放下过往，旧日经历已较少对其行为形成束缚。"
     },
     {
       "id": 201,
       "attribute": "relationship",
       "level": 1,
-      "text": "情感牵系：极低",
-      "description": "极度疏离，绝对原子化"
+      "text": "较少依赖他人。",
+      "description": "习惯独自行动，很少与他人建立亲密联系。"
     },
     {
       "id": 202,
       "attribute": "relationship",
       "level": 2,
-      "text": "情感牵系：偏低",
-      "description": "缺乏社会联结"
+      "text": "与他人的联系较少。",
+      "description": "会与他人来往，但通常保持距离，不轻易寻求帮助。"
     },
     {
       "id": 203,
       "attribute": "relationship",
       "level": 3,
-      "text": "情感牵系：中等",
-      "description": "正常的社交距离"
+      "text": "维持普通的人际联系。",
+      "description": "能够与他人正常相处，同时保留个人生活边界。"
     },
     {
       "id": 204,
       "attribute": "relationship",
       "level": 4,
-      "text": "情感牵系：偏高",
-      "description": "对某人或某物有羁绊"
+      "text": "较为在意重要的人或事。",
+      "description": "对重要的人或事存在明显牵挂，会将关系纳入个人选择。"
     },
     {
       "id": 205,
       "attribute": "relationship",
       "level": 5,
-      "text": "情感牵系：极高",
-      "description": "极度依赖，易被裹挟"
+      "text": "难以割舍重要关系。",
+      "description": "对特定的人或事存在强烈依恋，可能因此改变自身决定。"
     },
     {
       "id": 301,
       "attribute": "desire",
       "level": 1,
-      "text": "内在渴求：极低",
-      "description": "无欲无求，行尸走肉"
+      "text": "缺乏主动追求的目标。",
+      "description": "较少主动争取，对未来也缺乏明确期待。"
     },
     {
       "id": 302,
       "attribute": "desire",
       "level": 2,
-      "text": "内在渴求：偏低",
-      "description": "容易满足，节能模式"
+      "text": "需求较少，容易满足。",
+      "description": "倾向维持现状，不常为额外目标付出行动。"
     },
     {
       "id": 303,
       "attribute": "desire",
       "level": 3,
-      "text": "内在渴求：中等",
-      "description": "有正常的生存需求"
+      "text": "具有普通的生活需求。",
+      "description": "会为日常生活与常见目标付出努力，未表现出极端倾向。"
     },
     {
       "id": 304,
       "attribute": "desire",
       "level": 4,
-      "text": "内在渴求：偏高",
-      "description": "有明确的渴望与野心"
+      "text": "具有明确的个人目标。",
+      "description": "清楚自身想要达成的目标，并愿意为此投入精力。"
     },
     {
       "id": 305,
       "attribute": "desire",
       "level": 5,
-      "text": "内在渴求：极高",
-      "description": "极度匮乏，狂热索取"
+      "text": "对某项目标有强烈需求。",
+      "description": "某种需求或目标持续影响其选择，可能推动其采取激进行动。"
     },
     {
       "id": 306,
@@ -655,36 +934,178 @@
       "id": 401,
       "attribute": "will",
       "level": 1,
-      "text": "反抗意志：极低",
-      "description": "绝对顺从，毫无主见"
+      "text": "通常接受他人安排。",
+      "description": "很少表达反对意见，即使不认同也倾向服从。"
     },
     {
       "id": 402,
       "attribute": "will",
       "level": 2,
-      "text": "反抗意志：偏低",
-      "description": "容易妥协，缺乏主见"
+      "text": "较少与现有安排发生冲突。",
+      "description": "具有个人想法，但面对压力时容易退让。"
     },
     {
       "id": 403,
       "attribute": "will",
       "level": 3,
-      "text": "反抗意志：中等",
-      "description": "权衡利弊，不盲从"
+      "text": "会权衡后决定是否服从。",
+      "description": "既不会一味顺从，也不会单纯为了反抗而反抗。"
     },
     {
       "id": 404,
       "attribute": "will",
       "level": 4,
-      "text": "反抗意志：偏高",
-      "description": "具有独立自主精神"
+      "text": "倾向自主作出决定。",
+      "description": "重视自主选择，通常会坚持个人判断。"
     },
     {
       "id": 405,
       "attribute": "will",
       "level": 5,
-      "text": "反抗意志：极高",
-      "description": "强烈叛逆冲动，随时破坏规则"
+      "text": "强烈排斥受到他人控制。",
+      "description": "难以接受强制安排，受到压迫时可能激烈反抗。"
+    }
+  ],
+  "semantics": [
+    {
+      "attribute": "memory",
+      "level": 1,
+      "meaning": "长期受过往经历影响。",
+      "score": 5,
+      "confirmed": true
+    },
+    {
+      "attribute": "memory",
+      "level": 2,
+      "meaning": "仍会受到过去影响。",
+      "score": 4,
+      "confirmed": true
+    },
+    {
+      "attribute": "memory",
+      "level": 3,
+      "meaning": "过往经历的影响较为有限。",
+      "score": 3,
+      "confirmed": true
+    },
+    {
+      "attribute": "memory",
+      "level": 4,
+      "meaning": "正在逐渐放下过去。",
+      "score": 2,
+      "confirmed": true
+    },
+    {
+      "attribute": "memory",
+      "level": 5,
+      "meaning": "较少受到过往牵动。",
+      "score": 1,
+      "confirmed": true
+    },
+    {
+      "attribute": "relationship",
+      "level": 1,
+      "meaning": "较少依赖他人。",
+      "score": 1,
+      "confirmed": true
+    },
+    {
+      "attribute": "relationship",
+      "level": 2,
+      "meaning": "与他人的联系较少。",
+      "score": 2,
+      "confirmed": true
+    },
+    {
+      "attribute": "relationship",
+      "level": 3,
+      "meaning": "维持普通的人际联系。",
+      "score": 3,
+      "confirmed": true
+    },
+    {
+      "attribute": "relationship",
+      "level": 4,
+      "meaning": "较为在意重要的人或事。",
+      "score": 4,
+      "confirmed": true
+    },
+    {
+      "attribute": "relationship",
+      "level": 5,
+      "meaning": "难以割舍重要关系。",
+      "score": 5,
+      "confirmed": true
+    },
+    {
+      "attribute": "desire",
+      "level": 1,
+      "meaning": "缺乏主动追求的目标。",
+      "score": 1,
+      "confirmed": true
+    },
+    {
+      "attribute": "desire",
+      "level": 2,
+      "meaning": "需求较少，容易满足。",
+      "score": 2,
+      "confirmed": true
+    },
+    {
+      "attribute": "desire",
+      "level": 3,
+      "meaning": "具有普通的生活需求。",
+      "score": 3,
+      "confirmed": true
+    },
+    {
+      "attribute": "desire",
+      "level": 4,
+      "meaning": "具有明确的个人目标。",
+      "score": 4,
+      "confirmed": true
+    },
+    {
+      "attribute": "desire",
+      "level": 5,
+      "meaning": "对某项目标有强烈需求。",
+      "score": 5,
+      "confirmed": true
+    },
+    {
+      "attribute": "will",
+      "level": 1,
+      "meaning": "通常接受他人安排。",
+      "score": 1,
+      "confirmed": true
+    },
+    {
+      "attribute": "will",
+      "level": 2,
+      "meaning": "较少与现有安排发生冲突。",
+      "score": 2,
+      "confirmed": true
+    },
+    {
+      "attribute": "will",
+      "level": 3,
+      "meaning": "会权衡后决定是否服从。",
+      "score": 3,
+      "confirmed": true
+    },
+    {
+      "attribute": "will",
+      "level": 4,
+      "meaning": "倾向自主作出决定。",
+      "score": 4,
+      "confirmed": true
+    },
+    {
+      "attribute": "will",
+      "level": 5,
+      "meaning": "强烈排斥受到他人控制。",
+      "score": 5,
+      "confirmed": true
     }
   ],
   "motives": [
@@ -760,7 +1181,7 @@
       "destination": "any",
       "triggerType": 0,
       "text": "身体状况：真实呈现当前状态",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F4；世界名称转为配置占位符"
     },
     {
       "id": 502,
@@ -769,7 +1190,7 @@
       "destination": "any",
       "triggerType": 1,
       "text": "身体状况：略显疲惫，但整体平稳",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F5；世界名称转为配置占位符"
     },
     {
       "id": 503,
@@ -778,7 +1199,7 @@
       "destination": "any",
       "triggerType": 2,
       "text": "身体状况：平稳，无异常（完美伪装）",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F6；世界名称转为配置占位符"
     },
     {
       "id": 601,
@@ -786,8 +1207,8 @@
       "motive": "追随羁绊",
       "destination": "utopia",
       "triggerType": 2,
-      "text": "愿抛弃一切过往情感，只为在乌托邦寻找失散的爱人",
-      "source": "原策划：表5"
+      "text": "愿抛弃一切过往情感，只为在{utopia}寻找失散的爱人",
+      "source": "Excel/表5/F7；世界名称转为配置占位符"
     },
     {
       "id": 602,
@@ -796,7 +1217,7 @@
       "destination": "anti_utopia",
       "triggerType": 2,
       "text": "愿意切断一切私人联系，绝对独立，愿接受统一调配",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F8；世界名称转为配置占位符"
     },
     {
       "id": 603,
@@ -804,8 +1225,8 @@
       "motive": "逃离匮乏",
       "destination": "utopia",
       "triggerType": 2,
-      "text": "向往乌托邦的纯白与平和，渴望获得新生",
-      "source": "原策划：表5"
+      "text": "向往{utopia}的纯白与平和，渴望获得新生",
+      "source": "Excel/表5/F9；世界名称转为配置占位符"
     },
     {
       "id": 604,
@@ -814,7 +1235,7 @@
       "destination": "anti_utopia",
       "triggerType": 2,
       "text": "申请调配至新生产线，服从统一管理",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F10；世界名称转为配置占位符"
     },
     {
       "id": 605,
@@ -823,7 +1244,7 @@
       "destination": "utopia",
       "triggerType": 0,
       "text": "我想去寻找失去的记忆，请求放行",
-      "source": "原策划：表5"
+      "source": "Excel/表5/F11；世界名称转为配置占位符"
     },
     {
       "id": 606,
@@ -831,8 +1252,8 @@
       "motive": "抗争与破坏",
       "destination": "utopia",
       "triggerType": 0,
-      "text": "我受够了反乌托邦的压迫，我要去乌托邦申诉不公",
-      "source": "原策划：表5"
+      "text": "我受够了{anti_utopia}的压迫，我要去{utopia}申诉不公",
+      "source": "Excel/表5/F12；世界名称转为配置占位符"
     },
     {
       "id": 607,
@@ -840,8 +1261,8 @@
       "motive": "普通生活",
       "destination": "utopia",
       "triggerType": 0,
-      "text": "申请前往乌托邦寻找一份普通工作，安静生活",
-      "source": "原策划：表5"
+      "text": "申请前往{utopia}寻找一份普通工作，安静生活",
+      "source": "Excel/表5/F13；世界名称转为配置占位符"
     },
     {
       "id": 608,
@@ -849,62 +1270,62 @@
       "motive": "普通生活",
       "destination": "anti_utopia",
       "triggerType": 0,
-      "text": "申请前往反乌托邦务工，愿服从分配",
-      "source": "原策划：表5"
+      "text": "申请前往{anti_utopia}务工，愿服从分配",
+      "source": "Excel/表5/F14；世界名称转为配置占位符"
     },
     {
-      "id": 901,
+      "id": 9001,
       "field": "entry_reason",
       "motive": "any",
       "destination": "utopia",
       "triggerType": 0,
-      "text": "申请前往乌托邦。真实目的：{motive_desc}。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "希望在此获得一段安静的生活。我已准备好放下不再需要的牵挂，接受这里的安排。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     },
     {
-      "id": 902,
+      "id": 9002,
       "field": "entry_reason",
       "motive": "any",
       "destination": "anti_utopia",
       "triggerType": 0,
-      "text": "申请前往反乌托邦。真实目的：{motive_desc}。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "我希望前往{anti_utopia}，那里仍有值得我面对的事情。无论之后会遇到什么，我都愿意承担相应的结果。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     },
     {
-      "id": 903,
+      "id": 9003,
       "field": "entry_reason",
       "motive": "any",
       "destination": "utopia",
       "triggerType": 1,
-      "text": "希望在乌托邦开始平静的新生活，愿意遵守入境要求。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "过去的事情已经不再重要。我只希望在{utopia}重新开始，其他的都不必再提。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     },
     {
-      "id": 904,
+      "id": 9004,
       "field": "entry_reason",
       "motive": "any",
       "destination": "anti_utopia",
       "triggerType": 1,
-      "text": "希望前往反乌托邦务工，愿意配合日常调配。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "我只是想回到熟悉的地方。那里的生活或许不容易，但我相信自己能够适应，不会给其他人添麻烦。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     },
     {
-      "id": 905,
+      "id": 9005,
       "field": "entry_reason",
       "motive": "any",
       "destination": "utopia",
       "triggerType": 2,
-      "text": "已放下过往，无私人牵挂与额外欲求，愿融入乌托邦。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "我与过去已经没有任何联系，也没有什么需要继续处理的事情。进入{utopia}之后，我不会再回头。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     },
     {
-      "id": 906,
+      "id": 9006,
       "field": "entry_reason",
       "motive": "any",
       "destination": "anti_utopia",
       "triggerType": 2,
-      "text": "无私人关系与个人诉求，服从统一安排，绝不违抗。",
-      "source": "新增：覆盖原表缺失组合的通用模板"
+      "text": "我在那里有一项必须亲自完成的事务，相关手续也已经准备妥当。只要获准通行，我就会立即前往。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx／事项5六类通用入境理由"
     }
   ],
   "items": [
@@ -918,8 +1339,8 @@
       "originalEffect": "数量动态变化",
       "formulaEffect": "",
       "acquisition": "初始获得、贿赂、委托奖励",
-      "crystalCost": -1,
-      "notes": "仅配置，不实现使用与获取。"
+      "notes": "未接入；与公式描述冲突不自动合并。",
+      "crystalCost": -1
     },
     {
       "id": "I002",
@@ -929,10 +1350,10 @@
       "target": "收容所NPC",
       "effectType": "延缓崩溃",
       "originalEffect": "精神度恢复30，3天内衰减减半",
-      "formulaEffect": "欲望-3，意志-3（本版不执行）",
+      "formulaEffect": "",
       "acquisition": "商场购买、委托奖励、贿赂",
-      "crystalCost": 15,
-      "notes": "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
+      "notes": "未接入；与公式描述冲突不自动合并。",
+      "crystalCost": 15
     },
     {
       "id": "I003",
@@ -942,10 +1363,10 @@
       "target": "收容所NPC/变异NPC",
       "effectType": "洗白降险",
       "originalEffect": "降低隐藏危险标签，连续用5次，风险值重置为初始的50%",
-      "formulaEffect": "记忆与关系向+10靠拢1级，欲望向-10靠拢1级；连续5次洗脑（本版不执行）",
+      "formulaEffect": "",
       "acquisition": "商场购买、委托奖励、贿赂",
-      "crystalCost": 50,
-      "notes": "仅配置，不实现使用与获取。 原道具表与公式表效果冲突，留待后续确认。"
+      "notes": "未接入；与公式描述冲突不自动合并。",
+      "crystalCost": 50
     },
     {
       "id": "I004",
@@ -957,8 +1378,8 @@
       "originalEffect": "撤销1次审批决策",
       "formulaEffect": "",
       "acquisition": "触发委托所有结局、解决黑天鹅事件",
-      "crystalCost": -1,
-      "notes": "仅配置，不实现使用与获取。"
+      "notes": "未接入；与公式描述冲突不自动合并。",
+      "crystalCost": -1
     },
     {
       "id": "I005",
@@ -970,26 +1391,240 @@
       "originalEffect": "视具体任务而定",
       "formulaEffect": "",
       "acquisition": "系统随机事件、NPC对话生成",
-      "crystalCost": -1,
-      "notes": "仅配置，不实现使用与获取。"
+      "notes": "未接入；与公式描述冲突不自动合并。",
+      "crystalCost": -1
     }
   ],
-  "names": [
-    "沈青",
-    "周远",
-    "许宁",
-    "顾白",
-    "陆川",
-    "苏禾",
-    "江澄",
-    "程安"
+  "rules": [
+    {
+      "id": "R_MEM_01",
+      "title": "记忆留存审查",
+      "attribute": "memory",
+      "source": "策划逐项答复：记忆1～2级去废墟，3～5级去灵虚；中点明确归灵虚。",
+      "enabled": true,
+      "confirmed": true,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 10,
+      "lowAnchor": 1.0,
+      "highAnchor": 5.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 2,
+      "unmatchedReject": false
+    },
+    {
+      "id": "R_MEM_02",
+      "title": "中间等级归类",
+      "attribute": "memory",
+      "source": "Excel/每日规则库草案：当记忆残留处于中间程度时，按更接近的等级方向归类。；需明确语义分值、阈值及等距处理；不能直接用未经校准的等级整数比较。",
+      "enabled": false,
+      "confirmed": false,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 0,
+      "lowAnchor": 0.0,
+      "highAnchor": 0.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 0,
+      "unmatchedReject": false
+    },
+    {
+      "id": "R_REL_01",
+      "title": "关系牵绊审查",
+      "attribute": "relationship",
+      "source": "Excel/每日规则库草案：关系牵系与准入去向的关系，以当日公开规则为准。；属性与两个世界准入条件的因果关系未确认。",
+      "enabled": false,
+      "confirmed": false,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 0,
+      "lowAnchor": 0.0,
+      "highAnchor": 0.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 0,
+      "unmatchedReject": false
+    },
+    {
+      "id": "R_DES_01",
+      "title": "内在渴求审查",
+      "attribute": "desire",
+      "source": "Excel/每日规则库草案：内在渴求与准入去向的关系，以当日公开规则为准。；属性与两个世界准入条件的因果关系未确认。",
+      "enabled": false,
+      "confirmed": false,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 0,
+      "lowAnchor": 0.0,
+      "highAnchor": 0.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 0,
+      "unmatchedReject": false
+    },
+    {
+      "id": "R_WILL_01",
+      "title": "反抗意志审查",
+      "attribute": "will",
+      "source": "Excel/每日规则库草案：反抗意志与准入去向的关系，以当日公开规则为准。；属性与两个世界准入条件的因果关系未确认。",
+      "enabled": false,
+      "confirmed": false,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 0,
+      "lowAnchor": 0.0,
+      "highAnchor": 0.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 0,
+      "unmatchedReject": false
+    },
+    {
+      "id": "R_DOC_01",
+      "title": "申报信息核对",
+      "attribute": "",
+      "source": "Excel/每日规则库草案：来源世界、申报目的地与档案线索分别核对，不得把来源世界直接当成正确去向。；来源世界明确显示；是否参与判定由每条规则单独配置。",
+      "enabled": false,
+      "confirmed": false,
+      "firstDay": 1,
+      "lastDay": 0,
+      "repeatEveryDays": 1,
+      "priority": 0,
+      "lowAnchor": 0.0,
+      "highAnchor": 0.0,
+      "lowDecision": 0,
+      "highDecision": 1,
+      "tieBreak": 0,
+      "unmatchedReject": false
+    }
   ],
-  "origins": [
-    "第一居住区",
-    "第二居住区",
-    "第三工业区",
-    "第四机械厂",
-    "第五旧城区",
-    "第六边境区"
+  "formulas": [
+    {
+      "id": "F001",
+      "description": "NPC基础属性生成：按权重随机抽取四个属性(-10~10)",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": true,
+      "confirmed": true,
+      "testOnly": false
+    },
+    {
+      "id": "F002",
+      "description": "二维/一维标签：查表(属性等级) → tag_name / display_text",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": true,
+      "confirmed": true,
+      "testOnly": false
+    },
+    {
+      "id": "F003",
+      "description": "本版关闭；类型由人物样本显式指定，旧偏差和性格算法不参与。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F004",
+      "description": "测试：放行灵虚，纯净变化=当前记忆原始值/impactDivisor。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": true,
+      "confirmed": true,
+      "testOnly": true
+    },
+    {
+      "id": "F005",
+      "description": "测试：放行废墟，秩序变化=-当前记忆原始值/impactDivisor。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": true,
+      "confirmed": true,
+      "testOnly": true
+    },
+    {
+      "id": "F006",
+      "description": "表层值每日恢复：若当前值<50，当日闭馆后自动+1，上限为50",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F007",
+      "description": "收容所属性腐化：每天闭馆时：记忆-1，关系-1，欲望+1，意志+1",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F008",
+      "description": "变异判定：若（欲望 >= 10）且（意志 >= 10），触发【变异】",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F009",
+      "description": "镇静剂效果：目标欲望-3，意志-3（单次使用效果）",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F010",
+      "description": "净化符效果：记忆向+10靠拢1级，关系向+10靠拢1级，欲望向-10靠拢1级",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F011",
+      "description": "黑天鹅触发：若当日结算后，秩序值 <= 30 或 纯净值 <= 30，强制触发",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F012",
+      "description": "NPC恶化（环境反噬）：若世界进入黑天鹅状态，收容所内所有NPC额外增加（欲望+2，意志+2）每天",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F013",
+      "description": "测试：全部合规处理+complianceReward，违规处理-violationPenalty；无每日固定加分。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": true,
+      "confirmed": true,
+      "testOnly": true
+    },
+    {
+      "id": "F014",
+      "description": "关闭；信任边界只记录，失败规则待确认。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    },
+    {
+      "id": "F015",
+      "description": "关闭；世界0/100只记录，失败规则待确认。",
+      "source": "彼方委托所_程序问题逐项答复与完整规则配置稿_信任值暂定测试版.docx；用户授权按分析建议执行测试约定。",
+      "enabled": false,
+      "confirmed": false,
+      "testOnly": false
+    }
   ]
 }

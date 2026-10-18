@@ -1,258 +1,228 @@
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace JU.GameData.Tests
 {
-    /// <summary>纯C#验收场景，同时用于Unity EditMode与独立验证。</summary>
     public static class GameDataScenarios
     {
         public static readonly string[] Names = {
-            "DefaultConfig", "ValidationRejectsBrokenTables", "GenerationAndProfiles", "FixedSeed",
-            "GenerationWeights", "LevelsAndDeceptionBoundaries", "FractionalImpact", "DecisionAndDailyAccounting",
-            "ShelterRelease", "CorruptionAndDocumentSnapshot", "MutationBlocksRelease", "BlackSwanTiming",
-            "BlackSwanExtraCorruption", "RecoveryCeiling", "TrustFailure", "WorldFailure",
-            "RepeatedDayAndInvalidActions", "SnapshotsAndConfigIsolation", "UnprocessedApplicantsDepart"
+            "ReplyBaseline", "ReleaseGate", "FixedSeed", "DailyCounts", "GenerationWeights", "NoReroll", "SourcesClaims", "UniqueNames", "IdentityContinuity",
+            "ExplicitDeclaration", "SpecialTemplatePriority", "SixPlannerTemplates", "BodyFromDesire", "PlayerPrivacy", "MemoryMapping",
+            "BinaryCompliance", "NoRetargetOrDetain", "RejectNotShelter", "DeferredWorld", "RejectSourceImpact", "NewWorldFormula",
+            "DailyRounding", "MidpointRounding", "TrustIncludesReject", "NoDailyBonus", "TrustAndWorldClamp", "NoImplicitFailure",
+            "MechanismGates", "UnsupportedMechanisms", "FeedbackDelay", "FeedbackOnce", "FeedbackPayload", "SnapshotIsolation",
+            "MalformedConfig", "MissingDocuments", "MissingNextDayAtomic", "RuleConflictAtomic", "MultiDayPolicies", "CsvCulture", "PortraitPools"
         };
-        public static void Run(string name, GameConfigData original)
+        public static void Run(string name, GameConfigData source)
         {
-            var c = original.Copy();
+            var c = source.Copy();
             switch (name)
             {
-                case "DefaultConfig":
-                    Check(ConfigValidator.Validate(c).Count == 0, "默认配置须通过校验");
-                    Check(c.tags.Count == 50 && c.details.Count == 25 && c.motives.Count == 9 && c.items.Count == 5, "原表数量");
-                    Check(c.documents.Count == 17, "原表11条与补充6条文书");
-                    break;
-                case "ValidationRejectsBrokenTables":
-                    c.bands[0].maxValue = -5;
-                    Check(ConfigValidator.Validate(c).Count > 0, "检测区间重叠");
-                    c = original.Copy(); c.tags.RemoveAt(0);
-                    Check(ConfigValidator.Validate(c).Count > 0, "检测标签缺失");
-                    c = original.Copy(); c.documents.RemoveAll(x => x.triggerType == 1 && x.field == "entry_reason");
-                    Check(ConfigValidator.Validate(c).Count > 0, "检测文书缺失");
-                    c = original.Copy(); c.details[0].id = c.details[1].id;
-                    Check(ConfigValidator.Validate(c).Count > 0, "检测重复编号");
-                    c = original.Copy(); c.bands[0].weight = float.NaN;
-                    Check(ConfigValidator.Validate(c).Count > 0, "检测非有限权重");
-                    bool threw = false;
-                    try { GameSession.StartNewGame(c, 42); } catch (ArgumentException) { threw = true; }
-                    Check(threw, "不启动无效配置");
-                    break;
-                case "GenerationAndProfiles":
-                {
-                    c.dailyApplicants = 1000;
-                    var s = GameSession.StartNewGame(c, 42);
-                    var npcs = s.GetState().npcs;
-                    Check(npcs.Count == 1000 && npcs.Select(n => n.id).Distinct().Count() == 1000, "数量与唯一编号");
-                    foreach (var n in npcs)
-                    {
-                        Check(n.attributes.memory >= -10 && n.attributes.memory <= 10 && n.attributes.relationship >= -10 && n.attributes.relationship <= 10 &&
-                            n.attributes.desire >= -10 && n.attributes.desire <= 10 && n.attributes.will >= -10 && n.attributes.will <= 10, "四属性范围");
-                        var p = s.GetProfile(n.id); var d = s.GetDocument(n.id);
-                        Check(p.bondTag != null && p.driveTag != null && !string.IsNullOrWhiteSpace(p.bodyText), "档案查表");
-                        Check(!string.IsNullOrWhiteSpace(d.bodyText) && !string.IsNullOrWhiteSpace(d.reasonText) && !d.reasonText.Contains("{"), "文书覆盖及占位符");
-                        Check(n.motive == c.motives.Single(x => x.id == n.motiveId).name, "动机匹配");
-                        if (n.deception == Deception.Honest) Check(n.realOrigin == n.declaredOrigin && p.bodyText == d.bodyText, "诚实申报");
-                        else Check(n.realOrigin != n.declaredOrigin, "伪装原籍不同");
-                    }
-                    Check(npcs.Any(n => n.motive == "普通生活"), "存在普通动机");
-                    Check(npcs.Any(n => n.requestedDestination == Destination.Utopia) && npcs.Any(n => n.requestedDestination == Destination.AntiUtopia), "两界申请");
-                    break;
-                }
+                case "ReplyBaseline":
+                    Check(ConfigValidator.ValidateForPlay(c).Count == 0, string.Join(";", ConfigValidator.ValidateForPlay(c)));
+                    Check(c.testConfiguration && c.minDailyApplicants == 4 && c.maxDailyApplicants == 8 && c.documents.Count == 17, "当前策划回复测试基线");
+                    Check(!c.formulas.Single(f => f.id == "F003").enabled && c.complianceReward == 3 && c.violationPenalty == 5, "旧算法关闭，信任明确测试值"); break;
+                case "ReleaseGate":
+                    Check(ConfigValidator.ValidateForRelease(c).Count > 0, "测试人物/立绘/公式不能冒充正式发布"); break;
                 case "FixedSeed":
                 {
-                    var a = GameSession.StartNewGame(c, 123); var b = GameSession.StartNewGame(c, 123);
-                    Check(Signature(a.GetState()) == Signature(b.GetState()), "同种子首次生成一致");
-                    a.EndDay(1); b.EndDay(1);
-                    Check(Signature(a.GetState()) == Signature(b.GetState()), "次日仍一致");
-                    var other = GameSession.StartNewGame(c, 456);
-                    Check(Signature(other.GetState()) != Signature(GameSession.StartNewGame(c, 123).GetState()), "异种子不同");
-                    break;
+                    var a = GameSession.StartNewGame(c, 42); var b = GameSession.StartNewGame(c, 42);
+                    Check(Signature(a) == Signature(b), "首日复现"); a.EndDay(1); b.EndDay(1); Check(Signature(a) == Signature(b), "次日复现"); break;
+                }
+                case "DailyCounts":
+                {
+                    var s = GameSession.StartNewGame(c, 42); var counts = new System.Collections.Generic.HashSet<int>();
+                    for (int day = 1; day <= 80; day++) { int n = s.GetState().todayApplicantCount; counts.Add(n); Check(n >= 4 && n <= 8, "4～8含边界"); Check(s.EndDay(day).success, "日结成功"); }
+                    Check(counts.SetEquals(new[] {4,5,6,7,8}), "多个不同人数均可出现"); break;
                 }
                 case "GenerationWeights":
                 {
-                    c.dailyApplicants = 1000;
+                    c.minDailyApplicants=c.maxDailyApplicants=8; var s=GameSession.StartNewGame(c,42); var values=new System.Collections.Generic.List<int>();
+                    for(int day=1;day<=100;day++){values.AddRange(s.GetState().npcs.SelectMany(n=>new[]{n.attributes.memory,n.attributes.relationship,n.attributes.desire,n.attributes.will}));s.EndDay(day);}
+                    foreach(var b in c.bands){double ratio=values.Count(v=>v>=b.minValue && v<=b.maxValue)/(double)values.Count;Check(Math.Abs(ratio-c.generationWeights.Single(w=>w.level==b.level).weight)<0.04,"表6权重独立用于四属性");}break;
+                }
+                case "NoReroll":
+                { var s = GameSession.StartNewGame(c, 4); string before = Signature(s); for (int i = 0; i < 20; i++) { s.GetState(); s.GetDocument(s.GetState().npcs[0].id); } Check(Signature(s) == before, "反复开面板不重抽"); break; }
+                case "SourcesClaims":
+                {
+                    var s = GameSession.StartNewGame(c, 9); int utopia = 0, total = 0; bool uneven = false;
+                    for (int d = 1; d <= 100; d++)
+                    {
+                        var ns = s.GetState().npcs; int u = ns.Count(n => n.sourceWorld == Destination.Utopia); utopia += u; total += ns.Count; uneven |= u * 2 != ns.Count;
+                        Check(ns.All(n => n.sourceWorld != n.requestedDestination), "目的地严格为来源另一界"); s.EndDay(d);
+                    }
+                    Check(uneven && utopia > total * 0.35 && utopia < total * 0.65, "独立随机，无每日均分配额"); break;
+                }
+                case "UniqueNames":
+                { var s = GameSession.StartNewGame(c, 1); for (int d = 1; d <= 30; d++) { var ns = s.GetState().npcs; Check(ns.Select(n => n.name).Distinct().Count() == ns.Count, "单日姓名不重复"); s.EndDay(d); } break; }
+                case "IdentityContinuity":
+                {
+                    c.minDailyApplicants = c.maxDailyApplicants = c.identities.Count;
+                    var s = GameSession.StartNewGame(c, 17); var first = s.GetState().npcs.ToDictionary(n => n.identityId);
+                    s.EndDay(1); foreach (var n in s.GetState().npcs) { var old = first[n.identityId]; Check(n.id != old.id && n.name == old.name && n.realOrigin == old.realOrigin && n.portraitKey == old.portraitKey, "身份固定，申请ID独立"); } break;
+                }
+                case "ExplicitDeclaration":
+                {
+                    c = Fixed(c, -10); foreach (var p in c.identities) { p.declarationType = Deception.Honest; p.motiveId = 9; }
+                    var s = GameSession.StartNewGame(c, 42); Check(s.GetState().npcs.All(n => n.deception == Deception.Honest && n.motiveId == 9), "不按旧偏差与极端属性重算类型或动机"); break;
+                }
+                case "SpecialTemplatePriority":
+                {
+                    foreach (var p in c.identities) { p.declarationType = Deception.Deceptive; p.motiveId = 4; }
                     var s = GameSession.StartNewGame(c, 42);
-                    var values = s.GetState().npcs.SelectMany(n => new[] { n.attributes.memory, n.attributes.relationship, n.attributes.desire, n.attributes.will }).ToList();
-                    foreach (var band in c.bands)
+                    foreach (var n in s.GetState().npcs) Check(s.GetDocument(n.id).reasonText.Contains(n.requestedDestination == Destination.Utopia ? "失散的爱人" : "统一调配"), "明确动机命中特殊文书"); break;
+                }
+                case "SixPlannerTemplates":
+                {
+                    var general = c.documents.Where(d => d.id >= 9001 && d.id <= 9006).ToList();
+                    Check(general.Count == 6 && general.All(d => !d.text.Contains("演示补充")), "真实策划通用文案");
+                    c.minDailyApplicants = c.maxDailyApplicants = 8; var seen = new System.Collections.Generic.HashSet<string>(); var s = GameSession.StartNewGame(c, 42);
+                    for (int day = 1; day <= 15; day++) { foreach (var n in s.GetState().npcs) { var doc = s.GetDocument(n.id); Check(!doc.reasonText.Contains("{") && !doc.reasonText.Contains("乌托邦"), "占位符及名称正确"); seen.Add(n.deception + "/" + n.requestedDestination); } s.EndDay(day); }
+                    Check(seen.Count == 6, "三类型乘两个目的地全部生成"); break;
+                }
+                case "BodyFromDesire":
+                {
+                    c = Fixed(c, 0); foreach (var p in c.identities) { p.fixedAttributes.desire = 10; p.declarationType = Deception.Honest; }
+                    var s = GameSession.StartNewGame(c, 5); foreach (var n in s.GetState().npcs) Check(s.GetDocument(n.id).bodyText == c.details.Single(d => d.attribute == "desire_body" && d.level == 5).text, "诚实身体按欲望等级生成"); break;
+                }
+                case "PlayerPrivacy":
+                {
+                    Check(typeof(GameSession).GetMethod("Investigate") == null && typeof(GameConfigData).GetField("dailyInvestigationQuota") == null, "移除调查接口和参数");
+                    Check(typeof(PlayerProfile).GetField("realOrigin") == null && typeof(PlayerProfile).GetField("motive") == null, "普通档案不泄露原籍/隐藏动机");
+                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; var p = s.GetPlayerProfile(n.id);
+                    Check(!string.IsNullOrEmpty(p.bondTraceSentence) && p.relevantAttributes.SequenceEqual(new[] { "memory" }), "两描述保留、只突出记忆"); break;
+                }
+                case "MemoryMapping":
+                    for (int memory = -10; memory <= 10; memory++)
                     {
-                        double share = values.Count(v => v >= band.minValue && v <= band.maxValue) / (double)values.Count;
-                        Check(Math.Abs(share - band.weight) < 0.035, "生成权重偏差：" + band.level);
+                        var e = RuleEngine.Evaluate(c, RuleEngine.Select(c, 1), new NpcAttributes { memory = memory });
+                        Check(e.success && e.target == (memory < 0 ? Decision.ReleaseToAntiUtopia : Decision.ReleaseToUtopia), "全21点记忆映射，0去灵虚");
                     }
                     break;
-                }
-                case "LevelsAndDeceptionBoundaries":
+                case "BinaryCompliance":
                 {
-                    var s = GameSession.StartNewGame(c, 42);
-                    foreach (int x in new[] { -10, -6 }) Check(s.GetLevel(x) == 1, "等级1");
-                    foreach (int x in new[] { -5, -1 }) Check(s.GetLevel(x) == 2, "等级2");
-                    Check(s.GetLevel(0) == 3, "等级3");
-                    foreach (int x in new[] { 1, 5 }) Check(s.GetLevel(x) == 4, "等级4");
-                    foreach (int x in new[] { 6, 10 }) Check(s.GetLevel(x) == 5, "等级5");
-                    Check(s.GetDeception(3) == Deception.Honest && s.GetDeception(4) == Deception.Embellished &&
-                        s.GetDeception(8) == Deception.Embellished && s.GetDeception(9) == Deception.Deceptive, "欺骗分段");
-                    var a = new NpcAttributes { memory = -4, relationship = 5, desire = 6, will = -2 };
-                    Check(GameSession.CalculateDeviation(a, Destination.Utopia) == 10 && GameSession.CalculateDeviation(a, Destination.AntiUtopia) == 15, "偏差公式");
+                    c = Fixed(c, 0); var s = Batch(c, Destination.Utopia, 1); var ns = s.GetState().npcs;
+                    foreach (var n in ns)
+                    { var rule = s.PreviewRule(n.id); Check(rule.requiredDecision == (n.requestedDestination == Destination.Utopia ? Decision.ReleaseToUtopia : Decision.Reject), "申报与准入目标比较"); Check(s.SubmitApplication(n.id, rule.requiredDecision != Decision.Reject).approval.compliant, "正确放行或拒签均合规"); }
                     break;
                 }
-                case "FractionalImpact":
+                case "NoRetargetOrDetain":
                 {
-                    var a = new NpcAttributes { memory = 1 };
-                    Near(GameSession.CalculateImpact(a, Destination.Utopia), 0.1f, "保留小数");
-                    a = new NpcAttributes { memory = 2, relationship = 3, desire = 4, will = 5 };
-                    Near(GameSession.CalculateImpact(a, Destination.Utopia), -0.4f, "纯净公式");
-                    Near(GameSession.CalculateImpact(a, Destination.AntiUtopia), -1f, "秩序公式");
+                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; string before = Signature(s);
+                    var other = n.requestedDestination == Destination.Utopia ? Decision.ReleaseToAntiUtopia : Decision.ReleaseToUtopia;
+                    Check(!s.SubmitDecision(n.id, other).success && !s.SubmitDecision(n.id, Decision.Detain).success && Signature(s) == before, "改派/扣留不产生副作用"); break;
+                }
+                case "RejectNotShelter":
+                {
+                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0];
+                    Check(s.SubmitApplication(n.id, false).success && s.GetNpc(n.id).status == NpcStatus.Rejected, "拒签结束申请而非收容");
+                    Check(s.GetNpc(n.id).attributes.memory == n.attributes.memory && !s.SubmitApplication(n.id, true).success, "不减记忆，不重复审批");
+                    s.EndDay(1); Check(s.GetNpc(n.id) == null && !s.GetState().npcs.Any(x => x.status == NpcStatus.Sheltered), "次日只保留新申请"); break;
+                }
+                case "DeferredWorld":
+                {
+                    var s = GameSession.StartNewGame(c, 42); var before = s.GetState(); var r = s.SubmitApplication(before.npcs[0].id, false);
+                    Check(r.success && s.GetState().purity == before.purity && s.GetState().trust == before.trust && s.GetState().feedbackQueue.Count == 0, "审批仅记账");
+                    Check(r.immediateFeedback == "处理已记录。", "默认不提示隐藏合规答案"); break;
+                }
+                case "RejectSourceImpact":
+                {
+                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; var r = s.SubmitApplication(n.id, false).approval;
+                    Near(r.purityDelta, n.sourceWorld == Destination.Utopia ? -1 : 0, "拒签灵虚记账"); Near(r.orderDelta, n.sourceWorld == Destination.AntiUtopia ? -1 : 0, "拒签废墟记账");
+                    var end = s.EndDay(1); Near(end.after.purity, 50+r.purityDelta, "来源扣除日终生效"); break;
+                }
+                case "NewWorldFormula":
+                {
+                    c = Fixed(c, -5); var s = GameSession.StartNewGame(c, 42);
+                    foreach (var n in s.GetState().npcs) { var a = s.SubmitApplication(n.id, true).approval; Near(a.purityDelta, n.requestedDestination == Destination.Utopia ? -1 : 0, "M/5"); Near(a.orderDelta, n.requestedDestination == Destination.AntiUtopia ? 1 : 0, "-M/5"); }
                     break;
                 }
-                case "DecisionAndDailyAccounting":
+                case "DailyRounding":
                 {
-                    var s = GameSession.StartNewGame(c, 42); var before = s.GetState();
-                    float purity = 0, order = 0; int good = 0, bad = 0;
-                    for (int i = 0; i < before.npcs.Count; i++)
-                    {
-                        var n = before.npcs[i];
-                        if (n.mutated) { s.SubmitDecision(n.id, Decision.Reject); continue; }
-                        var decision = i % 2 == 0 ? Decision.ReleaseToUtopia : Decision.ReleaseToAntiUtopia;
-                        var result = s.SubmitDecision(n.id, decision);
-                        Check(result.success, "放行成功");
-                        if (result.approval.compliant) good++; else bad++;
-                        if (i % 2 == 0) purity += result.approval.worldImpact; else order += result.approval.worldImpact;
-                        Check(!s.SubmitDecision(n.id, decision).success, "重复放行拒绝");
-                    }
-                    Near(s.GetState().purity, before.purity, "日终前不结算");
-                    var r = s.EndDay(before.day);
-                    Check(r.compliantCount == good && r.violationCount == bad, "合规统计");
-                    Near(r.approvalPurityChange, purity, "汇总纯净"); Near(r.approvalOrderChange, order, "汇总秩序");
-                    Check(r.after.trust == before.trust + good * 5 - bad * 10 + 5, "信任公式");
-                    Near(r.after.purity, before.purity + purity + r.purityRecovery, "世界结算");
-                    break;
+                    c = Fixed(c, 1); var s = Batch(c, Destination.Utopia, 3);
+                    foreach (var n in s.GetState().npcs.Where(n => n.requestedDestination == Destination.Utopia).Take(3)) s.SubmitApplication(n.id, true);
+                    var r = s.EndDay(1); Near(r.recordedPurityChange, 0.6f, "先累计0.2三次"); Near(r.after.purity, 51, "统一取整，不逐人归零"); break;
                 }
-                case "ShelterRelease":
+                case "MidpointRounding":
                 {
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs.First(x => !x.mutated);
-                    Check(s.SubmitDecision(n.id, Decision.Reject).success, "拒签入所");
-                    Check(s.GetState().todayApprovals.Count == 0, "拒签不算放行");
-                    Check(!s.SubmitDecision(n.id, Decision.Reject).success, "重复拒签拒绝");
-                    s.EndDay(1);
-                    Check(s.SubmitDecision(n.id, Decision.ReleaseToUtopia).success, "次日再次审批");
-                    Check(s.GetNpc(n.id).status == NpcStatus.Released, "离开收容状态");
-                    break;
+                    c = Fixed(c, -1); c.impactDivisor = 2; var s = Batch(c, Destination.Utopia, 1);
+                    s.SubmitApplication(s.GetState().npcs.First(n => n.requestedDestination == Destination.Utopia).id, true);
+                    Near(s.EndDay(1).after.purity, 50, "50-0.5=49.5，四舍五入50，不先对变化-0.5取整");
+                    c = Fixed(c, 1); s = Batch(c, Destination.Utopia, 1); s.SubmitApplication(s.GetState().npcs.First(n => n.requestedDestination == Destination.Utopia).id, true); Near(s.EndDay(1).after.purity, 51, "50.5取51而非银行家舍入50"); break;
                 }
-                case "CorruptionAndDocumentSnapshot":
+                case "TrustIncludesReject":
                 {
-                    c.dailyApplicants = 1000;
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs.First(x => x.attributes.desire == 5 && !x.mutated);
-                    var oldProfile = s.GetProfile(n.id); var oldDoc = s.GetDocument(n.id);
-                    s.SubmitDecision(n.id, Decision.Reject); s.EndDay(1);
-                    var changed = s.GetNpc(n.id);
-                    Check(changed.attributes.memory == Math.Max(-10, n.attributes.memory-1) && changed.attributes.relationship == Math.Max(-10, n.attributes.relationship-1) &&
-                        changed.attributes.desire == 6 && changed.attributes.will == Math.Min(10, n.attributes.will+1), "新入所当日腐化与限制");
-                    Check(s.GetProfile(n.id).bodyText != oldProfile.bodyText, "真实档案刷新");
-                    Check(s.GetDocument(n.id).bodyText == oldDoc.bodyText && s.GetDocument(n.id).reasonText == oldDoc.reasonText, "申报文书保留");
-                    break;
+                    c = Fixed(c, 0); var s = Batch(c, Destination.AntiUtopia, 1); var n = s.GetState().npcs.First(x => x.requestedDestination == Destination.AntiUtopia);
+                    Check(s.SubmitApplication(n.id, false).approval.compliant, "不符合申报时合规拒签"); var r = s.EndDay(1);
+                    Check(r.compliantCount == 1 && r.after.trust == 53, "拒签也+3，无额外+5"); break;
                 }
-                case "MutationBlocksRelease":
+                case "NoDailyBonus":
+                { var s = GameSession.StartNewGame(c, 42); var r = s.EndDay(1); Check(r.after.trust == 50 && r.unprocessedCount == r.before.todayApplicantCount, "空日无固定奖励，未审批不自动拒签"); break; }
+                case "TrustAndWorldClamp":
                 {
-                    c.dailyApplicants = 1000;
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs.First(x => x.attributes.desire >= 6 && x.attributes.will >= 6 && !x.mutated);
-                    s.SubmitDecision(n.id, Decision.Reject);
-                    bool reported = false;
-                    for (int day = 1; day <= 4; day++) { var r = s.EndDay(day); reported |= r.newlyMutatedIds.Contains(n.id); }
-                    Check(s.GetNpc(n.id).mutated && reported, "腐化触发变异");
-                    Check(!s.SubmitDecision(n.id, Decision.ReleaseToUtopia).success && !s.SubmitDecision(n.id, Decision.ReleaseToAntiUtopia).success, "变异不可放行");
-                    Check(s.GetNpc(n.id).attributes.desire == 10 && s.GetNpc(n.id).attributes.will == 10, "属性最大10");
-                    break;
+                    c = Fixed(c, 10); c.initialPurity = 99; c.initialTrust = 99; var s = Batch(c, Destination.Utopia, 1); var n = s.GetState().npcs.First(x => x.requestedDestination == Destination.Utopia); s.SubmitApplication(n.id, true); var r = s.EndDay(1); Near(r.after.purity, 100, "世界上限"); Check(r.after.trust == 100 && r.trustChange == 1, "信任限幅后实际变化");
+                    c.initialPurity = 1; c.initialTrust = 1; s = Batch(c, Destination.AntiUtopia, 1); n = s.GetState().npcs.First(x => x.requestedDestination == Destination.AntiUtopia); s.SubmitApplication(n.id, true); r = s.EndDay(1); Near(r.after.order, 48, "负影响正确"); Check(r.after.trust == 0, "信任下限"); break;
                 }
-                case "BlackSwanTiming":
+                case "NoImplicitFailure":
+                { c.initialTrust = 0; c.initialPurity = 0; c.initialOrder = 100; var s = GameSession.StartNewGame(c, 42); Check(s.EndDay(1).success && s.EndDay(2).success, "边界不触发旧失败规则"); break; }
+                case "MechanismGates":
                 {
-                    c.initialPurity = c.initialOrder = 29; c.dailyRecovery = 0; c.worldFailureThreshold = -1000;
-                    var s = GameSession.StartNewGame(c, 42); var first = s.EndDay(1);
-                    Check(first.blackSwanStarted && !first.blackSwanApplied && first.after.blackSwanRemaining == 3, "触发日不扣值");
-                    for (int day = 2; day <= 4; day++)
-                    {
-                        var r = s.EndDay(day);
-                        Check(r.blackSwanApplied && !r.blackSwanStarted && r.after.blackSwanRemaining == 4-day, "连续3次且不重置");
-                        Near(r.after.purity, 29 - (day-1)*10, "两界扣值"); Near(r.after.order, r.after.purity, "另一界也扣值");
-                    }
-                    var next = s.EndDay(5);
-                    Check(next.blackSwanStarted && !next.blackSwanApplied, "事件结束次日可再触发");
-                    break;
+                    c.enableWorldChanges = false; c.enableDelayedFeedback = false; c.enableDocuments = false; c.enableBondTrace = false; c.enableDriveAssessment = false;
+                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; Check(s.GetDocument(n.id)==null && s.GetPlayerProfile(n.id).bondTraceSentence=="", "关闭生成不返回内容");
+                    s.SubmitApplication(n.id,false); var r=s.EndDay(1); Check(r.after.purity==50 && r.after.order==50 && r.after.feedbackQueue.Count==0, "总开关覆盖拒签和反馈"); break;
                 }
-                case "BlackSwanExtraCorruption":
+                case "UnsupportedMechanisms":
+                    foreach (string id in new[] {"F003","F006","F007","F008","F009","F010","F011","F012","F014","F015"}) { c=source.Copy();var f=c.formulas.Single(x=>x.id==id);f.enabled=f.confirmed=true;Check(ConfigValidator.ValidateForPlay(c).Count>0,"暂停公式不可恢复旧效果 "+id); }
+                    c=source.Copy();c.enablePopulationFeedback=true;Check(ConfigValidator.Validate(c).Count>0,"未定权重不能打开");break;
+                case "FeedbackDelay":
                 {
-                    c.initialPurity = 29; c.dailyRecovery = 0; c.worldFailureThreshold = -1000;
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs.First(x => x.attributes.desire <= 5 && x.attributes.will <= 5);
-                    s.SubmitDecision(n.id, Decision.Reject); s.EndDay(1);
-                    var one = s.GetNpc(n.id).attributes; s.EndDay(2); var two = s.GetNpc(n.id).attributes;
-                    Check(two.desire == Math.Min(10, one.desire+3) && two.will == Math.Min(10, one.will+3), "额外腐化+2与基础+1");
-                    Check(two.memory == Math.Max(-10, one.memory-1), "记忆不额外腐化");
-                    break;
+                    c.feedbackDelayDays=2;var s=GameSession.StartNewGame(c,42);s.SubmitApplication(s.GetState().npcs[0].id,false);s.EndDay(1);var f=s.GetState().feedbackQueue.Single();Check(s.GetAvailableFeedback().Count==0 && !s.ConsumeFeedback(f.id),"不可提前消费");s.EndDay(2);Check(s.GetAvailableFeedback().Count==1,"第三天可用");break;
                 }
-                case "RecoveryCeiling":
+                case "FeedbackOnce":
                 {
-                    c.initialPurity = 49.8f; c.initialOrder = 51;
-                    var r = GameSession.StartNewGame(c, 42).EndDay(1);
-                    Near(r.after.purity, 50, "恢复不超过50"); Near(r.after.order, 51, "高于50不截断");
-                    Near(r.purityRecovery, 0.2f, "恢复差额"); Near(r.orderRecovery, 0, "无需恢复");
-                    break;
+                    var s=GameSession.StartNewGame(c,42);s.SubmitApplication(s.GetState().npcs[0].id,false);var r=s.EndDay(1);var f=s.GetAvailableFeedback().Single();Check(s.ConsumeFeedback(f.id) && !s.ConsumeFeedback(f.id),"只消费一次");string before=Signature(s);Check(!s.EndDay(1).success && Signature(s)==before && s.GetState().feedbackQueue.Count==1,"重复日结不重复影响或入队");break;
                 }
-                case "TrustFailure":
+                case "FeedbackPayload":
                 {
-                    c.initialTrust = 1; c.violationPenalty = 100;
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs.First(x => GameSession.CalculateImpact(x.attributes, Destination.Utopia) < 0 && !x.mutated);
-                    s.SubmitDecision(n.id, Decision.ReleaseToUtopia); var r = s.EndDay(1);
-                    Check(r.after.gameOver && r.after.trust <= 0 && r.after.day == 1, "信任失败停止推进");
-                    Check(!s.EndDay(1).success && !s.SubmitDecision(r.after.npcs.First().id, Decision.Reject).success, "结束后禁止操作");
-                    break;
+                    c=Fixed(c,1);c.initialPurity=100;var s=Batch(c,Destination.Utopia,1);s.SubmitApplication(s.GetState().npcs.First(n=>n.requestedDestination==Destination.Utopia).id,true);var r=s.EndDay(1);var f=s.GetAvailableFeedback().Single();Near(f.recordedPurityDelta,0.2f,"单次记账独立");Near(f.actualPurityChange,0,"实际受限幅");Check(f.settlementId==r.settlementId && f.sourceDecisionId==r.approvals[0].id && !f.text.Contains("{"),"反馈可追溯且占位符解析");break;
                 }
-                case "WorldFailure":
+                case "SnapshotIsolation":
                 {
-                    c.initialPurity = c.initialOrder = 30; c.dailyRecovery = 0;
-                    var s = GameSession.StartNewGame(c, 42); s.EndDay(1); var r = s.EndDay(2);
-                    Check(r.after.gameOver && r.after.failureReasons.Count == 2, "两界20失败并记录所有原因");
-                    Near(r.after.purity, 20, "失败边界");
-                    break;
+                    var s=GameSession.StartNewGame(c,42);string before=Signature(s);s.GetState().npcs[0].attributes.memory=999;s.GetState().identities[0].portraitKey="changed";s.GetConfigSnapshot().identities.Clear();c.documents.Clear();Check(Signature(s)==before && s.EndDay(1).success,"快照与原配置不影响当前局");break;
                 }
-                case "RepeatedDayAndInvalidActions":
+                case "MalformedConfig":
+                    c.rules[0].repeatEveryDays=0;Check(ConfigValidator.Validate(c).Count>0,"防除零");c=source.Copy();c.generationWeights[0].weight=float.NaN;Check(ConfigValidator.Validate(c).Count>0,"无效权重");c=source.Copy();c.identities[0].name=c.identities[1].name;Check(ConfigValidator.Validate(c).Count>0,"防重名");c=source.Copy();c.portraitPools.Add(c.portraitPools[0].Copy());Check(ConfigValidator.Validate(c).Count>0,"重复池报告而不抛异常");break;
+                case "MissingDocuments":
+                    c.documents.RemoveAll(d=>d.field=="entry_reason" && d.triggerType==1);Check(ConfigValidator.ValidateForPlay(c).Any(e=>e.Contains("文书缺少覆盖")),"不回退或随机补文案");break;
+                case "MissingNextDayAtomic":
+                { c.rules[0].lastDay=1;var s=GameSession.StartNewGame(c,42);s.SubmitApplication(s.GetState().npcs[0].id,false);string before=Signature(s);Check(!s.EndDay(1).success && Signature(s)==before,"次日无规则不半结算");break; }
+                case "RuleConflictAtomic":
+                { var other=c.rules[0].Copy();other.id="CONFLICT";other.lowDecision=Decision.ReleaseToAntiUtopia;other.highDecision=Decision.ReleaseToUtopia;c.rules.Add(other);c.dailyRuleCount=2;var s=GameSession.StartNewGame(c,42);string before=Signature(s);Check(!s.SubmitApplication(s.GetState().npcs[0].id,true).success && Signature(s)==before,"冲突审批无副作用");break; }
+                case "MultiDayPolicies":
                 {
-                    var s = GameSession.StartNewGame(c, 42); var before = Signature(s.GetState());
-                    Check(!s.SubmitDecision("missing", Decision.Reject).success && !s.SubmitDecision(s.GetState().npcs[0].id, (Decision)99).success, "非法操作");
-                    Check(!s.EndDay(0).success && Signature(s.GetState()) == before, "错误天数无副作用");
-                    s.EndDay(1); before = Signature(s.GetState());
-                    Check(!s.EndDay(1).success && Signature(s.GetState()) == before, "防止重复日终");
-                    break;
+                    var good=SimulationRunner.Run(c,42,30,SimulationPolicy.FollowRules);var release=SimulationRunner.Run(c,42,30,SimulationPolicy.AlwaysRelease);var reject=SimulationRunner.Run(c,42,30,SimulationPolicy.AlwaysReject);
+                    Check(good.days.All(d=>d.violations==0) && good.days.Last().trust==100,"按规则策略全合规并触顶");
+                    Check(good.days.Select(d=>d.applicants).SequenceEqual(release.days.Select(d=>d.applicants)) && good.days.Select(d=>d.applicants).SequenceEqual(reject.days.Select(d=>d.applicants)),"三策略共用同种子申请者序列");
+                    Check(new[]{good,release,reject}.All(r=>r.days.All(d=>d.trust>=0 && d.trust<=100 && d.purity>=0 && d.purity<=100 && d.order>=0 && d.order<=100)),"多日范围正确");break;
                 }
-                case "SnapshotsAndConfigIsolation":
-                {
-                    var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; var before = Signature(s.GetState());
-                    var state = s.GetState(); state.trust = -99; state.npcs[0].attributes.desire = 999;
-                    s.GetNpc(n.id).attributes.memory = 999; s.GetProfile(n.id).bondTag.name = "改变";
-                    c.names.Clear(); c.tags.Clear(); c.bands.Clear();
-                    Check(Signature(s.GetState()) == before, "外部快照不改变内部数据");
-                    Check(s.GetProfile(n.id).bondTag.name != "改变", "配置条目不泄漏");
-                    Check(s.EndDay(1).success, "修改原配置不影响当前局");
-                    break;
-                }
-                case "UnprocessedApplicantsDepart":
-                {
-                    var s = GameSession.StartNewGame(c, 42); var old = s.GetState().npcs.Select(x => x.id).ToList(); var r = s.EndDay(1);
-                    Check(r.compliantCount == 0 && r.violationCount == 0 && r.after.trust == 55, "未审批不处罚");
-                    Check(r.after.npcs.Count == 8 && r.after.npcs.All(x => !old.Contains(x.id)), "旧队列离开，新队列替换");
-                    Check(!s.SubmitDecision(old[0], Decision.Reject).success, "离开的NPC不能再审批");
-                    break;
-                }
-                default: throw new ArgumentException("未知测试场景：" + name);
+                case "CsvCulture":
+                { var previous=CultureInfo.CurrentCulture;try { CultureInfo.CurrentCulture=new CultureInfo("fr-FR");var r=SimulationRunner.Run(c,2,2,SimulationPolicy.AlwaysRelease);var csv=SimulationRunner.ToCsv(new[]{r});Check(csv.Split('\n').Where(l=>l.Trim().Length>0).Count()==3 && csv.Contains("raw_utopia_delta"),"CSV字段和行数不受地区小数逗号影响"); }finally{CultureInfo.CurrentCulture=previous;}break; }
+                case "PortraitPools":
+                    c.identities[0].portraitKey="missing";Check(ConfigValidator.Validate(c).Any(e=>e.Contains("立绘")),"指定图片必须在原籍池");c=source.Copy();c.identities[0].declarationType=(Deception)99;Check(ConfigValidator.Validate(c).Count>0,"类型必须显式有效");break;
+                default:throw new ArgumentException(name);
             }
         }
-        private static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
-        private static void Near(float actual, float expected, string message) { Check(Math.Abs(actual-expected) < 0.0001, message + ": " + actual + " != " + expected); }
-        private static string Signature(GameState s)
+        private static GameConfigData Fixed(GameConfigData c,int memory)
+        { c.minDailyApplicants=c.maxDailyApplicants=8;foreach(var p in c.identities){p.useFixedAttributes=true;p.fixedAttributes=new NpcAttributes{memory=memory};}return c; }
+        private static GameSession Batch(GameConfigData c,Destination destination,int count)
+        { for(int seed=0;seed<100;seed++){var s=GameSession.StartNewGame(c,seed);if(s.GetState().npcs.Count(n=>n.requestedDestination==destination)>=count)return s;}throw new Exception("测试未找到足够申请者"); }
+        private static void Check(bool ok,string message){if(!ok)throw new Exception(message);}
+        private static void Near(float a,float b,string message){Check(Math.Abs(a-b)<0.0001f,message+"："+a+" != "+b);}
+        private static string Signature(GameSession session)
         {
-            return s.day + "/" + s.trust + "/" + s.purity + "/" + s.order + "/" + s.blackSwanRemaining + "/" + s.gameOver + "/" +
-                string.Join("|", s.npcs.Select(n => n.id + "," + n.name + "," + n.realOrigin + "," + n.declaredOrigin + "," + n.attributes.memory + "," +
-                    n.attributes.relationship + "," + n.attributes.desire + "," + n.attributes.will + "," + n.motive + "," + n.requestedDestination + "," +
-                    n.bodyDeclaration + "," + n.reasonDeclaration + "," + n.status + "," + n.mutated));
+            var s=session.GetState();return s.day+"/"+s.trust+"/"+s.purity+"/"+s.order+"/"+s.todayApprovals.Count+"/"+s.feedbackQueue.Count+"/"+
+                string.Join("|",s.npcs.Select(n=>n.id+","+n.identityId+","+n.name+","+n.realOrigin+","+n.portraitKey+","+n.attributes.memory+","+n.attributes.relationship+","+n.attributes.desire+","+n.attributes.will+","+n.sourceWorld+","+n.requestedDestination+","+n.status));
         }
     }
 }
