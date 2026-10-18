@@ -168,9 +168,9 @@ RectTransform:
   - {fileID: 2705133251297238328}
   m_Father: {fileID: 5854360369879479980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -516, y: -52.08481}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -112.9, y: 220.2}
   m_SizeDelta: {x: 125.8427, y: 60.7727}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8397510622756248487
@@ -569,6 +569,7 @@ MonoBehaviour:
   titleText: {fileID: 3317395589739742409}
   contentText: {fileID: 5190799443756887980}
   closeBtn: {fileID: 7661391643686097170}
+  dragToFront: 1
 --- !u!114 &629532363986538359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -593,23 +594,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3a7b2c91e4f48a5b6c0d1e2f3a4b596, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  tabButtons:
-  - {fileID: 6798770530178929673}
-  - {fileID: 5721274463490811642}
-  - {fileID: 8890489693684805815}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pageUpButton: {fileID: 6798770530178929673}
+  pageDownButton: {fileID: 5721274463490811642}
   phoneButton: {fileID: 7111111111111111104}
-  autoPlacePhone: 1
-  phoneCornerOffset: {x: -83, y: 50}
+  unusedButton: {fileID: 8890489693684805815}
   tabPages: []
   tabTexts:
   - "\u89C4\u52191"
   - "\u89C4\u52192"
   - "\u89C4\u52193"
-  selectedColor: {r: 1, g: 0.8, b: 0.2, a: 1}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedScale: 1.15
+  autoPlaceButtons: 1
+  rightPadding: 64.2
+  buttonSpacing: 70
+  verticalOffset: 100.1
+  buttonSize: {x: 54.9, y: 0}
+  buttonStyles:
+  - sprite: {fileID: 0}
+    alpha: 1
+  - sprite: {fileID: 0}
+    alpha: 1
+  - sprite: {fileID: 0}
+    alpha: 1
 --- !u!1 &3456510912108065128
 GameObject:
   m_ObjectHideFlags: 0
@@ -644,9 +651,9 @@ RectTransform:
   - {fileID: 6842643784269552790}
   m_Father: {fileID: 5854360369879479980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -516, y: -153}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -112.9, y: 50.2}
   m_SizeDelta: {x: 125.8427, y: 60.7727}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7169355525774535403
@@ -948,7 +955,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &939562508751690911
 RectTransform:
   m_ObjectHideFlags: 0
@@ -964,9 +971,9 @@ RectTransform:
   - {fileID: 4581390647027142344}
   m_Father: {fileID: 5854360369879479980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -516, y: -256}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -212.9, y: 85}
   m_SizeDelta: {x: 125.8427, y: 60.7727}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7935300514377149803
@@ -1106,8 +1113,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
@@ -1164,9 +1171,9 @@ RectTransform:
   - {fileID: 7111111111111111106}
   m_Father: {fileID: 5854360369879479980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -83, y: 50}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -112.9, y: -119.8}
   m_SizeDelta: {x: 125.8427, y: 60.7727}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7111111111111111102
@@ -1187,8 +1194,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -1217,8 +1224,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -1306,8 +1313,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
@@ -1329,4 +1336,4 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 电话
+  m_Text: "\u7535\u8BDD"

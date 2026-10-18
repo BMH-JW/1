@@ -122,6 +122,44 @@ public class TutorialManager : MonoBehaviour
     [Tooltip("印章在通关文书弹窗上的自定义坐标(锚点=右下角, 单位像素)，X右正 Y上正")]
     public Vector2 sealAnchoredPosition = new Vector2(0f, 0f);
 
+    [Header("盖章门槛")]
+    [Tooltip("勾选后：必须先打开通关文书(Btn_File3)弹出的弹窗，才能点击印章盖章")]
+    public bool requireFile3OpenToStamp = true;
+    [Tooltip("没打开通关文书就点印章时，屏幕下方弹出的提示文字")]
+    public string stampNeedFile3Hint = "请先打开通关文书，再盖章";
+
+    [Header("盖章确认弹窗 —— 文本(可改)")]
+    [Tooltip("弹窗标题")]
+    public string stampConfirmTitle = "是否盖章？";
+    [Tooltip("弹窗正文提示")]
+    [TextArea(2, 4)] public string stampConfirmContent = "请确认本次审批结果";
+    [Tooltip("【通过】按钮文字")]
+    public string stampConfirmPassText = "通过";
+    [Tooltip("【不通过】按钮文字")]
+    public string stampConfirmRejectText = "不通过";
+
+    [Header("盖章确认弹窗 —— 基础设置(可改)")]
+    [Tooltip("弹窗背景图，留空用代码生成的圆角白底")]
+    public Sprite stampConfirmBgSprite;
+    [Tooltip("弹窗字体，留空用上方的 fontOverride")]
+    public Font stampConfirmFont;
+    [Tooltip("弹窗尺寸(像素)")]
+    public Vector2 stampConfirmPanelSize = new Vector2(560f, 320f);
+    [Tooltip("全屏遮罩颜色(越黑越遮挡背景)")]
+    public Color stampConfirmDimmerColor = new Color(0f, 0f, 0f, 0.55f);
+    [Tooltip("标题字号")]
+    public int stampConfirmTitleFontSize = 38;
+    [Tooltip("正文字号")]
+    public int stampConfirmContentFontSize = 28;
+    [Tooltip("两个按钮的尺寸(像素)")]
+    public Vector2 stampConfirmButtonSize = new Vector2(170f, 66f);
+    [Tooltip("按钮文字字号")]
+    public int stampConfirmButtonFontSize = 30;
+    [Tooltip("按钮底色")]
+    public Color stampConfirmButtonColor = new Color(0.72f, 0.24f, 0.20f, 1f);
+    [Tooltip("按钮文字颜色")]
+    public Color stampConfirmButtonTextColor = Color.white;
+
     // ---------------- 运行时状态 ----------------
     private Stage stage = Stage.None;
     private readonly HashSet<GameObject> hookedTargets = new HashSet<GameObject>(); // 持久挂钩防重复
@@ -159,6 +197,8 @@ public class TutorialManager : MonoBehaviour
     private bool npcLocked;                        // 点过 mailbox 后锁 NPC，防止跳过审批
     private bool approvalProcessing;               // 审批链式协程正在跑，防止重复触发
     private Sprite builtinWhiteSprite;             // 内置白精灵缓存
+    private GameObject stampConfirmRoot;           // "是否盖章"确认弹窗实例
+    private int stampConfirmChoice;                // 确认结果：0=未选 1=通过 2=不通过 -1=作废
 
     // ================================================================
     // 生命周期
@@ -338,17 +378,8 @@ public class TutorialManager : MonoBehaviour
     {
         if (builtinWhiteSprite != null) return builtinWhiteSprite;
 
-        // 尝试几个常见的内置路径（不同 Unity 版本存在差异）
-        string[] tryPaths = { "Sprites/Default", "white", "UI/Skin/UISprite.psd", "UI/Skin/Background.psd" };
-        foreach (var p in tryPaths)
-        {
-            Sprite s = Resources.GetBuiltinResource<Sprite>(p);
-            if (s != null) { builtinWhiteSprite = s; return builtinWhiteSprite; }
-            Texture2D t = Resources.GetBuiltinResource<Texture2D>(p);
-            if (t != null) { builtinWhiteSprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f)); return builtinWhiteSprite; }
-        }
-
-        // 最终兜底：自己画一张 1x1 白贴图
+        // 直接用代码生成一张白色贴图：Unity 各版本内置资源路径不一致，
+        // GetBuiltinResource 找不到时会刷错误日志，所以不再尝试内置路径
         var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
         var pixels = new Color[16];
         for (int i = 0; i < 16; i++) pixels[i] = Color.white;
@@ -814,6 +845,14 @@ public class TutorialManager : MonoBehaviour
         Debug.Log($"[Tutorial] OnStampClicked stampId={stampId} stage={stage} approvalProcessing={approvalProcessing}");
         if (approvalProcessing) { Debug.LogWarning("[Tutorial] OnStampClicked 被锁"); return; }
 
+        // 盖章门槛：必须先打开通关文书(Btn_File3)的弹窗
+        if (requireFile3OpenToStamp && !IsFile3PopupOpen())
+        {
+            Debug.LogWarning("[Tutorial] 通关文书(Btn_File3)未打开，禁止盖章");
+            StartCoroutine(ToastRoutine(stampNeedFile3Hint));
+            return;
+        }
+
         // Fallback：如果还卡在教程阶段（Screen/Clock）但玩家已经能点到 Stamp，
         // 说明教程对话已经走完了，强制收尾进 FreePlay
         if (stage != Stage.Stamps && stage != Stage.FreePlay)
@@ -825,16 +864,14 @@ public class TutorialManager : MonoBehaviour
         GuideTarget gt = stampId == 1 ? stamp1 : stamp2;
         GameObject stamp = ResolveTarget(gt);
 
-        bool correct = stampId == 1; // Btn_Stamp1=通过(正确) Btn_Stamp2=不通过
-
         approvalProcessing = true;
         if (stage == Stage.Stamps)
         {
-            StartCoroutine(StampApprovalChain_Tutorial(stamp, stampId, correct));
+            StartCoroutine(StampApprovalChain_Tutorial(stamp));
         }
         else if (stage == Stage.FreePlay)
         {
-            StartCoroutine(StampApprovalChain(stamp, stampId, correct));
+            StartCoroutine(StampApprovalChain(stamp));
         }
         else
         {
@@ -843,13 +880,19 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    /// <summary>教程阶段盖章：印章缩放 → Btn_File3 盖章 → 自动关 → 结束教程</summary>
-    private IEnumerator StampApprovalChain_Tutorial(GameObject stampObj, int stampId, bool correct)
+    /// <summary>教程阶段盖章：印章缩放 → 确认弹窗(通过/不通过) → 盖到 Btn_File3 → 结束教程</summary>
+    private IEnumerator StampApprovalChain_Tutorial(GameObject stampObj)
     {
         if (stampObj != null) yield return StartCoroutine(StampPunch(stampObj));
-        yield return StartCoroutine(ShowDocumentStampPopup(stampId));
 
-        NotifyApprovalResult(correct);
+        // 弹"是否盖章"确认弹窗，等玩家选【通过】/【不通过】
+        yield return StartCoroutine(ShowStampConfirmPopup());
+        int finalStamp = stampConfirmChoice;
+        if (finalStamp != 1 && finalStamp != 2) { approvalProcessing = false; yield break; }
+
+        yield return StartCoroutine(ShowDocumentStampPopup(finalStamp));
+
+        NotifyApprovalResult(finalStamp == 1);
         approvalProcessing = false;
         FinishGuide(); // 电话已提前到Btn_7之后，盖章是教程最后一步
     }
@@ -886,24 +929,29 @@ public class TutorialManager : MonoBehaviour
         EnterStage(Stage.Info);
     }
 
-    /// <summary>自由审批：印章点击链式——印章缩放 → 通关文书弹窗+盖章 → NPC退场 → 关弹窗 → 等玩家再次手动摇铃</summary>
-    private IEnumerator StampApprovalChain(GameObject stampObj, int stampId, bool correct)
+    /// <summary>自由审批：印章点击链式——印章缩放 → 确认弹窗 → 通关文书弹窗+盖章 → NPC退场 → 关弹窗 → 等玩家再次手动摇铃</summary>
+    private IEnumerator StampApprovalChain(GameObject stampObj)
     {
         // 1. 印章按钮本身缩放动画
         if (stampObj != null) yield return StartCoroutine(StampPunch(stampObj));
 
-        // 2. 弹通关文书 + 盖章图片
-        yield return StartCoroutine(ShowDocumentStampPopup(stampId));
+        // 2. 弹"是否盖章"确认弹窗，等玩家选【通过】/【不通过】
+        yield return StartCoroutine(ShowStampConfirmPopup());
+        int finalStamp = stampConfirmChoice;
+        if (finalStamp != 1 && finalStamp != 2) { approvalProcessing = false; yield break; }
 
-        // 3. NPC 退场
+        // 3. 弹通关文书 + 盖章图片
+        yield return StartCoroutine(ShowDocumentStampPopup(finalStamp));
+
+        // 4. NPC 退场
         NpcLeave();
         while (leaveCoroutine != null) yield return null;
 
-        // 4. 关掉所有弹窗（NPC 走了档案/文书都该关）
+        // 5. 关掉所有弹窗（NPC 走了档案/文书都该关）
         RoomInteract.CloseAllPopups();
 
-        // 5. 通知结果 + 收尾（不自动叫下一位，由玩家再次摇铃）
-        NotifyApprovalResult(correct);
+        // 6. 通知结果 + 收尾（不自动叫下一位，由玩家再次摇铃）
+        NotifyApprovalResult(finalStamp == 1);
         yield return FinishNpcAndRestore();
     }
 
@@ -1189,6 +1237,134 @@ public class TutorialManager : MonoBehaviour
         // Clone 版：什么都不做 —— Clone 的那份会随着 PopupPanel 关闭被 Destroy
     }
 
+    // ================================================================
+    // 盖章门槛 + "是否盖章"确认弹窗
+    // ================================================================
+    /// <summary>严格判断：通关文书(Btn_File3, popupSource="File3")的弹窗是否已经打开</summary>
+    private bool IsFile3PopupOpen()
+    {
+        PopupPanel[] panels = Resources.FindObjectsOfTypeAll<PopupPanel>();
+        foreach (var p in panels)
+        {
+            if (p == null || !p.gameObject.scene.IsValid() || !p.gameObject.activeInHierarchy) continue;
+            if (string.Equals(p.popupSource, "File3", System.StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>弹出"是否盖章(通过/不通过)"确认弹窗，等玩家选择；结果写入 stampConfirmChoice(1=通过 2=不通过)</summary>
+    private IEnumerator ShowStampConfirmPopup()
+    {
+        if (stampConfirmRoot != null) { Destroy(stampConfirmRoot); stampConfirmRoot = null; }
+        stampConfirmChoice = 0;
+
+        // 全屏遮罩(挡住背后所有点击)
+        stampConfirmRoot = new GameObject("StampConfirm", typeof(RectTransform), typeof(Image));
+        stampConfirmRoot.transform.SetParent(overlayRect, false);
+        RectTransform cr = stampConfirmRoot.GetComponent<RectTransform>();
+        cr.anchorMin = Vector2.zero; cr.anchorMax = Vector2.one;
+        cr.offsetMin = Vector2.zero; cr.offsetMax = Vector2.zero;
+        cr.SetAsLastSibling();
+        Image dim = stampConfirmRoot.GetComponent<Image>();
+        dim.color = stampConfirmDimmerColor;
+        dim.raycastTarget = true;
+
+        // 弹窗面板
+        GameObject panel = new GameObject("Panel", typeof(RectTransform), typeof(Image));
+        panel.transform.SetParent(cr, false);
+        Image panelImg = panel.GetComponent<Image>();
+        panelImg.sprite = stampConfirmBgSprite != null ? stampConfirmBgSprite : BubbleSprite;
+        panelImg.type = Image.Type.Sliced;
+        panelImg.raycastTarget = false;
+        RectTransform pr = panel.GetComponent<RectTransform>();
+        pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 0.5f);
+        pr.sizeDelta = new Vector2(Mathf.Max(200f, stampConfirmPanelSize.x), Mathf.Max(140f, stampConfirmPanelSize.y));
+
+        Font cf = stampConfirmFont != null ? stampConfirmFont : ResolveFont();
+
+        // 标题
+        Text title = CreateText(stampConfirmTitle, pr, stampConfirmTitleFontSize, textColor, TextAnchor.MiddleCenter, FontStyle.Bold);
+        title.font = cf;
+        RectTransform tr = title.rectTransform;
+        tr.anchorMin = new Vector2(0f, 1f); tr.anchorMax = new Vector2(1f, 1f);
+        tr.pivot = new Vector2(0.5f, 1f);
+        tr.anchoredPosition = new Vector2(0f, -18f);
+        tr.sizeDelta = new Vector2(-32f, 56f);
+
+        // 正文
+        Text content = CreateText(stampConfirmContent, pr, stampConfirmContentFontSize, textColor, TextAnchor.MiddleCenter, FontStyle.Normal);
+        content.font = cf;
+        RectTransform ctr = content.rectTransform;
+        ctr.anchorMin = new Vector2(0f, 0.36f); ctr.anchorMax = new Vector2(1f, 0.7f);
+        ctr.offsetMin = new Vector2(24f, 0f); ctr.offsetMax = new Vector2(-24f, 0f);
+
+        // 两个按钮：左=通过(1) 右=不通过(2)
+        float bw = Mathf.Max(60f, stampConfirmButtonSize.x);
+        float bh = Mathf.Max(30f, stampConfirmButtonSize.y);
+        float gap = 40f;
+        CreateConfirmButton("Btn_Pass", stampConfirmPassText, pr, cf, new Vector2(-(bw + gap) * 0.5f, 48f), bw, bh, 1);
+        CreateConfirmButton("Btn_Reject", stampConfirmRejectText, pr, cf, new Vector2((bw + gap) * 0.5f, 48f), bw, bh, 2);
+
+        Debug.Log("[Tutorial] 盖章确认弹窗已弹出，等待玩家选择");
+
+        // 等玩家选择（OnNewDayReset 会把 stampConfirmChoice 置 -1 强制解除等待）
+        while (stampConfirmChoice == 0) yield return null;
+
+        if (stampConfirmRoot != null) Destroy(stampConfirmRoot);
+        stampConfirmRoot = null;
+        Debug.Log($"[Tutorial] 盖章确认结果 choice={stampConfirmChoice}");
+    }
+
+    private void CreateConfirmButton(string name, string label, RectTransform parent, Font font, Vector2 pos, float w, float h, int choice)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+        go.transform.SetParent(parent, false);
+        Image img = go.GetComponent<Image>();
+        img.sprite = BubbleSprite; // 圆角白底（代码生成，不依赖内置资源）
+        img.type = Image.Type.Sliced;
+        img.color = stampConfirmButtonColor;
+        img.raycastTarget = true;
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = new Vector2(w, h);
+
+        Text t = CreateText(label, rt, stampConfirmButtonFontSize, stampConfirmButtonTextColor, TextAnchor.MiddleCenter, FontStyle.Bold);
+        t.font = font;
+
+        Button btn = go.GetComponent<Button>();
+        btn.targetGraphic = img;
+        int c = choice;
+        btn.onClick.AddListener(() => { stampConfirmChoice = c; });
+    }
+
+    /// <summary>屏幕下方弹一条自动消失的提示（盖章门槛拦截等场景用）</summary>
+    private IEnumerator ToastRoutine(string text)
+    {
+        if (string.IsNullOrEmpty(text)) yield break;
+
+        GameObject b = new GameObject("TutorialToast", typeof(RectTransform), typeof(Image));
+        b.transform.SetParent(overlayRect, false);
+        Image img = b.GetComponent<Image>();
+        img.sprite = BubbleSprite;
+        img.type = Image.Type.Sliced;
+        img.raycastTarget = false;
+        RectTransform rt = b.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f);
+        rt.pivot = new Vector2(0.5f, 0f);
+        rt.anchoredPosition = new Vector2(0f, 120f);
+        rt.sizeDelta = new Vector2(Mathf.Max(240f, bubbleSize.x), Mathf.Max(60f, bubbleSize.y));
+        rt.SetAsLastSibling();
+
+        Text t = CreateText(text, rt, bubbleFontSize, textColor, TextAnchor.MiddleCenter, FontStyle.Normal);
+        t.rectTransform.offsetMin = new Vector2(24f, 14f);
+        t.rectTransform.offsetMax = new Vector2(-24f, -14f);
+
+        yield return new WaitForSeconds(1.6f);
+        if (b != null) Destroy(b);
+    }
+
     /// <summary>世界坐标 → 指定 RectTransform 局部坐标</summary>
     private static Vector2 WorldToLocal(RectTransform parent, Vector3 worldPos)
     {
@@ -1391,6 +1567,10 @@ public class TutorialManager : MonoBehaviour
         completedCount = correctCount = wrongCount = corruptionCount = 0;
         npcLocked = false;
         approvalProcessing = false;
+
+        // 作废可能还挂着的盖章确认弹窗，避免旧协程一直等待
+        if (stampConfirmRoot != null) { Destroy(stampConfirmRoot); stampConfirmRoot = null; }
+        stampConfirmChoice = -1;
 
         // 彻底重置 NPC 状态（修第二天铃铛点不起的根因）
         npcOnStage = false;
