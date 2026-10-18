@@ -115,11 +115,11 @@ public class TutorialManager : MonoBehaviour
     [Header("印章在弹窗上的位置调整")]
     [Tooltip("印章边长 = 弹窗宽度 × 此比例")]
     [Range(0.05f, 1f)] public float sealSizeRatio = 0.25f;
-    [Tooltip("不使用自定义坐标时，印章距弹窗左下角的内边距(像素)")]
+    [Tooltip("不使用自定义坐标时，印章距弹窗右下角的内边距(像素)")]
     public float sealPadding = 12f;
     [Tooltip("勾选后使用下面的自定义坐标，忽略内边距自动计算")]
     public bool useCustomSealPosition = false;
-    [Tooltip("印章在通关文书弹窗上的自定义坐标(锚点=左下角, 单位像素)，X右正 Y上正")]
+    [Tooltip("印章在通关文书弹窗上的自定义坐标(锚点=右下角, 单位像素)，X右正 Y上正")]
     public Vector2 sealAnchoredPosition = new Vector2(0f, 0f);
 
     // ---------------- 运行时状态 ----------------
@@ -915,18 +915,19 @@ public class TutorialManager : MonoBehaviour
         if (bell != null) bell.OnNpcLeft();
     }
 
-    /// <summary>把盖章图挂到 PopupPanel 子物体上，锚点左下角；大小/位置由 Inspector 槽位控制</summary>
+    /// <summary>把盖章图挂到 PopupPanel 子物体上，锚点右下角；大小/位置由 Inspector 槽位控制</summary>
     private void AttachSealToPanel(RectTransform sealRT, RectTransform panelRT)
     {
         sealRT.SetParent(panelRT, false);
-        sealRT.anchorMin = sealRT.anchorMax = new Vector2(0, 0); // 左下角
+        sealRT.anchorMin = sealRT.anchorMax = new Vector2(1, 0); // 右下角
         sealRT.pivot = new Vector2(0.5f, 0.5f);
         float s = panelRT.rect.width * sealSizeRatio;
         sealRT.sizeDelta = new Vector2(s, s);
-        // 坐标：勾选自定义就用槽位值，否则按"内边距贴左下角"自动算
+        // 坐标：勾选自定义就用槽位值，否则按"内边距贴右下角"自动算
+        // 锚点在右下角，X 取负值 = 向左留出内边距
         sealRT.anchoredPosition = useCustomSealPosition
             ? sealAnchoredPosition
-            : new Vector2(s * 0.5f + sealPadding, s * 0.5f + sealPadding);
+            : new Vector2(-(s * 0.5f + sealPadding), s * 0.5f + sealPadding);
         sealRT.localScale = Vector3.one;
         Image sealImg = sealRT.GetComponent<Image>();
         if (sealImg != null) sealImg.raycastTarget = false;
@@ -1075,7 +1076,7 @@ public class TutorialManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>在 Btn_File3 弹出的 PopupPanel 左下角盖印章，1.5 秒后自动隐藏。
+    /// <summary>在 Btn_File3 弹出的 PopupPanel 右下角盖印章，1.5 秒后自动隐藏。
     /// 盖章图挂到 PopupPanel 子物体上，弹窗怎么拖都跟着。</summary>
     private IEnumerator ShowDocumentStampPopup(int stampId)
     {
@@ -1104,7 +1105,7 @@ public class TutorialManager : MonoBehaviour
             if (clonedPass != null) clonedPass.gameObject.SetActive(false);
             if (clonedReject != null) clonedReject.gameObject.SetActive(false);
 
-            // 把 Clone 挂到 PopupPanel 下、锚点设左下角
+            // 把 Clone 挂到 PopupPanel 下、锚点设右下角
             if (clonedPass != null) AttachSealToPanel(clonedPass.rectTransform, popupRT);
             if (clonedReject != null) AttachSealToPanel(clonedReject.rectTransform, popupRT);
 
@@ -1126,16 +1127,17 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
-            // 兜底：动态创建一张盖章图，直接挂 PopupPanel 下、锚点左下角
+            // 兜底：动态创建一张盖章图，直接挂 PopupPanel 下、锚点右下角
             Image seal;
             GameObject sealGO = new GameObject("SealOnPopup", typeof(RectTransform), typeof(Image));
             sealGO.transform.SetParent(popupRT, false);
             sealRT = sealGO.GetComponent<RectTransform>();
-            sealRT.anchorMin = sealRT.anchorMax = new Vector2(0, 0); // 左下角
+            sealRT.anchorMin = sealRT.anchorMax = new Vector2(1, 0); // 右下角
             sealRT.pivot = new Vector2(0.5f, 0.5f);
             float s = popupRT.rect.width * 0.25f;
             sealRT.sizeDelta = new Vector2(s, s);
-            sealRT.anchoredPosition = new Vector2(s * 0.5f + 12, s * 0.5f + 12);
+            // X 取负值 = 从右边缘向左留出内边距
+            sealRT.anchoredPosition = new Vector2(-(s * 0.5f + 12), s * 0.5f + 12);
             sealRT.localScale = Vector3.zero;
             seal = sealGO.GetComponent<Image>();
             seal.color = stampId == 1
