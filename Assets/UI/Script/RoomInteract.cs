@@ -14,6 +14,10 @@ public class RoomInteract : MonoBehaviour
     public string title;
     [TextArea(5, 10)] public string content;
 
+    [Header("🔊 点击音效（可选，不拖就没声）")]
+    [Tooltip("这个按钮的点击音效 —— 从 AudioManager.sfxSource 播，自动受 SFX 音量滑块控制")]
+    public AudioClip clickSfx;
+
     /// <summary>content 支持的占位符：
     ///   {RULES} → 从 GameSessionBridge 取 session.GetRuleAnnouncement()（每日规则公告）
     ///   以后可以扩 {DOC} {PROFILE} 等 per-NPC 动态内容
@@ -35,6 +39,13 @@ public class RoomInteract : MonoBehaviour
 
     public void OpenPopup()
     {
+        // 🔊 播点击音效 —— 优先用自己配的，没配就 fallback 到 AudioManager 全局默认
+        if (AudioManager.Instance != null)
+        {
+            AudioClip clip = clickSfx != null ? clickSfx : AudioManager.Instance.defaultClickSfx;
+            if (clip != null) AudioManager.Instance.PlaySFX(clip);
+        }
+
         // 关掉自己之前弹的那个（不影响别的按钮的弹窗）
         if (_myPopup != null)
         {

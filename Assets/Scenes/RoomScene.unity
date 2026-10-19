@@ -283,6 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 831c273e90c022b418adc981eeb53206, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPaused: 0
   StartDay: 1
   StartHour: 9
   StartMinute: 0
@@ -459,6 +460,7 @@ MonoBehaviour:
   Btn_File3: {fileID: 563345862}
   stampObj1: {fileID: 2091779710}
   stampObj2: {fileID: 285115680}
+  bellSfx: {fileID: 8300000, guid: 52681e3fd14de814ca890ff3d4c82e15, type: 3}
   npcPrefabs:
   - {fileID: 6096246619727388698, guid: 78cca1ef8c6a9734d862a9b6ada6abf6, type: 3}
   - {fileID: 6223687926259434555, guid: 4508f92949be4af4483ddda90a58c06c, type: 3}
@@ -824,6 +826,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 3472616433443479280, guid: f22f86bcdb06ddf47b011de0e52d2186, type: 3}
   title: 
   content: 
+  clickSfx: {fileID: 0}
 --- !u!1 &285115680
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,6 +839,7 @@ GameObject:
   - component: {fileID: 285115684}
   - component: {fileID: 285115683}
   - component: {fileID: 285115682}
+  - component: {fileID: 285115685}
   m_Layer: 0
   m_Name: Btn_Stamp2
   m_TagString: Untagged
@@ -944,6 +948,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 285115680}
   m_CullTransparentMesh: 1
+--- !u!114 &285115685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285115680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: 8a7c669a1d67855418ea0b8bb701ac7e, type: 3}
+  volumeScale: 1
 --- !u!1 &374922461
 GameObject:
   m_ObjectHideFlags: 0
@@ -1506,6 +1524,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 6614758483001405782, guid: f0accebefa32ab14aa26bdc63ca05b62, type: 3}
   title: 
   content: '{DOC}'
+  clickSfx: {fileID: 8300000, guid: 420d7010f65d176418dba5f2b83abba8, type: 3}
 --- !u!1 &587373475
 GameObject:
   m_ObjectHideFlags: 0
@@ -1809,6 +1828,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 7642286292150076013, guid: a668fa181e65d114aa2b917508450682, type: 3}
   title: 
   content: 
+  clickSfx: {fileID: 0}
 --- !u!114 &643620386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2170,6 +2190,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 3301885815725378009, guid: dd458a60702246842b122c380fb1f251, type: 3}
   title: 
   content: '{RULES}'
+  clickSfx: {fileID: 8300000, guid: d69e63b2d8dbaad4f93210f9b61ffe97, type: 3}
 --- !u!1 &971249227
 GameObject:
   m_ObjectHideFlags: 0
@@ -3510,6 +3531,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 2454862829311645379, guid: e8b41215d197b6e468a0a70a95128441, type: 3}
   title: 
   content: 
+  clickSfx: {fileID: 8300000, guid: 10de063782f77f74d8a60365fb74a311, type: 3}
 --- !u!114 &1809814125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3829,6 +3851,7 @@ GameObject:
   - component: {fileID: 2091779714}
   - component: {fileID: 2091779713}
   - component: {fileID: 2091779712}
+  - component: {fileID: 2091779715}
   m_Layer: 0
   m_Name: Btn_Stamp1
   m_TagString: Untagged
@@ -3937,6 +3960,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2091779710}
   m_CullTransparentMesh: 1
+--- !u!114 &2091779715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091779710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: 8a7c669a1d67855418ea0b8bb701ac7e, type: 3}
+  volumeScale: 1
 --- !u!1 &2105500836
 GameObject:
   m_ObjectHideFlags: 0
@@ -4191,6 +4228,7 @@ MonoBehaviour:
   popupPrefab: {fileID: 3572048322626742508, guid: f862d23cab0513f4a8d10c5427724e14, type: 3}
   title: 
   content: "\u7533\u8BF7\u4EBA\uFF1A{NPC_NAME}\r\n\u6765\u6E90\uFF1A{NPC_ORIGIN}\r\n"
+  clickSfx: {fileID: 8300000, guid: 420d7010f65d176418dba5f2b83abba8, type: 3}
 --- !u!1 &2117909584
 GameObject:
   m_ObjectHideFlags: 0
@@ -4325,6 +4363,9 @@ MonoBehaviour:
   resumeSceneName: RoomScene
   btnFont: {fileID: 12800000, guid: c59306bbbee5cee44b1ada14d80dfa25, type: 3}
   btnFontSize: 47
+  pauseSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
+  resumeSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
+  pauseBtnClickSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
   btnTextColor: {r: 1, g: 1, b: 1, a: 1}
   btnSize: {x: 400, y: 120}
   btnGap: 32

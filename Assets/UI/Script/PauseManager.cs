@@ -34,6 +34,14 @@ public class PauseManager : MonoBehaviour
     public Font btnFont;
     [Tooltip("按钮字号")]
     public int btnFontSize = 28;
+
+    [Header("🔊 音效（直接拖 .mp3/.wav）")]
+    [Tooltip("按 ESC 弹出暂停界面时播")]
+    public AudioClip pauseSfx;
+    [Tooltip("再按 ESC / 点恢复时播")]
+    public AudioClip resumeSfx;
+    [Tooltip("暂停面板上按钮（回到主界面、退出游戏）的点击音效；留空用 AudioManager.defaultClickSfx")]
+    public AudioClip pauseBtnClickSfx;
     [Tooltip("按钮文字颜色")]
     public Color btnTextColor = Color.white;
 
@@ -89,6 +97,13 @@ public class PauseManager : MonoBehaviour
         if (pauseTimeScale) Time.timeScale = 0f;
         BuildPauseUI();
         Debug.Log("[PauseManager] 游戏暂停");
+
+        // 🔊 暂停音效 —— 优先专属 pauseSfx，没配就 fallback 全局默认
+        if (AudioManager.Instance != null)
+        {
+            var clip = pauseSfx != null ? pauseSfx : AudioManager.Instance.defaultClickSfx;
+            if (clip != null) AudioManager.Instance.PlaySFX(clip);
+        }
     }
 
     private void Resume()
@@ -102,6 +117,13 @@ public class PauseManager : MonoBehaviour
             _pausePageImg = null;
         }
         Debug.Log("[PauseManager] 游戏恢复");
+
+        // 🔊 恢复音效 —— 优先专属 resumeSfx，没配就 fallback 全局默认
+        if (AudioManager.Instance != null)
+        {
+            var clip = resumeSfx != null ? resumeSfx : AudioManager.Instance.defaultClickSfx;
+            if (clip != null) AudioManager.Instance.PlaySFX(clip);
+        }
     }
 
     private void BuildPauseUI()
@@ -205,7 +227,16 @@ public class PauseManager : MonoBehaviour
 
         Button btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
-        btn.onClick.AddListener(() => onClick?.Invoke());
+        btn.onClick.AddListener(() =>
+        {
+            // 🔊 暂停面板按钮点击音效
+            if (AudioManager.Instance != null)
+            {
+                var clip = pauseBtnClickSfx != null ? pauseBtnClickSfx : AudioManager.Instance.defaultClickSfx;
+                if (clip != null) AudioManager.Instance.PlaySFX(clip);
+            }
+            onClick?.Invoke();
+        });
 
         RectTransform rt = btn.GetComponent<RectTransform>();
         // 锚点：挂在暂停页中心，按钮本身 pivot 取中心

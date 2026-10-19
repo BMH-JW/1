@@ -95,12 +95,28 @@ MonoBehaviour:
   titleText: {fileID: 0}
   contentText: {fileID: 0}
   closeBtn: {fileID: 4077228199150840060}
+  titleLegacy: {fileID: 0}
+  contentLegacy: {fileID: 0}
   closeBtnSprite: {fileID: 0}
   pinCloseBtnTopRight: 1
   closeBtnTopRightOffset: {x: -14.8, y: -16}
-  cjkFontAsset: {fileID: 0}
   systemFontName: Microsoft YaHei
+  titleOverrideFontSize: 0
+  titleFontSize: 28
+  titleOverridePosition: 0
+  titleAnchoredPosition: {x: 0, y: 0}
+  titleOverrideSize: 0
+  titleSizeDelta: {x: 0, y: 0}
+  contentOverrideFontSize: 0
+  contentFontSize: 18
+  contentOverridePosition: 0
+  contentAnchoredPosition: {x: 0, y: 0}
+  contentOverrideSize: 0
+  contentSizeDelta: {x: 0, y: 0}
+  documentFields: []
   dragToFront: 1
+  clickToNextPage: 0
+  clickPageTexts: []
 --- !u!114 &811445148548376173
 MonoBehaviour:
   m_ObjectHideFlags: 0

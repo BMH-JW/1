@@ -15,6 +15,10 @@ public class NPCBellLogic : MonoBehaviour
     public GameObject stampObj1;
     public GameObject stampObj2;
 
+    [Header("🔔 音效（直接拖 .mp3/.wav 进来）")]
+    [Tooltip("摇铃时播放的音效 —— 从 AudioManager.sfxSource 播，自动受 SFX 音量滑块控制")]
+    public AudioClip bellSfx;
+
     [Header("NPC随机池(拖6个NPC预制体，每次摇铃随机出一个；留空则用上方单个npcObj)")]
     public GameObject[] npcPrefabs;
 
@@ -135,6 +139,13 @@ public class NPCBellLogic : MonoBehaviour
             Debug.Log("[NPCBellLogic] 当前客人还没离开，不能摇铃叫下一位");
             return;
         }
+
+        // 🔔 播摇铃音效（从 AudioManager 走，自动受 SFX 音量滑块控制）
+        if (bellSfx != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(bellSfx);
+        }
+
         SpawnNpc();
     }
 
@@ -335,6 +346,12 @@ public class NPCBellLogic : MonoBehaviour
         {
             Debug.Log("[NPCBellLogic] 客人还没来，不能查看邮箱");
             return;
+        }
+
+        // 🔊 邮箱打开音效（用 AudioManager 的全局默认点击音效）
+        if (AudioManager.Instance != null && AudioManager.Instance.defaultClickSfx != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.defaultClickSfx);
         }
         if (_showCoroutine != null)
         {

@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 8397510622756248487}
   - component: {fileID: 2665567713324409000}
   - component: {fileID: 6798770530178929673}
+  - component: {fileID: 4147531848766945613}
   m_Layer: 5
   m_Name: Btn_1
   m_TagString: Untagged
@@ -255,6 +256,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4147531848766945613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 844682598541266256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: e924bf2816719d24185c0acd32c977da, type: 3}
+  volumeScale: 1
 --- !u!1 &1614153177204225938
 GameObject:
   m_ObjectHideFlags: 0
@@ -482,6 +497,8 @@ GameObject:
   - component: {fileID: 635050357060649323}
   - component: {fileID: 629532363986538359}
   - component: {fileID: 3456789012345678901}
+  - component: {fileID: 4566472103006074998}
+  - component: {fileID: 1266093364685570536}
   m_Layer: 5
   m_Name: PopupPanel7
   m_TagString: Untagged
@@ -589,6 +606,8 @@ MonoBehaviour:
   contentSizeDelta: {x: 0, y: 0}
   documentFields: []
   dragToFront: 1
+  clickToNextPage: 0
+  clickPageTexts: []
 --- !u!114 &629532363986538359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -638,6 +657,64 @@ MonoBehaviour:
     alpha: 0
   hideButtonTexts: 1
   buttonTexts: []
+--- !u!114 &4566472103006074998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301885815725378009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 800545430057870090}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1266093364685570536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301885815725378009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: e924bf2816719d24185c0acd32c977da, type: 3}
+  volumeScale: 1
 --- !u!1 &3456510912108065128
 GameObject:
   m_ObjectHideFlags: 0
@@ -650,6 +727,7 @@ GameObject:
   - component: {fileID: 7169355525774535403}
   - component: {fileID: 8602676122944568683}
   - component: {fileID: 5721274463490811642}
+  - component: {fileID: 3978013122817006451}
   m_Layer: 5
   m_Name: Btn_2
   m_TagString: Untagged
@@ -759,6 +837,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3978013122817006451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3456510912108065128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: e924bf2816719d24185c0acd32c977da, type: 3}
+  volumeScale: 1
 --- !u!1 &4184614795343504321
 GameObject:
   m_ObjectHideFlags: 0
@@ -1170,6 +1262,7 @@ GameObject:
   - component: {fileID: 7111111111111111102}
   - component: {fileID: 7111111111111111103}
   - component: {fileID: 7111111111111111104}
+  - component: {fileID: 5182128756373618023}
   m_Layer: 5
   m_Name: Btn_TelePhone
   m_TagString: Untagged
@@ -1279,6 +1372,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5182128756373618023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111111111111111100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: e924bf2816719d24185c0acd32c977da, type: 3}
+  volumeScale: 1
 --- !u!1 &7111111111111111105
 GameObject:
   m_ObjectHideFlags: 0
