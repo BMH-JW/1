@@ -3,85 +3,68 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 弹窗内面板切换器（挂在弹窗预制体根节点）。
-/// 右侧竖排三个按钮：Btn_1=向上切换、Btn_2=向下切换、Btn_TelePhone=电话。Btn_3 自动隐藏。
-/// 内容页两种模式：
-///   A. 拖入内容页 GameObject → 切换显示对应页、隐藏其他页
-///   B. 不拖内容页，只填 tabTexts → 把当前页文字写进弹窗正文(ContentText)
-/// 到头就停（不循环）：第1页再向上无反应，最后一页再向下无反应。
+/// 弹窗内 Tab 分页切换器（挂在弹窗预制体根节点）。
+/// 两种模式（任选其一）：
+///   A. 拖入内容页 GameObject → 点击 Btn_n 显示第 n 页、隐藏其他页
+///   B. 不拖内容页，只填 tabTexts → 点击 Btn_n 把第 n 段文字写进弹窗正文(ContentText)
+/// 按钮留空会自动查找子物体 Btn_1/Btn_2/Btn_3。
+/// 选中按钮会变色+放大，方便看出当前在第几页。
 /// </summary>
 public class PopupTabs : MonoBehaviour
 {
-    [Header("按钮（留空自动查找 Btn_1 / Btn_2 / Btn_TelePhone）")]
-    [Tooltip("向上切换面板")]
-    public Button pageUpButton;
-    [Tooltip("向下切换面板")]
-    public Button pageDownButton;
-    [Tooltip("电话按钮，点击触发审批电话逻辑")]
-    public Button phoneButton;
-    [Tooltip("要隐藏的按钮(Btn_3)；留空自动查找")]
-    public Button unusedButton;
+    [Header("Tab 按钮（留空自动查找 Btn_1/Btn_2/Btn_3）")]
+    public List<Button> tabButtons = new List<Button>();
 
-    [Header("内容页（模式A：拖入页面 GameObject）")]
+    [Header("模式A：内容页 GameObject（可选；拖入则点击切换显隐）")]
     public List<GameObject> tabPages = new List<GameObject>();
 
-    [Header("每页文案（模式B：没拖内容页时，作为弹窗正文）")]
+    [Header("模式B：每页文案（可选；没拖内容页时，点击把这段文字写进弹窗正文）")]
     [TextArea(3, 8)] public List<string> tabTexts = new List<string>();
 
-    [Header("右侧竖排布局")]
-    [Tooltip("勾选后每次弹窗打开都按下方参数摆放右侧三个按钮；取消则用预制体里手摆的位置")]
-    public bool autoPlaceButtons = true;
-    [Tooltip("按钮距弹窗右边缘的水平间隙(像素)：越大越不靠边")]
-    public float rightPadding = 150f;
-    [Tooltip("相邻两个按钮的垂直间隔(像素)：两个按钮中心相距这么远")]
-    public float buttonSpacing = 170f;
-    [Tooltip("整组按钮相对弹窗垂直中心的偏移(像素)：正=整组上移，0=居中")]
-    public float verticalOffset = 0f;
-    [Tooltip("三个按钮的尺寸(像素)。任一维<=0 则该维用预制体原尺寸")]
-    public Vector2 buttonSize = new Vector2(0f, 0f);
+    [Header("电话按钮（可选；弹窗内的 Btn_TelePhone，点击触发审批电话逻辑）")]
+    [Tooltip("留空则自动查找子物体 Btn_TelePhone")]
+    public Button phoneButton;
 
-    [System.Serializable]
-    public class ButtonStyle
-    {
-        [Tooltip("替换按钮图片（按钮自身 Image 的 Sprite）；留空=不改")]
-        public Sprite sprite;
-        [Range(0f, 1f)]
-        [Tooltip("按钮透明度：0=全透明，1=不透明")]
-        public float alpha = 1f;
-    }
+    [Header("电话按钮自动摆位")]
+    [Tooltip("勾选后每次弹窗打开都把电话按钮摆到右下角（按下方偏移）；想自己在编辑器里摆就取消勾选")]
+    public bool autoPlacePhone = true;
+    [Tooltip("电话按钮中心相对弹窗右下角的偏移(像素)。X负=向左，Y正=向上。默认(-83,50)=贴右下角留20px内边距")]
+    public Vector2 phoneCornerOffset = new Vector2(-83f, 50f);
 
-    [Header("三个按钮图片/透明度（顺序：Btn_1向上 / Btn_2向下 / 电话）")]
-    [Tooltip("每项对应一个按钮：替换图片 + 透明度。可少于 3 项，缺的按钮保持原图/不透明")]
-    public List<ButtonStyle> buttonStyles = new List<ButtonStyle>();
+    [Header("选中反馈（可改）")]
+    [Tooltip("选中按钮颜色")]
+    public Color selectedColor = new Color(1f, 0.8f, 0.2f, 1f);
+    [Tooltip("未选中按钮颜色")]
+    public Color normalColor = Color.white;
+    [Tooltip("选中按钮放大倍数")]
+    [Range(1f, 1.5f)] public float selectedScale = 1.15f;
 
     private int _current;
 
     void Awake()
     {
         AutoFindButtons();
+        AutoFindPhoneButton();
 
-        // Btn_1 向上、Btn_2 向下（每次点击按当前页计算，到头自动夹住，不循环）
-        if (pageUpButton != null)
-            pageUpButton.onClick.AddListener(() => SelectTab(_current - 1));
-        if (pageDownButton != null)
-            pageDownButton.onClick.AddListener(() => SelectTab(_current + 1));
+        for (int i = 0; i < tabButtons.Count; i++)
+        {
+            int index = i; // 闭包捕获
+            if (tabButtons[i] != null)
+                tabButtons[i].onClick.AddListener(() => SelectTab(index));
+        }
 
         // 电话按钮：点击转发给 TutorialManager 的电话审批逻辑（教程推进/自由审批都走这里）
         if (phoneButton != null)
+        {
             phoneButton.onClick.AddListener(OnPhoneButtonClicked);
+        }
     }
 
-    void Start()
+    private void AutoFindPhoneButton()
     {
-        if (unusedButton != null) unusedButton.gameObject.SetActive(false);
-
-        ApplyButtonSizes();
-        ApplyButtonPlacements();
-        ApplyButtonStyles();
-
-        // Start 而不是 Awake：RoomInteract.OpenPopup 在 Instantiate 后会 SetText 覆盖正文，
-        // 延迟到 Start 再选中第一页，保证初始内容不被覆盖
-        SelectTab(0);
+        if (phoneButton != null) return;
+        Transform t = FindDeepChild(transform, "Btn_TelePhone");
+        if (t != null) phoneButton = t.GetComponent<Button>();
     }
 
     private void OnPhoneButtonClicked()
@@ -91,109 +74,42 @@ public class PopupTabs : MonoBehaviour
             TutorialManager.Instance.OnPhoneClicked();
     }
 
-    /// <summary>页数：优先用内容页数量，否则用文案数量</summary>
-    private int PageCount
+    void Start()
     {
-        get { return tabPages.Count > 0 ? tabPages.Count : tabTexts.Count; }
+        ApplyPhonePlacement();
+
+        // Start 而不是 Awake：RoomInteract.OpenPopup 在 Instantiate 后会 SetText 覆盖正文，
+        // 延迟到 Start 再选中第一页，保证初始内容不被覆盖
+        SelectTab(0);
     }
 
-    /// <summary>按 buttonSize 统一设置三个按钮尺寸（<=0 的维度不改，保持预制体原尺寸）</summary>
-    private void ApplyButtonSizes()
+    /// <summary>把电话按钮摆到弹窗右下角（锚点=右下角，位置由 phoneCornerOffset 控制）</summary>
+    private void ApplyPhonePlacement()
     {
-        if (buttonSize.x <= 0f && buttonSize.y <= 0f) return;
-        for (int i = 0; i < 3; i++)
-        {
-            Button btn = GetStyleButton(i);
-            if (btn == null) continue;
-            RectTransform rt = btn.GetComponent<RectTransform>();
-            if (rt == null) continue;
-
-            Vector2 s = rt.sizeDelta;
-            if (buttonSize.x > 0f) s.x = buttonSize.x;
-            if (buttonSize.y > 0f) s.y = buttonSize.y;
-            rt.sizeDelta = s;
-        }
-    }
-
-    /// <summary>摆到右侧竖排：上=Btn_1(向上)，中=Btn_2(向下)，下=电话。全部锚定弹窗右缘。</summary>
-    private void ApplyButtonPlacements()
-    {
-        if (!autoPlaceButtons) return;
-
-        PlaceRight(pageUpButton, verticalOffset + buttonSpacing);   // 上
-        PlaceRight(pageDownButton, verticalOffset);                 // 中
-        PlaceRight(phoneButton, verticalOffset - buttonSpacing);    // 下
-    }
-
-    private void PlaceRight(Button btn, float y)
-    {
-        if (btn == null) return;
-        RectTransform rt = btn.GetComponent<RectTransform>();
+        if (!autoPlacePhone || phoneButton == null) return;
+        RectTransform rt = phoneButton.GetComponent<RectTransform>();
         if (rt == null) return;
-
-        float halfW = rt.rect.width * 0.5f; // 按钮半宽，保证外缘距弹窗右边恰好 rightPadding
+        rt.anchorMin = new Vector2(1f, 0f); // 右下角
+        rt.anchorMax = new Vector2(1f, 0f);
         rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchorMin = rt.anchorMax = new Vector2(1f, 0.5f); // 弹窗右缘
-        rt.anchoredPosition = new Vector2(-(rightPadding + halfW), y);
-    }
-
-    /// <summary>按钮顺序：0=向上 1=向下 2=电话（与图片/透明度槽位顺序一致）</summary>
-    private Button GetStyleButton(int i)
-    {
-        if (i == 0) return pageUpButton;
-        if (i == 1) return pageDownButton;
-        return phoneButton;
-    }
-
-    private float StyleAlpha(int i)
-    {
-        return (i >= 0 && i < buttonStyles.Count) ? buttonStyles[i].alpha : 1f;
-    }
-
-    /// <summary>按 buttonStyles 槽位替换三个按钮的图片、设置透明度</summary>
-    private void ApplyButtonStyles()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            Button btn = GetStyleButton(i);
-            if (btn == null) continue;
-
-            Image img = btn.targetGraphic as Image;
-            if (img == null) img = btn.GetComponentInChildren<Image>();
-            if (img == null) continue;
-
-            // 图片：槽位有拖才替换，留空保持原图
-            if (i < buttonStyles.Count && buttonStyles[i].sprite != null)
-                img.sprite = buttonStyles[i].sprite;
-
-            Color c = img.color;
-            c.a = StyleAlpha(i);
-            img.color = c;
-        }
+        rt.anchoredPosition = phoneCornerOffset;
     }
 
     private void AutoFindButtons()
     {
-        if (pageUpButton == null)
+        if (tabButtons.Count > 0) return;
+
+        for (int i = 1; i <= 3; i++)
         {
-            Transform t = FindDeepChild(transform, "Btn_1");
-            if (t != null) pageUpButton = t.GetComponent<Button>();
+            Transform t = FindDeepChild(transform, "Btn_" + i);
+            if (t != null)
+            {
+                Button b = t.GetComponent<Button>();
+                if (b != null) tabButtons.Add(b);
+            }
         }
-        if (pageDownButton == null)
-        {
-            Transform t = FindDeepChild(transform, "Btn_2");
-            if (t != null) pageDownButton = t.GetComponent<Button>();
-        }
-        if (phoneButton == null)
-        {
-            Transform t = FindDeepChild(transform, "Btn_TelePhone");
-            if (t != null) phoneButton = t.GetComponent<Button>();
-        }
-        if (unusedButton == null)
-        {
-            Transform t = FindDeepChild(transform, "Btn_3");
-            if (t != null) unusedButton = t.GetComponent<Button>();
-        }
+        if (tabButtons.Count == 0)
+            Debug.LogWarning("[PopupTabs] 没找到 Btn_1/2/3，请在 Inspector 手动拖入 tabButtons");
     }
 
     private static Transform FindDeepChild(Transform parent, string name)
@@ -207,29 +123,49 @@ public class PopupTabs : MonoBehaviour
         return null;
     }
 
-    /// <summary>切换到指定页（0-based，自动夹在有效范围内；到头就停不循环）</summary>
+    /// <summary>切换到指定页（0-based）。Btn_1→0, Btn_2→1, Btn_3→2</summary>
     public void SelectTab(int index)
     {
-        _current = Mathf.Clamp(index, 0, Mathf.Max(0, PageCount - 1));
+        _current = index;
 
         // 模式A：切换内容页显隐
         if (tabPages.Count > 0)
         {
             for (int i = 0; i < tabPages.Count; i++)
             {
-                if (tabPages[i] != null) tabPages[i].SetActive(i == _current);
+                if (tabPages[i] != null) tabPages[i].SetActive(i == index);
             }
         }
         // 模式B：切换弹窗正文文字
-        else if (_current < tabTexts.Count)
+        else if (index < tabTexts.Count)
         {
             PopupPanel panel = GetComponent<PopupPanel>();
             if (panel != null && panel.contentText != null)
             {
-                panel.contentText.text = tabTexts[_current];
+                panel.contentText.text = tabTexts[index];
             }
         }
 
-        Debug.Log($"[PopupTabs] 切换到第 {_current + 1}/{Mathf.Max(1, PageCount)} 页");
+        ApplyTabVisuals();
+        Debug.Log($"[PopupTabs] 切换到第 {index + 1} 页");
+    }
+
+    /// <summary>选中按钮变色+放大，未选中恢复</summary>
+    private void ApplyTabVisuals()
+    {
+        for (int i = 0; i < tabButtons.Count; i++)
+        {
+            Button btn = tabButtons[i];
+            if (btn == null) continue;
+
+            bool selected = (i == _current);
+
+            Graphic g = btn.targetGraphic != null ? btn.targetGraphic : btn.GetComponentInChildren<Graphic>();
+            if (g != null) g.color = selected ? selectedColor : normalColor;
+
+            btn.transform.localScale = selected
+                ? Vector3.one * selectedScale
+                : Vector3.one;
+        }
     }
 }
