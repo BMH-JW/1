@@ -11,7 +11,7 @@ namespace JU.GameData.Editor
         private readonly bool[] expanded = new bool[9];
         private static readonly string[][] Groups = {
             new[] { "版本与实现约定", "version|配置版本", "sourceWorkbook|原始表格", "sourceSha256|表格SHA256", "replyDocument|策划答复", "replySha256|答复SHA256", "testConfiguration|测试配置（不等于最终平衡）", "implementationDecisions|已采用的实现约定", "pendingDecisions|仍待补充事项（不阻塞基础测试）" },
-            new[] { "每日流程与世界初值", "startDay|起始天数", "minDailyApplicants|每日人数下限", "maxDailyApplicants|每日人数上限", "worlds|世界ID与名称（已确认）", "initialPurity|灵虚初始纯净值", "initialOrder|废墟初始秩序值", "worldValueMin|世界下限0", "worldValueMax|世界上限100", "initialTrust|信任初值", "trustMin|信任下限0", "trustMax|信任上限100" },
+            new[] { "每日流程与世界初值", "startDay|起始天数", "minDailyApplicants|每日人数下限", "maxDailyApplicants|每日人数上限", "worlds|世界ID与名称（已确认）", "initialPurity|灵墟初始纯净值", "initialOrder|废墟初始秩序值", "worldValueMin|世界下限0", "worldValueMax|世界上限100", "initialTrust|信任初值", "trustMin|信任下限0", "trustMax|信任上限100" },
             new[] { "记忆准入规则", "dailyRuleCount|每日规则数量", "conflictPolicy|多规则策略", "rules|规则库（本版仅记忆）", "semantics|等级与属性含义（记忆方向相反）", "showImmediateCompliance|即时展示合规（默认关闭，仅回执）" },
             new[] { "人物身份与原籍立绘", "identities|人物身份（姓名同日不重复，类型及动机显式指定）", "portraitPools|原籍对应立绘Key池（首次选定后跨日保持）" },
             new[] { "属性生成与档案资料", "bands|表1 数值到等级", "generationWeights|表6 等级权重", "bondTraceLabel|羁绊牵挂显示名称", "driveAssessmentLabel|驱力等级显示名称", "tags|二维描述50条", "details|一维明细25条", "motives|真实动机资料（不自动竞争优先级）", "documents|文书17条（含策划六类通用文案）", "items|保留的道具资料（不执行）" },

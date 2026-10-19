@@ -97,7 +97,7 @@ namespace JU.GameData.Tests
                     for (int memory = -10; memory <= 10; memory++)
                     {
                         var e = RuleEngine.Evaluate(c, RuleEngine.Select(c, 1), new NpcAttributes { memory = memory });
-                        Check(e.success && e.target == (memory < 0 ? Decision.ReleaseToAntiUtopia : Decision.ReleaseToUtopia), "全21点记忆映射，0去灵虚");
+                        Check(e.success && e.target == (memory < 0 ? Decision.ReleaseToAntiUtopia : Decision.ReleaseToUtopia), "全21点记忆映射，0去灵墟");
                     }
                     break;
                 case "BinaryCompliance":
@@ -129,7 +129,7 @@ namespace JU.GameData.Tests
                 case "RejectSourceImpact":
                 {
                     var s = GameSession.StartNewGame(c, 42); var n = s.GetState().npcs[0]; var r = s.SubmitApplication(n.id, false).approval;
-                    Near(r.purityDelta, n.sourceWorld == Destination.Utopia ? -1 : 0, "拒签灵虚记账"); Near(r.orderDelta, n.sourceWorld == Destination.AntiUtopia ? -1 : 0, "拒签废墟记账");
+                    Near(r.purityDelta, n.sourceWorld == Destination.Utopia ? -1 : 0, "拒签灵墟记账"); Near(r.orderDelta, n.sourceWorld == Destination.AntiUtopia ? -1 : 0, "拒签废墟记账");
                     var end = s.EndDay(1); Near(end.after.purity, 50+r.purityDelta, "来源扣除日终生效"); break;
                 }
                 case "NewWorldFormula":

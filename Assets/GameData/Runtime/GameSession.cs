@@ -32,6 +32,13 @@ namespace JU.GameData
         public GameConfigData GetConfigSnapshot() { return config.Copy(); }
         public string GetWorldName(Destination id) { return RuleEngine.WorldName(config, id); }
         public string GetChoiceName(Decision d) { return RuleEngine.ChoiceName(config, d); }
+
+        /// <summary>🔧 调试入口：直接覆盖秩序/纯净值（绕过正规 EndDay 流程）。</summary>
+        public void SetWorldValues(float order, float purity)
+        {
+            state.order = Math.Clamp(order, config.worldValueMin, config.worldValueMax);
+            state.purity = Math.Clamp(purity, config.worldValueMin, config.worldValueMax);
+        }
         public string GetRuleAnnouncement()
         {
             if (!config.enableDailyRules) return "每日规则判定已关闭，本日处理不评定合规。";

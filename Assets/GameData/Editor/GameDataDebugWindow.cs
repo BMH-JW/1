@@ -129,7 +129,7 @@ namespace JU.GameData.Editor
             if (lastReport == null) return;
             if (!lastReport.success) { Text("结算问题", lastReport.error); return; }
             Text("日结报告", lastReport.settlementId + "\n" + string.Join("\n", lastReport.log));
-            Text("结算前 → 后", "灵虚：" + lastReport.before.purity + " → " + lastReport.after.purity + "\n废墟：" + lastReport.before.order + " → " + lastReport.after.order + "\n信任：" + lastReport.before.trust + " → " + lastReport.after.trust);
+            Text("结算前 → 后", "灵墟：" + lastReport.before.purity + " → " + lastReport.after.purity + "\n废墟：" + lastReport.before.order + " → " + lastReport.after.order + "\n信任：" + lastReport.before.trust + " → " + lastReport.after.trust);
             if (GUILayout.Button("复制本次报告与判定原因")) EditorGUIUtility.systemCopyBuffer = runningConfig.version + " / 种子" + lastReport.before.seed + "\n" + string.Join("\n", lastReport.log) + "\n" + string.Join("\n", lastReport.approvals.Select(a => a.id + " / " + a.npcName + "\n" + a.ruleTrace));
             if (GUILayout.Button("检查重复日结拦截")) { var r = session.EndDay(lastReport.settledDay); lastMessage = r.success ? "异常：重复日结未被拦截。" : r.error; }
         }

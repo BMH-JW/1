@@ -85,6 +85,8 @@ public class RoomInteract : MonoBehaviour
     {
         var bridge = GameSessionBridge.Instance;
         var bell = NPCBellLogic.Instance;
+        // 兜底：某些时序下 GameSessionBridge.Awake 可能还没跑完，主动 Ensure
+        if (bridge != null && bridge.Current == null) bridge.EnsureSessionReady();
         if (bridge == null || bridge.Current == null)
         {
             Debug.LogWarning($"[RoomInteract] ResolveDocumentFields({source}) —— bridge.Current 拿不到，返回 null");
@@ -161,6 +163,7 @@ public class RoomInteract : MonoBehaviour
         string resolved = content ?? "";
         var bridge = GameSessionBridge.Instance;
         var bell = NPCBellLogic.Instance;
+        if (bridge != null && bridge.Current == null) bridge.EnsureSessionReady();
         bool hasBridge = bridge != null && bridge.Current != null;
         bool hasNpc = bell != null && bell.currentNpcData != null;
 

@@ -29,7 +29,14 @@ namespace JU.GameData
             if (c.impactDivisor < 1 || c.impactDivisor > 1000 || c.rejectionSourcePenalty < 0 || c.rejectionSourcePenalty > 100) e.Add("世界影响除数须为1～1000，拒签来源扣除须为0～100。");
             if (c.dailyRuleCount < 1 || c.feedbackDelayDays < 1 || c.feedbackDelayDays > 365) e.Add("每日规则数≥1，反馈延迟1～365天。");
             if (string.IsNullOrWhiteSpace(c.bondTraceLabel) || string.IsNullOrWhiteSpace(c.driveAssessmentLabel)) e.Add("两类档案的显示名称不能为空。");
-            if (c.worlds.Count != 2 || c.worlds.Count(w => w.id == Destination.Utopia && w.displayName == "灵虚") != 1 || c.worlds.Count(w => w.id == Destination.AntiUtopia && w.displayName == "废墟") != 1) e.Add("已确认映射必须为Utopia=灵虚、AntiUtopia=废墟。");
+            // 世界配置：必须两个，id 映射正确；displayName 是纯显示用的，不阻断运行
+            if (c.worlds.Count != 2) e.Add("世界配置须恰好为两个（Utopia + AntiUtopia）。");
+            else
+            {
+                int utopiaCount = c.worlds.Count(w => w.id == Destination.Utopia);
+                int antiCount = c.worlds.Count(w => w.id == Destination.AntiUtopia);
+                if (utopiaCount != 1 || antiCount != 1) e.Add("世界配置须各有一个 Utopia(id=0) 和 AntiUtopia(id=1)。");
+            }
             if (c.bands.Count != 5 || c.bands.Select(b => b.level).Distinct().Count() != 5 || c.bands.Any(b => b.level < 1 || b.level > 5 || b.minValue < -10 || b.maxValue > 10 || b.minValue > b.maxValue)) e.Add("表1须为唯一1～5级有效区间。");
             for (int v = -10; v <= 10; v++) if (c.bands.Count(b => v >= b.minValue && v <= b.maxValue) != 1) e.Add("数值" + v + "的等级映射缺失或重叠。");
             if (c.generationWeights.Count != 5 || c.generationWeights.Select(w => w.level).Distinct().Count() != 5 || c.generationWeights.Any(w => w.level < 1 || w.level > 5 || !Finite(w.weight) || w.weight < 0) || Math.Abs(c.generationWeights.Sum(w => (double)w.weight) - 1) > 0.0001) e.Add("表6须完整覆盖1～5级，权重非负且和为1。");

@@ -4243,6 +4243,7 @@ GameObject:
   - component: {fileID: 2117909585}
   - component: {fileID: 2117909589}
   - component: {fileID: 2117909590}
+  - component: {fileID: 2117909591}
   m_Layer: 5
   m_Name: Canvas_Room
   m_TagString: Untagged
@@ -4388,6 +4389,22 @@ MonoBehaviour:
   seed: -1
   dailyEventConfig: {fileID: 11400000, guid: 917325a9cfcd804429bf3d75efe59984, type: 2}
   dailyEventPrefab: {fileID: 3301885815725378009, guid: dd458a60702246842b122c380fb1f251, type: 3}
+--- !u!114 &2117909591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117909584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31fe4393804574e43a8b6155243662ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  orderOverride: 50
+  purityOverride: 50
+  applyAndTrigger: 0
+  autoTriggerDailyEvent: 1
 --- !u!224 &404731087038737572 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2572705727347364827, guid: 6ca5087b009af2646aafb13bf0eaf2f7, type: 3}

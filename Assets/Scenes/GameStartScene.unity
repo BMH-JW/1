@@ -246,6 +246,7 @@ GameObject:
   - component: {fileID: 37906033}
   - component: {fileID: 37906032}
   - component: {fileID: 37906035}
+  - component: {fileID: 37906036}
   m_Layer: 5
   m_Name: Btn_Esc
   m_TagString: Untagged
@@ -370,6 +371,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hoverParticle: {fileID: 911203552}
+--- !u!114 &37906036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 37906030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
+  volumeScale: 1
 --- !u!1 &125021334
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,6 +584,7 @@ GameObject:
   - component: {fileID: 285586064}
   - component: {fileID: 285586063}
   - component: {fileID: 285586066}
+  - component: {fileID: 285586067}
   m_Layer: 5
   m_Name: Btn_GameStart
   m_TagString: Untagged
@@ -705,6 +721,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hoverParticle: {fileID: 1337119983}
+--- !u!114 &285586067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285586061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
+  volumeScale: 1
 --- !u!1 &337671842
 GameObject:
   m_ObjectHideFlags: 0
@@ -22024,6 +22054,7 @@ GameObject:
   - component: {fileID: 1284259806}
   - component: {fileID: 1284259805}
   - component: {fileID: 1284259808}
+  - component: {fileID: 1284259809}
   m_Layer: 5
   m_Name: Btn_Setting
   m_TagString: Untagged
@@ -22148,6 +22179,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hoverParticle: {fileID: 1231682502}
+--- !u!114 &1284259809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1284259803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31df4e119ca79cc44bb0d942d3dc031e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSfx: {fileID: 8300000, guid: 35fcc5eccbebcfb4e8c3680f1f6ee3c7, type: 3}
+  volumeScale: 1
 --- !u!1 &1324565386
 GameObject:
   m_ObjectHideFlags: 0

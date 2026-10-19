@@ -51,7 +51,7 @@ MonoBehaviour:
     conflictPolicy: 0
     worlds:
     - id: 0
-      displayName: "\u7075\u865A"
+      displayName: "\u7075\u57FD"
     - id: 1
       displayName: "\u5E9F\u589F"
     bands:

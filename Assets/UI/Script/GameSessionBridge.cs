@@ -345,7 +345,7 @@ public class GameSessionBridge : MonoBehaviour
 
     private GameObject _activeDailyEventPopup;
 
-    private void EnsureSessionReady()
+    public void EnsureSessionReady()
     {
         if (_session != null) return;
 
@@ -459,7 +459,52 @@ public class GameSessionBridge : MonoBehaviour
     /// <summary>游戏是否已结束（供外部查询）。</summary>
     public bool IsGameEnded() => _gameEnded;
 
-    /// <summary>手动触发 EndDay 结算 —— TutorialManager 在 JumpToNextWorkday 之前调这个。
+    // ================================================================
+    // 🔧 调试入口（DailyEventDebugger 调用）
+    // ================================================================
+
+    /// <summary>直接覆盖 GameSession 的秩序/纯净值（绕过正规 EndDay 流程）。</summary>
+    public void ForceSetWorldValues(float order, float purity)
+    {
+        EnsureSessionReady();
+        if (_session == null) { Debug.LogError("[GameSessionBridge] ForceSetWorldValues —— session null"); return; }
+        _session.SetWorldValues(order, purity);
+        Debug.Log($"[GameSessionBridge] 🔧 调试：强制 order={order:0} purity={purity:0}");
+    }
+
+    /// <summary>用指定的 order/purity 值直接弹 DailyEvent（不走 EndDay）。</summary>
+    public void ForcePopupDailyEventWithValues(float order, float purity)
+    {
+        EnsureSessionReady();
+        if (_session == null || dailyEventConfig == null || dailyEventPrefab == null)
+        {
+            Debug.LogError("[GameSessionBridge] ForcePopupDailyEventWithValues —— session/config/prefab 缺一个");
+            return;
+        }
+        if (_gameEnded) { Debug.Log("[GameSessionBridge] 游戏已结束，跳过"); return; }
+
+        // 关掉之前的 DailyEvent
+        if (_activeDailyEventPopup != null) { Destroy(_activeDailyEventPopup); _activeDailyEventPopup = null; }
+
+        // 构造伪 title + body
+        int dayNum = _session.GetState().day;
+        string title = DailyEventConfig.BuildTitle(dayNum, order, purity);
+        string body = dailyEventConfig.BuildDailyEventText(order, purity);
+
+        Debug.Log($"[GameSessionBridge] 🔧 调试弹 DailyEvent —— day={dayNum} order={order:0} purity={purity:0}\n标题: {title}\n事件: {body}");
+
+        GameObject canvasGO = GameObject.Find("Canvas");
+        Transform parent = canvasGO != null ? canvasGO.transform : transform.parent;
+        _activeDailyEventPopup = Instantiate(dailyEventPrefab, parent);
+        PopupPanel panel = _activeDailyEventPopup.GetComponent<PopupPanel>();
+        if (panel != null)
+        {
+            panel.SetSource("DailyEvent_Debug");
+            panel.SetText(title, body);
+        }
+    }
+
+    /// <summary>手动触发 EndDay 结算 —— TutorialManager 在 JumpToNextWorkday 之前调这个。</summary>
     /// 内部逻辑和 HandleWorkEnd（18:00 自动结算）一模一样。</summary>
     public void ManualEndDay()
     {

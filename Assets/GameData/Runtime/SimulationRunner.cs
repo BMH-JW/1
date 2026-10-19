@@ -25,7 +25,7 @@ namespace JU.GameData
             var last = days[days.Count - 1];
             return policy + " / 种子" + seed + " / " + days.Count + "天 / " + days.Sum(d => d.applicants) + "名申请者" +
                 "\n合规=" + days.Sum(d => d.compliant) + "；违规=" + days.Sum(d => d.violations) +
-                "；最终信任=" + last.trust + "；最终灵虚/废墟=" + last.purity + "/" + last.order +
+                "；最终信任=" + last.trust + "；最终灵墟/废墟=" + last.purity + "/" + last.order +
                 "\n信任触及边界天数=" + days.Count(d => d.trustBoundary) + "；两界触及边界天数=" + days.Count(d => d.purityBoundary || d.orderBoundary) +
                 "。本版未开启失败判定，触边后继续记录。";
         }
