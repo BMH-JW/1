@@ -230,6 +230,12 @@ MonoBehaviour:
   titleText: {fileID: 807162714694166708}
   contentText: {fileID: 2425127778398086153}
   closeBtn: {fileID: 393231829828267595}
+  closeBtnSprite: {fileID: 21300000, guid: 7560980f2e0eb7b41b3d2d5e60c050d8, type: 3}
+  pinCloseBtnTopRight: 1
+  closeBtnTopRightOffset: {x: -17.8, y: -16}
+  cjkFontAsset: {fileID: 0}
+  systemFontName: Microsoft YaHei
+  dragToFront: 1
 --- !u!114 &2029859615991280796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,11 +417,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3712311994740039961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 184.9, y: 270}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -17.8, y: -16}
   m_SizeDelta: {x: 60.8, y: 63.6794}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 1}
 --- !u!222 &8016276191396423012
 CanvasRenderer:
   m_ObjectHideFlags: 0

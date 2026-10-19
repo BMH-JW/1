@@ -4,11 +4,13 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// 弹窗拖拽移动
 /// 按下弹窗任意空白区域即可拖动；关闭按钮可选，拖入后自动钉在右上角。
+/// 注意：同一物体上若挂了 PopupPanel（弹窗基类），关闭按钮位置由 PopupPanel 的槽位控制，
+/// 本脚本不再插手，避免两个脚本互相覆盖导致位置怎么调都不变。
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
-    [Header("右上角关闭按钮(可选，拖入后自动钉在右上角)")]
+    [Header("右上角关闭按钮(仅没有 PopupPanel 的窗口需要；有 PopupPanel 请用它的槽位)")]
     public RectTransform closeButton;
     [Header("关闭按钮距右上角内缩距离 x=距右 y=距上，通常为负")]
     public Vector2 closeButtonOffset = new Vector2(-8f, -8f);
@@ -56,6 +58,9 @@ public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHa
     private void SetupCloseButton()
     {
         if (closeButton == null) return;
+
+        // 同物体上有 PopupPanel 时，关闭按钮位置由 PopupPanel 的槽位统一管理，这里让位
+        if (GetComponent<PopupPanel>() != null) return;
 
         // 记录当前尺寸，避免改锚点后 sizeDelta 语义变化导致按钮变形
         Vector2 size = closeButton.rect.size;

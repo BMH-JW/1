@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 弹窗内面板切换器（挂在弹窗预制体根节点）。
@@ -54,6 +55,12 @@ public class PopupTabs : MonoBehaviour
     [Tooltip("每项对应一个按钮：替换图片 + 透明度。可少于 3 项，缺的按钮保持原图/不透明")]
     public List<ButtonStyle> buttonStyles = new List<ButtonStyle>();
 
+    [Header("三个按钮文字（顺序：Btn_1向上 / Btn_2向下 / 电话）")]
+    [Tooltip("勾选后：清空三个按钮上原有的文字（做纯图标按钮）。某个按钮的文字槽位里填了字，则优先用槽位里的字")]
+    public bool hideButtonTexts = true;
+    [Tooltip("单独覆盖按钮文字（顺序：Btn_1向上 / Btn_2向下 / 电话）：填字=改成这个字；留空或没有该项=按上面的开关处理")]
+    public List<string> buttonTexts = new List<string>();
+
     private int _current;
 
     void Awake()
@@ -78,6 +85,7 @@ public class PopupTabs : MonoBehaviour
         ApplyButtonSizes();
         ApplyButtonPlacements();
         ApplyButtonStyles();
+        ApplyButtonTexts();
 
         // Start 而不是 Awake：RoomInteract.OpenPopup 在 Instantiate 后会 SetText 覆盖正文，
         // 延迟到 Start 再选中第一页，保证初始内容不被覆盖
@@ -172,6 +180,36 @@ public class PopupTabs : MonoBehaviour
         }
     }
 
+    /// <summary>按钮文字：槽位填了字就用槽位的字；否则 hideButtonTexts 勾选时清空原有文字，不勾选则保持原文字</summary>
+    private void ApplyButtonTexts()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            Button btn = GetStyleButton(i);
+            if (btn == null) continue;
+
+            string overrideText = (i < buttonTexts.Count) ? buttonTexts[i] : null;
+
+            if (!string.IsNullOrEmpty(overrideText))
+                SetButtonLabel(btn, overrideText);   // 槽位填了字 → 用槽位的字
+            else if (hideButtonTexts)
+                SetButtonLabel(btn, "");             // 勾选了清空 → 去掉按钮原有的字
+            // 否则保持预制体原文字
+        }
+    }
+
+    /// <summary>把按钮上的文字(兼容 TMP / Legacy Text)设为指定内容</summary>
+    private void SetButtonLabel(Button btn, string label)
+    {
+        if (btn == null) return;
+
+        TMP_Text tmp = btn.GetComponentInChildren<TMP_Text>(true);
+        if (tmp != null) { tmp.text = label; return; }
+
+        Text t = btn.GetComponentInChildren<Text>(true);
+        if (t != null) t.text = label;
+    }
+
     private void AutoFindButtons()
     {
         if (pageUpButton == null)
@@ -224,9 +262,12 @@ public class PopupTabs : MonoBehaviour
         else if (_current < tabTexts.Count)
         {
             PopupPanel panel = GetComponent<PopupPanel>();
-            if (panel != null && panel.contentText != null)
+            // 如果是表单弹窗（有 documentFields），正文由逐字段数据驱动，这里不能再塞 tabTexts 覆盖掉
+            if (panel != null && panel.contentLegacy != null)
             {
-                panel.contentText.text = tabTexts[_current];
+                bool isForm = panel.documentFields != null && panel.documentFields.Count > 0;
+                if (!isForm)
+                    panel.contentLegacy.text = tabTexts[_current];
             }
         }
 

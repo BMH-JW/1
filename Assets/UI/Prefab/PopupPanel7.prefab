@@ -543,7 +543,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 1341815791, guid: 20af308bce55a4d4f9c79694a7c9c06e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -569,6 +569,11 @@ MonoBehaviour:
   titleText: {fileID: 3317395589739742409}
   contentText: {fileID: 5190799443756887980}
   closeBtn: {fileID: 7661391643686097170}
+  closeBtnSprite: {fileID: 1306995467, guid: d2cd4e50dd6833e4784dddec6e66bd28, type: 3}
+  pinCloseBtnTopRight: 1
+  closeBtnTopRightOffset: {x: -16, y: -40.2}
+  cjkFontAsset: {fileID: 0}
+  systemFontName: Microsoft YaHei
   dragToFront: 1
 --- !u!114 &629532363986538359
 MonoBehaviour:
@@ -607,16 +612,18 @@ MonoBehaviour:
   - "\u89C4\u52193"
   autoPlaceButtons: 1
   rightPadding: 64.2
-  buttonSpacing: 70
-  verticalOffset: 100.1
-  buttonSize: {x: 54.9, y: 0}
+  buttonSpacing: 100.3
+  verticalOffset: 56.6
+  buttonSize: {x: 64, y: 0}
   buttonStyles:
   - sprite: {fileID: 0}
-    alpha: 1
+    alpha: 0
   - sprite: {fileID: 0}
-    alpha: 1
+    alpha: 0
   - sprite: {fileID: 0}
-    alpha: 1
+    alpha: 0
+  hideButtonTexts: 1
+  buttonTexts: []
 --- !u!1 &3456510912108065128
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,11 +778,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5854360369879479980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 426, y: 273}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -16, y: -40.2}
   m_SizeDelta: {x: 60.8, y: 63.6794}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 1}
 --- !u!222 &7357461310166570557
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using JU.GameData;
 
 public class NPCBellLogic : MonoBehaviour
 {
@@ -26,6 +27,11 @@ public class NPCBellLogic : MonoBehaviour
     private Vector3 _anchorScale;
     private bool _anchorCached;
 
+    // GameSession 接入：当前 NPC 的 session 数据 + 日级索引
+    public NpcData currentNpcData;         // 当前正在审批的 NPC 数据（给 RoomInteract/TutorialManager 用）
+    public static NPCBellLogic Instance { get; private set; }
+    private int _todayNpcIndex;             // 今天已摇铃的序号（从 GameSession state.npcs 按顺序取）
+
     [Header("邮箱图片")]
     public GameObject imageMailBox;
     public GameObject imageMailBox2;
@@ -39,6 +45,7 @@ public class NPCBellLogic : MonoBehaviour
 
     void Start()
     {
+        Instance = this;
         _originalNpc = npcObj;
         npcObj.SetActive(false);
         Btn_4.SetActive(false);
@@ -77,10 +84,12 @@ public class NPCBellLogic : MonoBehaviour
         }
     }
 
-    /// <summary>新的一天：重置所有状态（NPC、按钮、协程）。剩余人数文本和印章常驻不动</summary>
+    /// <summary>新的一天：重置所有状态（NPC、按钮、协程、日级索引）。剩余人数文本和印章常驻不动</summary>
     public void ResetForNewDay()
     {
         _npcPresent = false;
+        _todayNpcIndex = 0;
+        currentNpcData = null;
         if (_showCoroutine != null) { StopCoroutine(_showCoroutine); _showCoroutine = null; }
         DespawnRandomNpc(); // 销毁随机池实例并把npcObj还原为原始NPC
         npcObj.SetActive(false);
@@ -164,9 +173,13 @@ public class NPCBellLogic : MonoBehaviour
         // 印章常驻，不隐藏
     }
 
-    /// <summary>从随机池实例化一个NPC到原npcObj的位置，并把npcObj指向它（下游TutorialManager无需改动）</summary>
+    /// <summary>从随机池实例化一个NPC到原npcObj的位置，并把npcObj指向它（下游TutorialManager无需改动）。
+    /// GameSession 存在时，同步按日级索引从 state.npcs 取 NpcData 存 currentNpcData</summary>
     private void SpawnRandomNpc()
     {
+        // 先从 GameSession 取下一个 NPC 数据（按索引，每天从 0 开始）
+        TryLoadNextGameSessionNpc();
+
         if (npcPrefabs == null || npcPrefabs.Length == 0) return; // 没配池子，用固定npcObj
 
         GameObject prefab = DrawFromShuffleBag();
@@ -186,7 +199,8 @@ public class NPCBellLogic : MonoBehaviour
 
         Transform parent = _originalNpc != null ? _originalNpc.transform.parent : null;
         GameObject npc = parent != null ? Instantiate(prefab, parent) : Instantiate(prefab);
-        npc.name = prefab.name;
+        // 用 GameSession 的显示名（如果有）替换 prefab 名
+        npc.name = currentNpcData != null ? currentNpcData.name : prefab.name;
         if (parent != null)
         {
             npc.transform.localPosition = _anchorPos;
@@ -197,7 +211,29 @@ public class NPCBellLogic : MonoBehaviour
 
         npcObj = npc;
         _spawnedNpc = npc;
-        Debug.Log($"[NPCBellLogic] 随机出场NPC：{npc.name}");
+        Debug.Log($"[NPCBellLogic] 出场NPC：{npc.name} (id={currentNpcData?.id}, identityId={currentNpcData?.identityId}, realOrigin={currentNpcData?.realOrigin})");
+    }
+
+    /// <summary>从 GameSession 今日的 npcs 队列中按下一个索引取 NpcData；
+    /// 越界 / Bridge 不存在 → 保持 currentNpcData 为 null（RoomInteract 会 fallback）</summary>
+    private void TryLoadNextGameSessionNpc()
+    {
+        var bridge = GameSessionBridge.Instance;
+        if (bridge == null || bridge.Current == null) { currentNpcData = null; return; }
+
+        var state = bridge.Current.GetState();
+        if (state.npcs == null || state.npcs.Count == 0) { currentNpcData = null; return; }
+
+        if (_todayNpcIndex >= state.npcs.Count)
+        {
+            // 越界：GameSession 今天的申请者已经都过完了（不应该发生，因为 NPCDailyManager 也按 todayApplicantCount 限制）
+            Debug.LogWarning($"[NPCBellLogic] _todayNpcIndex={_todayNpcIndex} >= state.npcs.Count={state.npcs.Count}，不再取 session NPC");
+            currentNpcData = null;
+            return;
+        }
+
+        currentNpcData = state.npcs[_todayNpcIndex];
+        _todayNpcIndex++;
     }
 
     /// <summary>洗牌袋取预制体：打乱后依次取，取空重新洗，保证不连续重复</summary>

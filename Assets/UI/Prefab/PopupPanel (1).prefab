@@ -480,9 +480,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b86863b99488050498b342579ca6fdf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  popupSource: 
   titleText: {fileID: 6923089334051222431}
   contentText: {fileID: 2347841808030654057}
   closeBtn: {fileID: 8312946154775977662}
+  closeBtnSprite: {fileID: 1306995467, guid: d2cd4e50dd6833e4784dddec6e66bd28, type: 3}
+  pinCloseBtnTopRight: 1
+  closeBtnTopRightOffset: {x: -16, y: -30.5}
+  dragToFront: 1
 --- !u!114 &7596826767528178375
 MonoBehaviour:
   m_ObjectHideFlags: 0

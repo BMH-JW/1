@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using JU.GameData;
 
 /// <summary>
 /// 新手引导管理器（自包含，挂在场景任意物体上）
@@ -92,6 +93,7 @@ public class TutorialManager : MonoBehaviour
     public float leaveAnimDuration = 0.6f;
     [Tooltip("入场动画时长(秒)")]
     public float enterAnimDuration = 0.6f;
+    [Tooltip("NPC离场与结算：每天抽定后会自动从 NPCDailyManager 同步（优先），仅当该系统不存在时才用本值兜底")]
     public int totalNpcCount = 8;
     [Tooltip("等待高亮目标出现的超时(秒)。目标在场景中不存在时自动跳过该阶段，防止教程卡死")]
     public float missingTargetTimeout = 5f;
@@ -160,6 +162,36 @@ public class TutorialManager : MonoBehaviour
     [Tooltip("按钮文字颜色")]
     public Color stampConfirmButtonTextColor = Color.white;
 
+    [Header("盖章确认弹窗 —— 右上角关闭按钮")]
+    [Tooltip("关闭按钮图片；留空则用代码生成的圆角白底(1x1黑块缩成小方块)")]
+    public Sprite stampConfirmCloseSprite;
+    [Tooltip("关闭按钮尺寸(像素)，<=0 则不渲染该按钮")]
+    public Vector2 stampConfirmCloseSize = new Vector2(48f, 48f);
+    [Tooltip("关闭按钮相对弹窗右上角的偏移(像素)：X负=向左  Y负=向下")]
+    public Vector2 stampConfirmCloseOffset = new Vector2(-14f, -14f);
+
+    [Header("电话叫猫带走NPC")]
+    [Tooltip("勾选后：自由游玩时点击电话，两只猫跑出来把NPC带走消失（教程流程不受影响）")]
+    public bool useCatCarryNpc = true;
+    [Tooltip("左边那只猫的图片")]
+    public Sprite catSpriteLeft;
+    [Tooltip("右边那只猫的图片")]
+    public Sprite catSpriteRight;
+    [Tooltip("猫的尺寸(像素)")]
+    public Vector2 catSize = new Vector2(170f, 170f);
+    [Tooltip("两只猫停在NPC左右两侧的水平间距(像素)")]
+    public float catSideOffset = 190f;
+    [Tooltip("猫跑进来 + 拖着NPC跑走 的总动画时长(秒)")]
+    public float catAnimDuration = 1.2f;
+    [Tooltip("两只猫带着NPC一起离开的水平距离(像素)：负=往左跑，正=往右跑")]
+    public float catExitDistance = 1500f;
+    [Tooltip("勾选后用下面两个自定义坐标槽位摆放两只看门猫（相对NPC位置的偏移）；取消则按 Cat Side Offset 自动左右对称摆放")]
+    public bool useCustomCatPosition = false;
+    [Tooltip("左边那只猫相对NPC的偏移(像素)，X右正 Y上正")]
+    public Vector2 catLeftOffset = new Vector2(-190f, 0f);
+    [Tooltip("右边那只猫相对NPC的偏移(像素)，X右正 Y上正")]
+    public Vector2 catRightOffset = new Vector2(190f, 0f);
+
     // ---------------- 运行时状态 ----------------
     private Stage stage = Stage.None;
     private readonly HashSet<GameObject> hookedTargets = new HashSet<GameObject>(); // 持久挂钩防重复
@@ -199,6 +231,7 @@ public class TutorialManager : MonoBehaviour
     private Sprite builtinWhiteSprite;             // 内置白精灵缓存
     private GameObject stampConfirmRoot;           // "是否盖章"确认弹窗实例
     private int stampConfirmChoice;                // 确认结果：0=未选 1=通过 2=不通过 -1=作废
+    private GameObject catLeftObj, catRightObj;    // 电话叫来的两只猫(UI实例)
 
     // ================================================================
     // 生命周期
@@ -213,6 +246,7 @@ public class TutorialManager : MonoBehaviour
     {
         BuildOverlay();
         TryBindPersistentHooks();
+        SyncDailyNpcCount();
         if (GameTimeManager.Instance != null)
         {
             GameTimeManager.Instance.OnWorkEnd += OnWorkEndSettlement; // 18点下班自动结算
@@ -916,8 +950,20 @@ public class TutorialManager : MonoBehaviour
         }
         else if (stage == Stage.FreePlay)
         {
-            // 自由审批：点击电话不再让NPC离开，NPC继续留场，由印章完成审批
-            Debug.Log("[Tutorial] 自由审批点击电话：NPC不离场");
+            // 自由审批：点击电话 → 两只猫跑出来把NPC带走消失
+            GameObject npc = CurrentNpc();
+            if (!useCatCarryNpc || npc == null || !npc.activeSelf)
+            {
+                Debug.Log("[Tutorial] 电话点击：当前没有可带走的NPC，忽略");
+                return;
+            }
+            if (leaveCoroutine != null || enterCoroutine != null)
+            {
+                Debug.Log("[Tutorial] 电话点击：NPC正在入场/离场动画中，忽略");
+                return;
+            }
+            approvalProcessing = true;
+            StartCoroutine(CatCarryNpcRoutine(npc));
         }
     }
 
@@ -940,6 +986,9 @@ public class TutorialManager : MonoBehaviour
         int finalStamp = stampConfirmChoice;
         if (finalStamp != 1 && finalStamp != 2) { approvalProcessing = false; yield break; }
 
+        // 2.5 GameSession 接入：把这次审批提交到数据层（FreePlay 才调，教程阶段绝对不能调）
+        SubmitToGameSession(finalStamp);
+
         // 3. 弹通关文书 + 盖章图片
         yield return StartCoroutine(ShowDocumentStampPopup(finalStamp));
 
@@ -953,6 +1002,31 @@ public class TutorialManager : MonoBehaviour
         // 6. 通知结果 + 收尾（不自动叫下一位，由玩家再次摇铃）
         NotifyApprovalResult(finalStamp == 1);
         yield return FinishNpcAndRestore();
+    }
+
+    /// <summary>把当前盖章提交到 GameSession —— 只在 FreePlay 调；教程阶段不调（避免日结计数乱掉）。
+    /// 即使 SubmitApplication 返回失败（如 NPC 已处理）也继续视觉盖章，不阻断玩家操作。</summary>
+    private void SubmitToGameSession(int finalStamp)
+    {
+        var bridge = GameSessionBridge.Instance;
+        if (bridge == null || bridge.Current == null) return;
+        var bell = NPCBellLogic.Instance;
+        if (bell == null || bell.currentNpcData == null) return;
+
+        string npcId = bell.currentNpcData.id;
+        bool approve = finalStamp == 1;
+        var result = bridge.Current.SubmitApplication(npcId, approve);
+
+        if (!result.success)
+        {
+            Debug.LogWarning($"[Tutorial] SubmitApplication 失败 npcId={npcId} approve={approve} → {result.error}");
+            return;
+        }
+
+        var a = result.approval;
+        Debug.Log($"[Tutorial] SubmitApplication OK npc={a.npcName}({a.npcId}) day={a.day} compliant={a.compliant} " +
+            $"ruleTarget={a.ruleTarget} purityDelta={a.purityDelta} orderDelta={a.orderDelta} → 反馈：{result.immediateFeedback}");
+        // TODO: 以后把 result.immediateFeedback 做成短暂 toast 提示玩家（"本次处理符合当日准入条款。" / "本次处理与当日条款不符。"）
     }
 
     /// <summary>NPC退场收尾：解锁NPC、释放审批锁、恢复桌面与铃铛，等待玩家再次手动摇铃</summary>
@@ -1305,6 +1379,9 @@ public class TutorialManager : MonoBehaviour
         CreateConfirmButton("Btn_Pass", stampConfirmPassText, pr, cf, new Vector2(-(bw + gap) * 0.5f, 48f), bw, bh, 1);
         CreateConfirmButton("Btn_Reject", stampConfirmRejectText, pr, cf, new Vector2((bw + gap) * 0.5f, 48f), bw, bh, 2);
 
+        // 右上角关闭按钮（点了等价于取消选择，弹窗关闭 = 不盖章，今天这次审批作废）
+        CreateConfirmCloseButton(pr);
+
         Debug.Log("[Tutorial] 盖章确认弹窗已弹出，等待玩家选择");
 
         // 等玩家选择（OnNewDayReset 会把 stampConfirmChoice 置 -1 强制解除等待）
@@ -1337,6 +1414,36 @@ public class TutorialManager : MonoBehaviour
         btn.targetGraphic = img;
         int c = choice;
         btn.onClick.AddListener(() => { stampConfirmChoice = c; });
+    }
+
+    /// <summary>盖章确认弹窗右上角的关闭按钮：点了把 stampConfirmChoice 置 -1 让等待协程退出</summary>
+    private void CreateConfirmCloseButton(RectTransform panelRT)
+    {
+        float csx = stampConfirmCloseSize.x;
+        float csy = stampConfirmCloseSize.y;
+        if (csx <= 0f || csy <= 0f) return; // 槽位填 0 就不渲染
+
+        GameObject go = new GameObject("Btn_Close", typeof(RectTransform), typeof(Image), typeof(Button));
+        go.transform.SetParent(panelRT, false);
+        Image img = go.GetComponent<Image>();
+        img.sprite = stampConfirmCloseSprite != null ? stampConfirmCloseSprite : BubbleSprite;
+        img.type = Image.Type.Sliced;
+        img.color = Color.white;
+        img.raycastTarget = true;
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); // 右上角
+        rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = stampConfirmCloseOffset;
+        rt.sizeDelta = new Vector2(csx, csy);
+
+        Button btn = go.GetComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(() =>
+        {
+            stampConfirmChoice = -1; // -1 = 用户取消（不算通过也不算不通过），等待协程会把弹窗关掉
+            Debug.Log("[Tutorial] 盖章确认弹窗被用户关闭");
+        });
     }
 
     /// <summary>屏幕下方弹一条自动消失的提示（盖章门槛拦截等场景用）</summary>
@@ -1539,6 +1646,15 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    /// <summary>从 NPCDailyManager 同步今日抽定的 NPC 总数；没挂该系统就用本脚本的 totalNpcCount 兜底</summary>
+    private void SyncDailyNpcCount()
+    {
+        if (NPCDailyManager.Instance != null && NPCDailyManager.Instance.dailyNpcCount > 0)
+        {
+            totalNpcCount = NPCDailyManager.Instance.dailyNpcCount;
+        }
+    }
+
     public void NotifyApprovalResult(bool correct)
     {
         if (correct) correctCount++;
@@ -1568,6 +1684,9 @@ public class TutorialManager : MonoBehaviour
         npcLocked = false;
         approvalProcessing = false;
 
+        // 每天重抽 NPC 总数（3~6），结算判断跟着走
+        SyncDailyNpcCount();
+
         // 作废可能还挂着的盖章确认弹窗，避免旧协程一直等待
         if (stampConfirmRoot != null) { Destroy(stampConfirmRoot); stampConfirmRoot = null; }
         stampConfirmChoice = -1;
@@ -1577,8 +1696,146 @@ public class TutorialManager : MonoBehaviour
         if (leaveCoroutine != null) { StopCoroutine(leaveCoroutine); leaveCoroutine = null; }
         if (enterCoroutine != null) { StopCoroutine(enterCoroutine); enterCoroutine = null; }
         leavingNpc = null;
+        CleanupCats();
 
         Debug.Log("[Tutorial] OnNewDayReset 完成，NPC状态已重置");
+    }
+
+    // ================================================================
+    // 电话叫猫带走NPC
+    // ================================================================
+    /// <summary>电话键：两只猫从两侧跑进来 → 架着NPC一起跑出场外消失</summary>
+    private IEnumerator CatCarryNpcRoutine(GameObject npc)
+    {
+        yield return null; // 等一帧，让电话按钮的点击反馈先播
+
+        if (npc == null) { approvalProcessing = false; yield break; }
+
+        CanvasGroup npcCg = npc.GetComponent<CanvasGroup>();
+        if (npcCg == null) npcCg = npc.AddComponent<CanvasGroup>();
+        SaveBaseScale(npc);
+
+        Transform parent = npc.transform.parent;
+        Vector3 npcPos = npc.transform.localPosition;
+        float side = Mathf.Max(10f, catSideOffset);
+
+        // 两只猫停在NPC旁边的位置：勾选自定义就用槽位偏移，否则左右对称
+        Vector2 leftOff = useCustomCatPosition ? catLeftOffset : new Vector2(-side, 0f);
+        Vector2 rightOff = useCustomCatPosition ? catRightOffset : new Vector2(side, 0f);
+
+        // 猫从目标位置再外推一段起步，向目标位置跑进来
+        Vector3 leftTarget = npcPos + new Vector3(leftOff.x, leftOff.y, 0f);
+        Vector3 rightTarget = npcPos + new Vector3(rightOff.x, rightOff.y, 0f);
+        Vector3 leftStart = npcPos + new Vector3(leftOff.x * 2.4f, leftOff.y, 0f);
+        Vector3 rightStart = npcPos + new Vector3(rightOff.x * 2.4f, rightOff.y, 0f);
+
+        catLeftObj = CreateCat("CatLeft", parent, catSpriteLeft, leftStart);
+        catRightObj = CreateCat("CatRight", parent, catSpriteRight, rightStart);
+
+        float dur = Mathf.Max(0.2f, catAnimDuration);
+        float inDur = dur * 0.45f;   // 跑进来
+        float outDur = dur * 0.55f;  // 拖着NPC跑走
+
+        // 第1段：两只猫跑进来并淡入
+        float t = 0f;
+        while (t < inDur)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / inDur);
+            if (npc == null) { CleanupCats(); approvalProcessing = false; yield break; }
+            if (catLeftObj != null)
+            {
+                catLeftObj.transform.localPosition = Vector3.Lerp(leftStart, leftTarget, k);
+                SetCatAlpha(catLeftObj, k);
+            }
+            if (catRightObj != null)
+            {
+                catRightObj.transform.localPosition = Vector3.Lerp(rightStart, rightTarget, k);
+                SetCatAlpha(catRightObj, k);
+            }
+            yield return null;
+        }
+
+        // 第2段：两只猫架着NPC一起跑出场外，边跑边淡出
+        Vector3 exit = new Vector3(catExitDistance, 0f, 0f);
+        Vector3 catLFrom = catLeftObj != null ? catLeftObj.transform.localPosition : leftTarget;
+        Vector3 catRFrom = catRightObj != null ? catRightObj.transform.localPosition : rightTarget;
+        Vector3 npcFrom = npc.transform.localPosition;
+
+        float t2 = 0f;
+        while (t2 < outDur)
+        {
+            t2 += Time.deltaTime;
+            float k = Mathf.Clamp01(t2 / outDur);
+            float e = k * k * (3f - 2f * k); // 平滑加速，越跑越快
+            if (npc == null) { CleanupCats(); approvalProcessing = false; yield break; }
+
+            npc.transform.localPosition = npcFrom + exit * e;
+            npcCg.alpha = 1f - k;
+            if (catLeftObj != null) { catLeftObj.transform.localPosition = catLFrom + exit * e; SetCatAlpha(catLeftObj, 1f - k); }
+            if (catRightObj != null) { catRightObj.transform.localPosition = catRFrom + exit * e; SetCatAlpha(catRightObj, 1f - k); }
+            yield return null;
+        }
+
+        // 收尾：猫销毁，NPC隐藏并还原状态（下次摇铃可复用同一实例）
+        CleanupCats();
+        if (npc != null)
+        {
+            npcCg.alpha = 1f;
+            npc.transform.localPosition = npcFrom;
+            if (npcBaseScaleSaved) npc.transform.localScale = npcBaseScale;
+            npc.SetActive(false);
+        }
+        npcOnStage = false;
+        leavingNpc = null;
+        leaveCoroutine = null;
+
+        RoomInteract.CloseAllPopups(); // NPC 被带走，桌面上打开的弹窗自动关闭
+        NotifyNpcLeft();
+        UnlockNpc();
+        approvalProcessing = false;
+        NPCBellLogic bell = FindObjectOfType<NPCBellLogic>();
+        if (bell != null) bell.OnNpcLeft();
+
+        Debug.Log("[Tutorial] 两只猫把NPC带走，等待玩家再次摇铃");
+    }
+
+    /// <summary>创建一只猫(UI Image)，父节点用NPC的父节点保证同一坐标系</summary>
+    private GameObject CreateCat(string name, Transform parent, Sprite sprite, Vector3 localPos)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
+        go.transform.SetParent(parent, false);
+
+        Image img = go.GetComponent<Image>();
+        img.sprite = sprite;
+        img.raycastTarget = false;
+        img.preserveAspect = true;
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(Mathf.Max(40f, catSize.x), Mathf.Max(40f, catSize.y));
+        rt.localPosition = localPos;
+
+        SetCatAlpha(go, 0f);       // 初始透明，跑进来的过程中淡入
+        rt.SetAsLastSibling();     // 盖在NPC上面
+        return go;
+    }
+
+    private void SetCatAlpha(GameObject cat, float a)
+    {
+        if (cat == null) return;
+        Image img = cat.GetComponent<Image>();
+        if (img == null) return;
+        Color c = img.color;
+        c.a = Mathf.Clamp01(a);
+        img.color = c;
+    }
+
+    private void CleanupCats()
+    {
+        if (catLeftObj != null) { Destroy(catLeftObj); catLeftObj = null; }
+        if (catRightObj != null) { Destroy(catRightObj); catRightObj = null; }
     }
 
     private void ShowSettlement()
