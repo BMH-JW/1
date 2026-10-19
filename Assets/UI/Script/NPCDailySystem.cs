@@ -6,10 +6,10 @@ using JU.GameData;
 
 public class NPCDailyManager : MonoBehaviour
 {
-    [Header("每天NPC数量随机范围")]
-    [Tooltip("每天最多出现的NPC数量下限(含)，最小3")]
+    [Header("每天NPC数量随机范围（仅在无 GameSession 时 fallback 用；GameSession 会覆盖）")]
+    [Tooltip("每天最多出现的NPC数量下限(含)")]
     [Range(1, 12)] public int minDailyNpc = 3;
-    [Tooltip("每天最多出现的NPC数量上限(含)，最大6")]
+    [Tooltip("每天最多出现的NPC数量上限(含)")]
     [Range(1, 12)] public int maxDailyNpc = 6;
 
     [Header("剩余次数Text组件(拖Text组件)")]

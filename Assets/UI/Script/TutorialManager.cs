@@ -1927,7 +1927,22 @@ public class TutorialManager : MonoBehaviour
     /// <summary>黑屏过渡：淡入黑屏 → 显示"第X天" → 淡出 → 继续营业</summary>
     private IEnumerator DayTransitionRoutine()
     {
-        // 跳到第二天 9:00（触发 OnNewDay + OnWorkStart，重置所有状态）
+        // ① 先手动 EndDay —— 结算当前 day（秩序/纯净变化 + state.day++ + report 存 Bridge）
+        // 这必须在 JumpToNextWorkday 之前，避免 state.day 和 currentDay 各跳各的
+        var bridge = FindObjectOfType<GameSessionBridge>();
+        if (bridge != null)
+        {
+            bridge.ManualEndDay();
+            // 游戏已结束 → 不走日常过渡
+            if (bridge.IsGameEnded())
+            {
+                Debug.Log("[Tutorial] 游戏已结束，跳过 DayTransitionRoutine 后半段");
+                yield break;
+            }
+        }
+        else Debug.LogWarning("[Tutorial] DayTransitionRoutine —— 找不到 GameSessionBridge");
+
+        // ② 跳到第二天 9:00（触发 OnNewDay → Bridge.HandleNewDay → TryPopupDailyEvent，用刚才存的 report 弹窗）
         if (GameTimeManager.Instance != null)
             GameTimeManager.Instance.JumpToNextWorkday();
 

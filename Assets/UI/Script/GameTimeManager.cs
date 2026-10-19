@@ -7,7 +7,11 @@ public class GameTimeManager : MonoBehaviour
 {
     public static GameTimeManager Instance;
 
-    [Header("��ʼʱ������")]
+    [Header("运行状态")]
+    [Tooltip("游戏结束后设为 true —— 时间冻结、所有计时停止")]
+    public bool isPaused = false;
+
+    [Header("初始时间设置")]
     public int StartDay;
     public int StartHour;
     public int StartMinute;
@@ -63,6 +67,7 @@ public class GameTimeManager : MonoBehaviour
 
     void Update()
     {
+        if (isPaused) return;
         timeAccumulator += Time.deltaTime;
 
         // ��������С���ܵ���0.05���������0�����ѭ��

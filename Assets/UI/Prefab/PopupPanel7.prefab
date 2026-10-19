@@ -569,11 +569,25 @@ MonoBehaviour:
   titleText: {fileID: 3317395589739742409}
   contentText: {fileID: 5190799443756887980}
   closeBtn: {fileID: 7661391643686097170}
+  titleLegacy: {fileID: 0}
+  contentLegacy: {fileID: 0}
   closeBtnSprite: {fileID: 1306995467, guid: d2cd4e50dd6833e4784dddec6e66bd28, type: 3}
   pinCloseBtnTopRight: 1
   closeBtnTopRightOffset: {x: -16, y: -40.2}
-  cjkFontAsset: {fileID: 0}
   systemFontName: Microsoft YaHei
+  titleOverrideFontSize: 0
+  titleFontSize: 28
+  titleOverridePosition: 0
+  titleAnchoredPosition: {x: 0, y: 0}
+  titleOverrideSize: 0
+  titleSizeDelta: {x: 0, y: 0}
+  contentOverrideFontSize: 0
+  contentFontSize: 18
+  contentOverridePosition: 0
+  contentAnchoredPosition: {x: 0, y: 0}
+  contentOverrideSize: 0
+  contentSizeDelta: {x: 0, y: 0}
+  documentFields: []
   dragToFront: 1
 --- !u!114 &629532363986538359
 MonoBehaviour:
@@ -607,9 +621,9 @@ MonoBehaviour:
   unusedButton: {fileID: 8890489693684805815}
   tabPages: []
   tabTexts:
-  - "\u89C4\u52191"
-  - "\u89C4\u52192"
-  - "\u89C4\u52193"
+  - "\u65B0\u95FB"
+  - "\u89C4\u5219\u4E0B\u53D1"
+  - "\u5F85\u5F00\u53D1"
   autoPlaceButtons: 1
   rightPadding: 64.2
   buttonSpacing: 100.3

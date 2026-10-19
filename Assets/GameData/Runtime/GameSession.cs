@@ -162,10 +162,45 @@ namespace JU.GameData
             state.feedbackQueue.AddRange(feedback); lastSettledDay = state.day;
             state.todayApprovals.Clear(); state.day++;
             InstallDay(nextRules, nextApplicants);
+
+            // 游戏结束判定：秩序值或纯净值 < 20 失败，> 80 成功
+            // 判定用 newPurity/newOrder（结算后的值，state.purity/order 已更新为这两个）
+            string endReason = null;
+            bool endWin = false;
+
+            if (newOrder > 80f || newPurity > 80f)
+            {
+                endWin = true;
+                var reasons = new List<string>();
+                if (newOrder > 80f) reasons.Add($"秩序值 {newOrder:0} 超过 80");
+                if (newPurity > 80f) reasons.Add($"纯净值 {newPurity:0} 超过 80");
+                endReason = string.Join("；", reasons) + "。乌托邦秩序稳定，纯净之光普照。";
+            }
+            else if (newOrder < 20f || newPurity < 20f)
+            {
+                endWin = false;
+                var reasons = new List<string>();
+                if (newOrder < 20f) reasons.Add($"秩序值 {newOrder:0} 跌破 20");
+                if (newPurity < 20f) reasons.Add($"纯净值 {newPurity:0} 跌破 20");
+                endReason = string.Join("；", reasons) + "。社会分崩离析，世界走向毁灭。";
+            }
+            report.gameEnded = endReason != null;
+            report.isWin = endWin;
+            report.gameEndReason = endReason;
+            if (report.gameEnded)
+            {
+                report.log.Add("===== 游戏结束 =====");
+                report.log.Add($"结果：{(endWin ? "成功（乌托邦达成）" : "失败（世界崩溃）")}");
+                report.log.Add($"原因：{endReason}");
+            }
+            else
+            {
+                report.log.Add("秩序/纯净未触及阈值（20~80 为安全区间），游戏继续。");
+            }
             report.log.Add("本日申请者=" + report.before.todayApplicantCount + "；合规处理=" + report.compliantCount + "；违规处理=" + report.violationCount + "；未处理离开=" + report.unprocessedCount);
             report.log.Add("精确累计影响=" + rawPurity.ToString(CultureInfo.InvariantCulture) + "/" + rawOrder.ToString(CultureInfo.InvariantCulture) + "；日终取整并限幅后实际变化=" + Number(report.actualPurityChange) + "/" + Number(report.actualOrderChange));
             report.log.Add("信任实际变化=" + report.trustChange + "；无每日固定加分；拒签已计入合规统计。");
-            report.log.Add("失败/阈值事件/构成反馈本版关闭；触及边界只记录，不停止游戏。");
+            report.log.Add("边界触发：秩序/纯净触及阈值时结束本版会话（20 以下失败 / 80 以上成功）。");
             report.after = state.Copy(); return report;
         }
         private List<NpcData> GenerateApplicants(int day)

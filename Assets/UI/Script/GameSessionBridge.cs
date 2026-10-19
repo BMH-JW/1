@@ -27,7 +27,15 @@ public class GameSessionBridge : MonoBehaviour
     [Tooltip("随机种子；-1 表示每次开局用 DateTime.UtcNow 生成，保证每局不同")]
     public int seed = -1;
 
+    [Header("每日事件")]
+    [Tooltip("DailyEventConfig 资产 —— 填好各区间事件文本；Create → GameData → Daily Event Config")]
+    public DailyEventConfig dailyEventConfig;
+    [Tooltip("DailyEvent 专用弹窗 prefab（RoomScene 里 PopupPanel7 那个）；留空则不自动弹")]
+    public GameObject dailyEventPrefab;
+
     private GameSession _session;
+    private DayEndReport _lastDayEndReport;   // HandleWorkEnd 里存，HandleNewDay 里用来触发 DailyEvent
+    private bool _gameEnded = false;           // 游戏结束标记 —— 结束后跳过 DailyEvent
     public static GameSessionBridge Instance { get; private set; }
     public GameSession Current => _session;
 
@@ -193,16 +201,29 @@ public class GameSessionBridge : MonoBehaviour
         BuildGlobalCjkLegacyFont();
 
         // 订阅游戏时钟事件
-        if (GameTimeManager.Instance != null)
+        TrySubscribeTimeEvents();
+    }
+
+    private void TrySubscribeTimeEvents()
+    {
+        if (GameTimeManager.Instance == null)
         {
-            GameTimeManager.Instance.OnWorkEnd += HandleWorkEnd;
-            GameTimeManager.Instance.OnNewDay += HandleNewDay;
+            Debug.LogWarning("[GameSessionBridge] TrySubscribeTimeEvents —— GameTimeManager.Instance 还没初始化，跳过订阅，Start 里再补");
+            return;
         }
+        GameTimeManager.Instance.OnWorkEnd -= HandleWorkEnd;   // 防重复
+        GameTimeManager.Instance.OnNewDay -= HandleNewDay;
+        GameTimeManager.Instance.OnWorkEnd += HandleWorkEnd;
+        GameTimeManager.Instance.OnNewDay += HandleNewDay;
+        Debug.Log("[GameSessionBridge] ✅ 已订阅 GameTimeManager.OnWorkEnd / OnNewDay");
     }
 
     void Start()
     {
-        // Start 时机：所有 prefab 已实例化 → 全局扫 TMP 换成 Legacy Text，再把 Legacy font 全覆盖
+        // Start 时机：所有 GameObject 的 Awake 都跑完了 → GameTimeManager.Instance 一定有了
+        TrySubscribeTimeEvents();
+
+        // 全局扫 TMP 换成 Legacy Text，再把 Legacy font 全覆盖
         ConvertAllTmpToLegacyInScene();
         ApplyGlobalLegacyFont();
     }
@@ -251,12 +272,212 @@ public class GameSessionBridge : MonoBehaviour
         }
     }
 
-    /// <summary>下班（18:00）日结：Run session.EndDay(currentDay)，
-    /// 自动计算世界值/信任变化、生成次日规则与申请者、state.day++。</summary>
+    /// <summary>下班（18:00）自动日结 —— 走统一的 DoEndDay。</summary>
     private void HandleWorkEnd()
     {
         if (_session == null || GameTimeManager.Instance == null) return;
         int day = GameTimeManager.Instance.currentDay;
+        DoEndDay(day);
+    }
+
+    /// <summary>游戏结束：弹窗 + 冻结游戏 + 禁用交互。</summary>
+    private void TriggerGameOver(DayEndReport report)
+    {
+        // 优先用 DailyEvent prefab（如果没配单独的 gameOverPrefab），否则找 PopupPanel
+        GameObject prefab = dailyEventPrefab;
+        if (prefab == null)
+        {
+            var pan = FindObjectOfType<PopupPanel>();
+            if (pan != null) prefab = pan.gameObject;
+        }
+        if (prefab == null)
+        {
+            Debug.LogError("[GameSessionBridge] TriggerGameOver —— 没有任何 PopupPanel prefab 可用，放弃弹窗");
+            return;
+        }
+
+        // 关掉 DailyEvent 弹窗（如果有的话）
+        if (_activeDailyEventPopup != null)
+        {
+            Destroy(_activeDailyEventPopup);
+            _activeDailyEventPopup = null;
+        }
+
+        GameObject canvas = GetComponentInParent<Canvas>()?.gameObject;
+        if (canvas == null) canvas = GameObject.Find("Canvas");
+        if (canvas == null) { Debug.LogError("[GameSessionBridge] 找不到 Canvas，GameOver 弹窗无父节点"); return; }
+
+        GameObject popupGO = Instantiate(prefab, canvas.transform, false);
+        popupGO.name = "Popup_GameOver";
+
+        PopupPanel panel = popupGO.GetComponent<PopupPanel>();
+        if (panel == null) panel = popupGO.AddComponent<PopupPanel>();
+        panel.SetSource("GameOver");
+
+        string title = report.isWin ? "🎉 乌托邦达成！" : "💀 世界崩塌";
+        string body = $"第 {report.settledDay} 日\n\n{report.gameEndReason}\n\n" +
+                      $"日结后秩序={report.after.order:0}  纯净={report.after.purity:0}  信任={report.after.trust}";
+        panel.SetText(title, body);
+
+        // 冻结游戏：禁用 GameTimeManager 计时器 + 禁用 RoomInteract 等
+        if (GameTimeManager.Instance != null)
+        {
+            GameTimeManager.Instance.isPaused = true;
+        }
+        // 禁用所有 RoomInteract
+        foreach (var ri in FindObjectsOfType<RoomInteract>()) ri.enabled = false;
+        foreach (var bell in FindObjectsOfType<NPCBellLogic>()) bell.enabled = false;
+        Debug.Log("[GameSessionBridge] ✅ 游戏已冻结（计时器+交互全部禁用），点击弹窗关闭按钮可手动交互");
+    }
+
+    /// <summary>新一天：NPCBellLogic.ResetForNewDay 会把 _todayNpcIndex 重置为 0，
+    /// 对应 EndDay 已 InstallDay 好的 state.npcs 队列，完美衔接。</summary>
+    private void HandleNewDay()
+    {
+        if (_session == null) return;
+        var s = _session.GetState();
+        Debug.Log($"[GameSessionBridge] OnNewDay → state.day={s.day} 今日申请者={s.todayApplicantCount} " +
+            $"今日规则条数={s.npcs?.Count} 纯净={s.purity} 秩序={s.order} 信任={s.trust}");
+
+        // DailyEvent：按 EndDay 结算后的秩序/纯净区间选事件文本，自动弹弹窗
+        TryPopupDailyEvent();
+    }
+
+    private GameObject _activeDailyEventPopup;
+
+    private void EnsureSessionReady()
+    {
+        if (_session != null) return;
+
+        Debug.LogWarning("[GameSessionBridge] EnsureSessionReady —— _session 为 null，兜底初始化");
+        if (configAsset == null)
+        {
+            configAsset = FindObjectOfType<GameDataConfig>();
+#if UNITY_EDITOR
+            if (configAsset == null)
+                configAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameDataConfig>(
+                    "Assets/GameData/Config/DefaultGameDataConfig.asset");
+#endif
+        }
+        if (configAsset == null)
+        {
+            Debug.LogError("[GameSessionBridge] 兜底也找不到 configAsset，放弃");
+            return;
+        }
+
+        int actualSeed = seed < 0 ? System.DateTime.UtcNow.GetHashCode() : seed;
+        _session = GameSession.StartNewGame(configAsset.data, actualSeed);
+        Debug.Log($"[GameSessionBridge] 兜底 GameSession 启动 seed={actualSeed} day={_session.GetState().day} " +
+            $"今日申请者={_session.GetState().todayApplicantCount}");
+
+        TrySubscribeTimeEvents();
+    }
+
+    private void TryPopupDailyEvent()
+    {
+        if (_gameEnded)
+        {
+            Debug.Log("[GameSessionBridge] TryPopupDailyEvent —— 游戏已结束，跳过 DailyEvent");
+            return;
+        }
+        Debug.Log("[GameSessionBridge] TryPopupDailyEvent 被调用");
+        EnsureSessionReady();   // 兜底 session 初始化
+        if (_session == null)
+        {
+            Debug.LogError("[GameSessionBridge] TryPopupDailyEvent —— session 还是 null，放弃");
+            return;
+        }
+        if (dailyEventConfig == null)
+        {
+            Debug.LogWarning("[GameSessionBridge] TryPopupDailyEvent —— dailyEventConfig 没配，跳过");
+            return;
+        }
+        if (dailyEventPrefab == null)
+        {
+            Debug.LogWarning("[GameSessionBridge] TryPopupDailyEvent —— dailyEventPrefab 没拖，跳过");
+            return;
+        }
+
+        // EndDay 只在 HandleWorkEnd（18:00 自动）或 TutorialManager（手动结算）里显式调。
+        // TryPopupDailyEvent 不再隐式兜底 EndDay —— 避免 JumpToNextWorkday.currentDay++ 
+        // 和 EndDay.state.day++ 两个计数器各跳各的导致错位。
+        if (_lastDayEndReport == null)
+        {
+            Debug.LogError("[GameSessionBridge] TryPopupDailyEvent —— _lastDayEndReport 为空，说明 EndDay 从未被调用！" +
+                "请确保 HandleWorkEnd 或 TutorialManager 在调 DailyEvent 之前先调 EndDay。");
+            return;
+        }
+        if (_lastDayEndReport == null || !_lastDayEndReport.success)
+        {
+            Debug.LogWarning($"[GameSessionBridge] TryPopupDailyEvent —— EndDay 没成功 " +
+                $"report={(_lastDayEndReport != null ? _lastDayEndReport.error : "null")}，跳过");
+            return;
+        }
+
+        // DoEndDay 已统一处理游戏结束（TriggerGameOver + _gameEnded=true），
+        // TryPopupDailyEvent 开头也有 _gameEnded 守卫，不会走到这里。
+
+        var report = _lastDayEndReport;
+        float orderAfter = report.after.order;
+        float purityAfter = report.after.purity;
+        int dayNum = report.after.day;
+
+        string title = DailyEventConfig.BuildTitle(dayNum, orderAfter, purityAfter);
+        string body = dailyEventConfig.BuildDailyEventText(orderAfter, purityAfter);
+
+        // 始终弹窗 —— 有事件显示事件，没事件显示"无新闻报道"
+        Debug.Log($"[GameSessionBridge] DailyEvent —— day={dayNum} order={orderAfter:F1} purity={purityAfter:F1}\n标题: {title}\n事件:\n{body}");
+        _lastDayEndReport = null;
+
+        // 关掉上一个 DailyEvent 弹窗（防止重复）
+        if (_activeDailyEventPopup != null)
+        {
+            Destroy(_activeDailyEventPopup);
+            _activeDailyEventPopup = null;
+        }
+
+        GameObject canvasGO = GameObject.Find("Canvas");
+        Transform parent = canvasGO != null ? canvasGO.transform : transform.parent;
+        _activeDailyEventPopup = Instantiate(dailyEventPrefab, parent);
+
+        PopupPanel panel = _activeDailyEventPopup.GetComponent<PopupPanel>();
+        if (panel != null)
+        {
+            panel.SetSource("DailyEvent");
+            panel.SetText(title, body);
+        }
+
+        _lastDayEndReport = null;   // 消费一次就清，防止同一天重复触发
+    }
+
+    /// <summary>手动触发 DailyEvent 弹窗（绕开事件订阅时序问题，供 TutorialManager 等直接调用）</summary>
+    public void TriggerDailyEvent()
+    {
+        TryPopupDailyEvent();
+    }
+
+    /// <summary>游戏是否已结束（供外部查询）。</summary>
+    public bool IsGameEnded() => _gameEnded;
+
+    /// <summary>手动触发 EndDay 结算 —— TutorialManager 在 JumpToNextWorkday 之前调这个。
+    /// 内部逻辑和 HandleWorkEnd（18:00 自动结算）一模一样。</summary>
+    public void ManualEndDay()
+    {
+        EnsureSessionReady();
+        if (_session == null)
+        {
+            Debug.LogError("[GameSessionBridge] ManualEndDay —— _session 为 null，放弃");
+            return;
+        }
+        var s = _session.GetState();
+        int day = s.day;   // 用 session 的 state.day，不用 GameTimeManager.currentDay（还没 Jump）
+        Debug.Log($"[GameSessionBridge] ManualEndDay —— 手动结算 day={day}");
+        DoEndDay(day);
+    }
+
+    /// <summary>EndDay 的统一执行入口 —— 18:00 自动结算和手动结算都走这。</summary>
+    private void DoEndDay(int day)
+    {
         var report = _session.EndDay(day);
         if (!report.success)
         {
@@ -268,16 +489,15 @@ public class GameSessionBridge : MonoBehaviour
         Debug.Log($"  纯净 {report.actualPurityChange:+0.###;-0.###;0}  /  秩序 {report.actualOrderChange:+0.###;-0.###;0}  /  信任 {report.trustChange:+0}");
         Debug.Log($"  日结后 day={report.after.day}  今日申请者={report.after.todayApplicantCount}");
         Debug.Log($"  日结日志:\n{string.Join("\n", report.log)}");
-    }
+        _lastDayEndReport = report;
 
-    /// <summary>新一天：NPCBellLogic.ResetForNewDay 会把 _todayNpcIndex 重置为 0，
-    /// 对应 EndDay 已 InstallDay 好的 state.npcs 队列，完美衔接。</summary>
-    private void HandleNewDay()
-    {
-        if (_session == null) return;
-        var s = _session.GetState();
-        Debug.Log($"[GameSessionBridge] OnNewDay → state.day={s.day} 今日申请者={s.todayApplicantCount} " +
-            $"今日规则条数={s.npcs?.Count} 纯净={s.purity} 秩序={s.order} 信任={s.trust}");
+        // 游戏结束判定
+        if (report.gameEnded)
+        {
+            Debug.LogWarning($"[GameSessionBridge] 🎮 游戏结束！isWin={report.isWin} 原因={report.gameEndReason}");
+            _gameEnded = true;
+            TriggerGameOver(report);
+        }
     }
 
     /// <summary>

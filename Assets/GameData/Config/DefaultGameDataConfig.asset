@@ -20,8 +20,8 @@ MonoBehaviour:
     replySha256: 5832cc1f1ae2b898ef8b7a691e5a4e1d8177a6b0d6dcfe0be34b17877dfb0bca
     testConfiguration: 1
     startDay: 1
-    minDailyApplicants: 4
-    maxDailyApplicants: 8
+    minDailyApplicants: 3
+    maxDailyApplicants: 6
     initialTrust: 50
     trustMin: 0
     trustMax: 100

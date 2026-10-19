@@ -79,7 +79,7 @@ namespace JU.GameData
     {
         public string version = "v3-reply-test", sourceWorkbook, sourceSha256, replyDocument, replySha256;
         public bool testConfiguration = true;
-        public int startDay = 1, minDailyApplicants = 4, maxDailyApplicants = 8;
+        public int startDay = 1, minDailyApplicants = 3, maxDailyApplicants = 6;
         public int initialTrust = 50, trustMin = 0, trustMax = 100;
         public float initialPurity = 50, initialOrder = 50, worldValueMin = 0, worldValueMax = 100;
         public int complianceReward = 3, violationPenalty = 5;
@@ -235,6 +235,9 @@ namespace JU.GameData
         public int settledDay, compliantCount, violationCount, trustChange, unprocessedCount;
         public float recordedPurityChange, recordedOrderChange, actualPurityChange, actualOrderChange;
         public bool trustAtBoundary, purityAtBoundary, orderAtBoundary;
+        public bool gameEnded;
+        public bool isWin;
+        public string gameEndReason;
         public GameState before, after;
         public List<ApprovalRecord> approvals = new List<ApprovalRecord>();
         public List<string> log = new List<string>();

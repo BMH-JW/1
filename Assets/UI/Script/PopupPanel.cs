@@ -41,8 +41,11 @@ public class PopupTextField
 ///
 /// 字体：Awake 时把弹窗里**所有** TMP_Text 运行时换成 Unity 内置 Legacy Text
 /// （Font.CreateDynamicFontFromOSFont 路线永远比 TMP FontAsset 稳，不会再有 GlyphRenderMode / materialForRendering 这些坑）。
+///
+/// 点击翻页：Inspector 勾选 clickToNextPage + 填 clickPageTexts 列表 →
+/// 点击弹窗任意空白处自动循环切换正文文字（只有点击没拖动才触发，和拖动天然不冲突）。
 /// </summary>
-public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPointerDownHandler
+public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPointerDownHandler, IPointerClickHandler
 {
     /// <summary>来源标记：File3=通关文书弹窗，File2=档案弹窗，空=其他</summary>
     public string popupSource = "";
@@ -109,8 +112,16 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     [Tooltip("勾选后：按住弹窗拖动可移动位置，被拖动/点击的弹窗自动置顶")]
     public bool dragToFront = true;
 
+    [Header("点击翻页（PopupPanel6 等用）")]
+    [Tooltip("勾选后：点击弹窗任意空白处 → 循环切换正文文字（只有点击没拖动才触发）")]
+    public bool clickToNextPage = false;
+    [TextArea(3, 10)]
+    [Tooltip("多页文案列表：点击弹窗时正文会在这些文字之间循环切换。至少填 2 条才有翻页效果")]
+    public List<string> clickPageTexts = new List<string>();
+
     private RectTransform _rt;
     private float _canvasScale = 1f;
+    private int _pageIndex = 0;
 
     void Awake()
     {
@@ -135,6 +146,15 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
 
         // -------- 第 4 步：Inspector 样式覆写（字号/位置/尺寸） --------
         ApplyStyleOverrides();
+
+        // -------- 第 5 步：点击翻页初始化（如果 clickToNextPage=true，第一页就显示 clickPageTexts[0]） --------
+        if (clickToNextPage && clickPageTexts != null && clickPageTexts.Count > 0)
+        {
+            _pageIndex = 0;
+            // SetText 里表单弹窗会清 content，但点击翻页的弹窗不是表单（没有 documentFields），所以这里直接设
+            if (contentLegacy != null) contentLegacy.text = clickPageTexts[0];
+            Debug.Log($"[PopupPanel] 点击翻页初始化 —— {clickPageTexts.Count} 页，当前第 1 页");
+        }
 
         Canvas c = GetComponentInParent<Canvas>();
         if (c != null) _canvasScale = c.rootCanvas.scaleFactor;
@@ -414,5 +434,20 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     {
         if (!dragToFront) return;
         _rt.anchoredPosition += eventData.delta / _canvasScale;
+    }
+
+    /// <summary>点击翻页 —— 只有点击没拖动才触发（Unity 天然保证 PointerClick 不在 Drag 时触发）。
+    /// 循环切换 clickPageTexts 列表里的正文。</summary>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!clickToNextPage) return;
+        if (clickPageTexts == null || clickPageTexts.Count <= 1) return;
+
+        _pageIndex = (_pageIndex + 1) % clickPageTexts.Count;
+        if (contentLegacy != null)
+        {
+            contentLegacy.text = clickPageTexts[_pageIndex];
+            Debug.Log($"[PopupPanel] 点击翻页 → 第 {_pageIndex + 1}/{clickPageTexts.Count} 页");
+        }
     }
 }

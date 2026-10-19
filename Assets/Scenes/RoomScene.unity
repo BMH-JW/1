@@ -4014,6 +4014,8 @@ MonoBehaviour:
   contentSizeDelta: {x: 0, y: 0}
   documentFields: []
   dragToFront: 1
+  clickToNextPage: 0
+  clickPageTexts: []
 --- !u!114 &2105500839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4343,6 +4345,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   configAsset: {fileID: 11400000, guid: d52ea7b47027531d9ad421442b2e965c, type: 2}
   seed: -1
+  dailyEventConfig: {fileID: 11400000, guid: 917325a9cfcd804429bf3d75efe59984, type: 2}
+  dailyEventPrefab: {fileID: 3301885815725378009, guid: dd458a60702246842b122c380fb1f251, type: 3}
 --- !u!224 &404731087038737572 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2572705727347364827, guid: 6ca5087b009af2646aafb13bf0eaf2f7, type: 3}
@@ -4545,6 +4549,8 @@ MonoBehaviour:
   contentSizeDelta: {x: 0, y: 0}
   documentFields: []
   dragToFront: 1
+  clickToNextPage: 0
+  clickPageTexts: []
 --- !u!224 &1435603053382832852 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3171458890250559057, guid: 821ddeb42317a874386020a7004af3fc, type: 3}
