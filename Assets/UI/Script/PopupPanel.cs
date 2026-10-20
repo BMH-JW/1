@@ -122,9 +122,21 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     [Tooltip("多页文案列表：点击弹窗时正文会在这些文字之间循环切换。至少填 2 条才有翻页效果")]
     public List<string> clickPageTexts = new List<string>();
 
+    [Header("屏幕自适应（非 16:9 屏幕不被裁切）")]
+    [Tooltip("勾选后：弹窗打开时自动保证整体留在可见画布范围内 —— 尺寸超出可见区域时整体等比缩小（不拉伸变形），位置越界时夹回屏幕内")]
+    public bool fitInsideScreen = true;
+    [Tooltip("弹窗距离画布边缘的最小留白（画布逻辑像素）")]
+    public float screenFitMargin = 8f;
+
     private RectTransform _rt;
     private float _canvasScale = 1f;
     private int _pageIndex = 0;
+
+    // 预制体里摆好的原始尺寸/位置 —— 自适应每次都以这两个原始值重算，
+    // 避免反复开合弹窗时尺寸越缩越小、位置越偏越远
+    private Vector2 _baseSize;
+    private Vector2 _baseAnchoredPosition;
+    private bool _baseCaptured;
 
     void Awake()
     {
@@ -161,6 +173,9 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
 
         Canvas c = GetComponentInParent<Canvas>();
         if (c != null) _canvasScale = c.rootCanvas.scaleFactor;
+
+        // -------- 第 6 步：屏幕自适应（非 16:9 屏幕把弹窗整体拉回可见范围内） --------
+        ApplyScreenFit();
     }
 
     void OnEnable()
@@ -284,6 +299,58 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
         rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
         rt.pivot = new Vector2(1f, 1f);
         rt.anchoredPosition = closeBtnTopRightOffset;
+    }
+
+    /// <summary>
+    /// 屏幕自适应：保证整个弹窗都落在可见画布（＝屏幕）范围内。
+    /// 画面比例不是 16:9 时（带鱼屏 / 更方的屏幕），画布逻辑尺寸会在某一方向上小于设计尺寸 1920x1080，
+    /// 固定尺寸 + 固定位置的弹窗就会被裁掉一块（连右上角关闭按钮都可能跑到屏幕外）。
+    /// 这里先整体等比缩小到能装下（不变形），再把位置夹回可见范围内。
+    /// </summary>
+    public void ApplyScreenFit()
+    {
+        if (!fitInsideScreen) return;
+        if (_rt == null) _rt = (RectTransform)transform;
+
+        RectTransform parentRT = _rt.parent as RectTransform;
+        if (parentRT == null) return;
+
+        Vector2 canvas = parentRT.rect.size;
+        // 父级不是"整屏"级别的容器（弹窗被塞进小面板）时不插手，避免被误缩小
+        if (canvas.x < 400f || canvas.y < 400f) return;
+
+        // 以预制体里摆好的原始尺寸/位置为基准，反复调用也不会越缩越小、越偏越远
+        if (!_baseCaptured)
+        {
+            _baseSize = _rt.rect.size;
+            _baseAnchoredPosition = _rt.anchoredPosition;
+            _baseCaptured = true;
+        }
+        if (_baseSize.x <= 1f || _baseSize.y <= 1f) return;
+
+        float availW = Mathf.Max(1f, canvas.x - screenFitMargin * 2f);
+        float availH = Mathf.Max(1f, canvas.y - screenFitMargin * 2f);
+
+        // 1. 等比缩小到能装下 —— 永远不拉伸，弹窗和文字比例一致
+        float scale = Mathf.Min(1f, availW / _baseSize.x, availH / _baseSize.y);
+        _rt.localScale = new Vector3(scale, scale, 1f);
+
+        // 锚点被拉伸时尺寸与位置都由父级决定，只做缩放即可
+        if (_rt.anchorMin != _rt.anchorMax) return;
+
+        // 2. 位置夹回可见范围内（单点锚点：父级局部坐标 = 锚点参考点 + anchoredPosition）
+        Vector2 anchorRef = (Vector2)parentRT.rect.min + Vector2.Scale(parentRT.rect.size, _rt.anchorMin);
+        Vector2 center = anchorRef + _baseAnchoredPosition;
+        Vector2 half = _baseSize * scale * 0.5f;
+
+        float minX = screenFitMargin + half.x, maxX = canvas.x - screenFitMargin - half.x;
+        float minY = screenFitMargin + half.y, maxY = canvas.y - screenFitMargin - half.y;
+
+        // 留白比可用区域还大时（极端窄屏）直接居中
+        center.x = minX <= maxX ? Mathf.Clamp(center.x, minX, maxX) : canvas.x * 0.5f;
+        center.y = minY <= maxY ? Mathf.Clamp(center.y, minY, maxY) : canvas.y * 0.5f;
+
+        _rt.anchoredPosition = center - anchorRef;
     }
 
     /// <summary>

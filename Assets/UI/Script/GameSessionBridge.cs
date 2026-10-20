@@ -90,7 +90,7 @@ public class GameSessionBridge : MonoBehaviour
         legacy.color = col;
         legacy.raycastTarget = raycast;
         legacy.horizontalOverflow = HorizontalWrapMode.Wrap;
-        legacy.verticalOverflow = VerticalWrapMode.Overflow;
+        legacy.verticalOverflow = VerticalWrapMode.Truncate;
 
         Font font = GlobalCjkLegacyFont;
         if (font == null) font = EnsureLegacyFont();

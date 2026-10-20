@@ -478,6 +478,8 @@ MonoBehaviour:
   dragToFront: 0
   clickToNextPage: 0
   clickPageTexts: []
+  fitInsideScreen: 1
+  screenFitMargin: 8
 --- !u!114 &629532363986538359
 MonoBehaviour:
   m_ObjectHideFlags: 0
