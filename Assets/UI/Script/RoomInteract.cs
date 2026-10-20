@@ -18,6 +18,12 @@ public class RoomInteract : MonoBehaviour
     [Tooltip("这个按钮的点击音效 —— 从 AudioManager.sfxSource 播，自动受 SFX 音量滑块控制")]
     public AudioClip clickSfx;
 
+    [Header("新闻弹窗联动（可选）")]
+    [Tooltip("勾选后：这个按钮打开的弹窗会顺带显示「最近一次日结的新闻」（第 1 天只显示标题「新闻」）。用于审查规则(Btn_7)")]
+    public bool fillDailyNews = false;
+    [Tooltip("勾选后：这个按钮打开弹窗时，先把已打开的新闻弹窗(PopupPanel7 系列)全部关掉。用于 Btn_6")]
+    public bool closeNewsPanelsOnOpen = false;
+
     /// <summary>content 支持的占位符：
     ///   {RULES} → 从 GameSessionBridge 取 session.GetRuleAnnouncement()（每日规则公告）
     ///   以后可以扩 {DOC} {PROFILE} 等 per-NPC 动态内容
@@ -44,6 +50,13 @@ public class RoomInteract : MonoBehaviour
         {
             AudioClip clip = clickSfx != null ? clickSfx : AudioManager.Instance.defaultClickSfx;
             if (clip != null) AudioManager.Instance.PlaySFX(clip);
+        }
+
+        // 打开本弹窗时先把新闻弹窗(PopupPanel7 系列)关掉（Btn_6 用）
+        if (closeNewsPanelsOnOpen)
+        {
+            CloseNewsPanels();
+            if (GameSessionBridge.Instance != null) GameSessionBridge.Instance.CloseDailyEventPopup();
         }
 
         // 关掉自己之前弹的那个（不影响别的按钮的弹窗）
@@ -74,8 +87,25 @@ public class RoomInteract : MonoBehaviour
                 if (fieldValues != null && fieldValues.Count > 0)
                     panel.SetDocumentFields(fieldValues);
             }
+
+            // 审查规则(Btn_7)：顺带显示最近一次日结的新闻（第 1 天只显示标题「新闻」）
+            if (fillDailyNews && GameSessionBridge.Instance != null)
+                GameSessionBridge.Instance.FillLatestDailyNews(panel);
         }
         Debug.Log($"[RoomInteract] OpenPopup source={popupSource} → tracked={_myPopup.name} (trackedCount={_trackedPopups.Count})");
+    }
+
+    /// <summary>关掉所有已打开的新闻弹窗（PopupPanel7 系列 —— 含 GameSessionBridge 自动弹的 DailyEvent 弹窗）。</summary>
+    public static void CloseNewsPanels()
+    {
+        var toDestroy = new List<GameObject>(_trackedPopups);
+        foreach (var go in toDestroy)
+        {
+            if (go == null || !go.name.Contains("PopupPanel7")) continue;
+            _trackedPopups.Remove(go);
+            Debug.Log($"[RoomInteract] CloseNewsPanels Destroying {go.name}");
+            Destroy(go);
+        }
     }
 
     /// <summary>按 popupSource 取数据对象的原生字段字典 —— 就是 GameSession 里 GetDocument / GetProfile 返回的那些属性，不加任何拼接/格式化。

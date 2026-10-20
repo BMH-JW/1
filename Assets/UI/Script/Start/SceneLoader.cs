@@ -14,4 +14,15 @@ public class SceneLoader : MonoBehaviour
     {
         SceneManager.LoadScene("RoomScene");
     }
+
+    /// <summary>退出游戏：编辑器里停止运行，打包后退出程序</summary>
+    public void QuitGame()
+    {
+        Debug.Log("[SceneLoader] 退出游戏");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 }

@@ -87,19 +87,15 @@ namespace JU.GameData
             return RandomPick(tier);
         }
 
-        /// <summary>拼接完整事件文本 —— 秩序事件 + 换行 + 纯净事件，任一为 null 则跳过。全无时返回"无新闻报道"。</summary>
-        public string BuildDailyEventText(float orderAfter, float purityAfter)
+        /// <summary>用已经抽好的两条事件文本拼完整正文（秩序 + 空行 + 纯净）。
+        /// 供调用方"抽一次、两处用"：既拼成完整正文，也能把秩序/纯净两条分别填进各自的文字框。
+        /// 两条都为空时返回空串 —— 由调用方决定"本日无事件"怎么处理。</summary>
+        public static string JoinEventText(string orderEvent, string purityEvent)
         {
             var parts = new List<string>();
-            string o = ResolveOrderEvent(orderAfter);
-            string p = ResolvePurityEvent(purityAfter);
-            if (!string.IsNullOrWhiteSpace(o)) parts.Add(o);
-            if (!string.IsNullOrWhiteSpace(p)) parts.Add(p);
-            return parts.Count == 0 ? "无新闻报道" : string.Join("\n\n", parts);
+            if (!string.IsNullOrWhiteSpace(orderEvent)) parts.Add(orderEvent);
+            if (!string.IsNullOrWhiteSpace(purityEvent)) parts.Add(purityEvent);
+            return parts.Count == 0 ? "" : string.Join("\n\n", parts);
         }
-
-        /// <summary>标题行：第 N 日 · 秩序 XX · 纯净 XX</summary>
-        public static string BuildTitle(int day, float orderAfter, float purityAfter)
-            => $"第 {day} 日   秩序 {Mathf.RoundToInt(orderAfter)}   纯净 {Mathf.RoundToInt(purityAfter)}";
     }
 }

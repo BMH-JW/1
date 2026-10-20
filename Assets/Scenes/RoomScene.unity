@@ -2191,6 +2191,8 @@ MonoBehaviour:
   title: 
   content: '{RULES}'
   clickSfx: {fileID: 8300000, guid: d69e63b2d8dbaad4f93210f9b61ffe97, type: 3}
+  fillDailyNews: 1
+  closeNewsPanelsOnOpen: 0
 --- !u!1 &971249227
 GameObject:
   m_ObjectHideFlags: 0
@@ -3532,6 +3534,8 @@ MonoBehaviour:
   title: 
   content: 
   clickSfx: {fileID: 8300000, guid: 10de063782f77f74d8a60365fb74a311, type: 3}
+  fillDailyNews: 0
+  closeNewsPanelsOnOpen: 1
 --- !u!114 &1809814125
 MonoBehaviour:
   m_ObjectHideFlags: 0

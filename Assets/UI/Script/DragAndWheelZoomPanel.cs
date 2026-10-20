@@ -18,6 +18,7 @@ public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHa
     private RectTransform winRect;
     private RectTransform parentRect;
     private Canvas canvas;
+    private PopupPanel _popup;
 
     // 按下时鼠标与弹窗的偏移量
     private Vector2 moveOffset;
@@ -27,7 +28,15 @@ public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHa
         winRect = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
         parentRect = winRect.parent as RectTransform;
+        _popup = GetComponent<PopupPanel>();
         SetupCloseButton();
+    }
+
+    /// <summary>同物体上挂了 PopupPanel 时，是否可拖动由它的 dragToFront 决定
+    /// —— 这样"固定弹窗"只需要在 PopupPanel 里取消勾选拖动置顶，本脚本自动不再拖。</summary>
+    private bool CanDrag()
+    {
+        return _popup == null || _popup.dragToFront;
     }
 
     private Camera GetEventCamera()
@@ -39,6 +48,7 @@ public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHa
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!CanDrag()) return;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             parentRect, eventData.position, GetEventCamera(), out Vector2 localMouse);
         moveOffset = localMouse - winRect.anchoredPosition;
@@ -46,6 +56,7 @@ public class DragAndWheelZoomPanel : MonoBehaviour, IPointerDownHandler, IDragHa
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!CanDrag()) return;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             parentRect, eventData.position, GetEventCamera(), out Vector2 pos);
         winRect.anchoredPosition = pos - moveOffset;

@@ -6,16 +6,16 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-/// <summary>一个可单独配置样式的表单文本槽位。
-/// prefab 上放 TMP_Text → Awake 时自动转 Legacy Text → 这里的 text 字段就是转换后的 Legacy Text。
-/// 每个槽位可独立开关字号/位置/尺寸覆写（bool 开关 = false 时不动，保持原值）。</summary>
+/// <summary>一个「文字框 ↔ 内容键」槽位：预制体里摆好的文字框 + 它该显示的内容键。
+/// 框的位置/尺寸/字号完全由预制体的 RectTransform 决定，代码只往框里写文字。
+/// （需要时仍可勾选下面的覆写开关做微调；不勾就完全不动预制体里的值。）</summary>
 [Serializable]
 public class PopupTextField
 {
-    [Tooltip("字段标识名（SetDocumentFields 时用这个 key 匹配 Dictionary）")]
+    [Tooltip("内容键：代码按这个 key 把内容写进这个框（DailyEvent 可用 title / day / order / purity / content / event / body / orderEvent / purityEvent）")]
     public string fieldName;
 
-    [Tooltip("prefab 上放数据的 GameObject（里面必须有一个 TMP_Text 组件）")]
+    [Tooltip("预制体里的那个文字框 GameObject（TMP_Text 或 Legacy Text 都行）；在预制体里调它的 RectTransform 定范围即可")]
     public GameObject slotGO;
 
     // Awake 里 TMP→Legacy 后填入（运行时，不出序列化）
@@ -104,8 +104,11 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     public bool contentOverrideSize;
     public Vector2 contentSizeDelta = new Vector2(0f, 0f);
 
-    [Header("▸ 表单数据槽位（通关文书/档案分字段填入）")]
-    [Tooltip("列表里每一个都是一个独立数据字段的 Text 槽位；RoomInteract.SetDocumentFields 按 fieldName 匹配填值。\n通关文书参考：docNo / name / origin / destination / reason / health / day\n档案参考：name / origin / motive / memory / relationship / desire / will / body / bond / drive")]
+    [Header("▸ 文字框 ↔ 内容键（多文本框映射）")]
+    [Tooltip("每一项 = 预制体里的一个文字框 + 它要显示的内容键。代码只往框里写文字，绝不改框的位置/尺寸/字号。\n" +
+        "DailyEvent 弹窗可用键：title / day / order / purity / content（event、body 是同一份） / orderEvent / purityEvent\n" +
+        "通关文书：docNo / name / origin / destination / reason / health / day\n" +
+        "档案：name / origin / motive / memory / relationship / desire / will / body / bond / drive")]
     public List<PopupTextField> documentFields = new List<PopupTextField>();
 
     [Header("拖动置顶")]
@@ -183,18 +186,17 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
         GameObject contentGO = contentText != null ? contentText.gameObject : null;
 
         // 同样保存 documentFields 的 slotGO —— 里面的 TMP_Text 也要被转换
-        // 关键：无论 slotGO 当前挂在哪（哪怕在 Canvas 下），自动 reparent 到 popup 下
-        // 否则 anchor 相对于 Canvas，popup 拖动时 Text 不动
+        // 只有当文字框不在弹窗层级内（比如被拖到别的面板/Canvas 下）才搬进 popup；
+        // 已经在 popup 里（含嵌套子物体）的原样不动 —— 保证预制体里调好的 RectTransform 范围不被改动
         var fieldGOs = new Dictionary<PopupTextField, GameObject>();
         foreach (var f in documentFields)
         {
             if (f == null || f.slotGO == null) continue;
             fieldGOs[f] = f.slotGO;
 
-            // 自动 reparent：确保 Text 槽位的父物体是本 popup —— 这样 anchor 相对于 popup，popup 拖动 Text 跟着动
             var slotRT = f.slotGO.GetComponent<RectTransform>();
             var myRT = (RectTransform)transform;
-            if (slotRT != null && slotRT.parent != myRT)
+            if (slotRT != null && !slotRT.IsChildOf(myRT))
             {
                 Vector3 worldPos = slotRT.position;
                 slotRT.SetParent(myRT, false);  // worldPositionStays=false → 按本地坐标重新对齐
@@ -219,6 +221,13 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
             kv.Key.text = go != null ? go.GetComponent<Text>() : null;
         }
 
+        // 预制体里没直接挂 titleText / contentText 引用时，回落到「文字框 ↔ 内容键」里
+        // key=title / key=content 的框 —— 这样规则弹窗（Btn_7 的 {RULES}）等复用同一预制体的
+        // 弹窗，正文也能写进 key=content 的框，标题写进 key=title 的框。
+        // （必须在上面 f.text 赋值之后再取，否则 f.text 还是 null）
+        if (titleLegacy == null) titleLegacy = FindFieldText("title");
+        if (contentLegacy == null) contentLegacy = FindFieldText("content");
+
         if (fieldGOs.Count > 0)
         {
             var status = new string[fieldGOs.Count];
@@ -230,6 +239,24 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
 
         if (allTmp.Count > 0)
             Debug.Log($"[PopupPanel] 转换 TMP_Text → Legacy Text：{allTmp.Count} 个 (popupSource={popupSource})");
+    }
+
+    /// <summary>在「文字框 ↔ 内容键」列表里找 fieldName 匹配的框的 Text（找不到返回 null）</summary>
+    private Text FindFieldText(string key)
+    {
+        if (documentFields == null) return null;
+        foreach (var f in documentFields)
+            if (f != null && f.fieldName == key && f.text != null) return f.text;
+        return null;
+    }
+
+    /// <summary>这个 Text 是不是「文字框 ↔ 内容键」里的某个框（是的话就别再套用样式覆写，保住预制体里摆好的范围）</summary>
+    private bool IsAnyFieldText(Text t)
+    {
+        if (t == null || documentFields == null) return false;
+        foreach (var f in documentFields)
+            if (f != null && f.text == t) return true;
+        return false;
     }
 
 #if UNITY_EDITOR
@@ -293,7 +320,9 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     private void ApplyStyleOverrides()
     {
         // ---- 标题 ----
-        if (titleLegacy != null)
+        // 若 titleLegacy 是回落到 key=title 的文字框，则不套用下面的覆写 ——
+        // 那个框的范围由预制体决定，不能被覆写参数挪走。
+        if (titleLegacy != null && !IsAnyFieldText(titleLegacy))
         {
             if (titleOverrideFontSize) titleLegacy.fontSize = titleFontSize;
 
@@ -306,7 +335,8 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
         }
 
         // ---- 正文 ----
-        if (contentLegacy != null)
+        // 同上：contentLegacy 回落到 key=content 的文字框时不套用覆写，保住预制体里摆好的范围。
+        if (contentLegacy != null && !IsAnyFieldText(contentLegacy))
         {
             if (contentOverrideFontSize) contentLegacy.fontSize = contentFontSize;
 
@@ -349,26 +379,53 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
     }
 
     /// <summary>设置标题和正文。
-    /// 关键：如果 documentFields 列表不为空（= 这是个"表单弹窗"，通关文书/档案），
-    /// 就跳过 content 的注入 —— 因为所有动态数据都由 SetDocumentFields 逐字段填，
-    /// 再塞一遍 ResolveContent 的大正文块就会在背景图上叠两层字。
-    /// title 照常设（弹窗的大标题，比如"通关文书"/"人物档案"）。</summary>
+    /// 只有通关文书(File3) / 人物档案(File2) 这类"表单弹窗"才跳过正文注入
+    /// —— 它们的动态数据全部由 SetDocumentFields 逐字段填，再塞一遍大正文块会在背景图上叠两层字。
+    /// 其余复用同一预制体的弹窗（规则弹窗 Btn_7、DailyEvent、结算等）正文照常写入 ——
+    /// 正文槽位没挂引用时，Awake 里已回落到 key=content 的文字框。</summary>
     public void SetText(string title, string content)
     {
         if (titleLegacy != null) titleLegacy.text = title;
         else if (titleText != null) titleText.text = title;
 
-        bool isFormPanel = documentFields != null && documentFields.Count > 0;
+        bool isFormPanel = documentFields != null && documentFields.Count > 0
+            && (popupSource == "File2" || popupSource == "File3");
+        bool isPaged = !isFormPanel && clickToNextPage && clickPageTexts != null && clickPageTexts.Count > 0;
+
         if (isFormPanel)
         {
             // 表单弹窗：正文槽位不再塞大段文字 —— 数据走 documentFields 逐字段填
             if (contentLegacy != null) contentLegacy.text = "";
             else if (contentText != null) contentText.text = "";
         }
+        else if (isPaged)
+        {
+            // 点击翻页弹窗（PopupPanel6 等）：正文固定显示第一页。
+            // 否则外部（RoomInteract）传进来的空 content 会把 Awake 里设好的第一页清掉
+            // → 弹窗打开时是空白，要点一下才出字。
+            _pageIndex = 0;
+            string first = clickPageTexts[0];
+            if (contentLegacy != null) contentLegacy.text = first;
+            else if (contentText != null) contentText.text = first;
+        }
         else
         {
             if (contentLegacy != null) contentLegacy.text = content;
             else if (contentText != null) contentText.text = content;
+
+            // 复用同一预制体但没走表单数据（规则弹窗 Btn_7 / GamerOver 等）时：
+            // 把「文字框 ↔ 内容键」里跟本弹窗无关的框先隐藏，免得露出预制体里的示例文字（New Text / Button）。
+            // 只让等于 titleLegacy（且有标题）或等于 contentLegacy（且有正文）的框保持可见。
+            if (documentFields != null && documentFields.Count > 0)
+            {
+                foreach (var f in documentFields)
+                {
+                    if (f == null || f.slotGO == null) continue;
+                    bool isTitleBox = f.text != null && f.text == titleLegacy && !string.IsNullOrEmpty(title);
+                    bool isContentBox = f.text != null && f.text == contentLegacy && !string.IsNullOrEmpty(content);
+                    f.slotGO.SetActive(isTitleBox || isContentBox);
+                }
+            }
         }
     }
 
@@ -398,6 +455,10 @@ public class PopupPanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IPoint
             if (values.TryGetValue(f.fieldName, out string v))
             {
                 f.text.text = v ?? "";
+                // 有值才把这个框显出来（只做"显示"，不做"隐藏" ——
+                // 免得把 File2/File3 表单里当作容器用的框误关掉）；
+                // DailyEvent 那边已由 SetText("","") 先把所有框隐藏，这里按值放出来即可。
+                if (!string.IsNullOrEmpty(v) && f.slotGO != null) f.slotGO.SetActive(true);
                 Debug.Log($"  ✓ {f.fieldName} = \"{v}\"");
             }
             else

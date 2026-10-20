@@ -67,6 +67,10 @@ public class TutorialManager : MonoBehaviour
     [TextArea(2, 4)] public string documentText = "查看审批规则：选择对世界影响更小的方案即为正确审批";
     [TextArea(2, 4)] public string stampsText = "两枚印章代表你的审批选择，谨慎做出决定";
     [TextArea(2, 4)] public string phoneText = "难以判断时，可以选择扣留，点击电话确认操作";
+    [Tooltip("勾选后：电话阶段的气泡固定放在电话按钮左侧，不挡住按钮")]
+    public bool phoneBubbleOnLeft = true;
+    [Tooltip("气泡右边缘距电话按钮左边缘的水平间距(像素)")]
+    public float phoneBubbleLeftGap = 20f;
     [TextArea(2, 4)] public string screenText = "在这里查看事件与各个世界的背景信息";
     [TextArea(2, 4)] public string clockText = "注意时间流逝，务必在下班前完成审批";
 
@@ -740,7 +744,7 @@ public class TutorialManager : MonoBehaviour
         tr.offsetMin = new Vector2(24f, 14f);
         tr.offsetMax = new Vector2(-24f, -14f);
 
-        // 气泡放目标上方，放不下放下方
+        // 气泡默认放目标上方，放不下放下方；电话阶段可改成放目标左侧
         RectTransform firstRT = frameGts[0].target.transform as RectTransform;
         if (firstRT != null)
         {
@@ -749,7 +753,18 @@ public class TutorialManager : MonoBehaviour
             Vector2 top = WorldToOverlayLocal((wc[1] + wc[2]) * 0.5f);
             Vector2 bottom = WorldToOverlayLocal((wc[0] + wc[3]) * 0.5f);
             float halfH = overlayRect.rect.height * 0.5f;
-            if (top.y + bubbleRect.rect.height + 30f < halfH)
+            float halfW = overlayRect.rect.width * 0.5f;
+            float bw = bubbleRect.rect.width;
+            float bh = bubbleRect.rect.height;
+
+            if (phoneBubbleOnLeft && stage == Stage.Phone)
+            {
+                // 电话阶段：气泡右边缘贴着电话按钮左边缘，别挡住按钮
+                Vector2 left = WorldToOverlayLocal((wc[0] + wc[1]) * 0.5f);
+                bubbleRect.pivot = new Vector2(1f, 0.5f);
+                bubbleRect.anchoredPosition = new Vector2(left.x - phoneBubbleLeftGap, left.y);
+            }
+            else if (top.y + bh + 30f < halfH)
             {
                 bubbleRect.pivot = new Vector2(0.5f, 0f);
                 bubbleRect.anchoredPosition = new Vector2(top.x, top.y + 18f);
@@ -759,12 +774,17 @@ public class TutorialManager : MonoBehaviour
                 bubbleRect.pivot = new Vector2(0.5f, 1f);
                 bubbleRect.anchoredPosition = new Vector2(bottom.x, bottom.y - 18f);
             }
-            // 水平夹在屏幕内
-            float halfW = overlayRect.rect.width * 0.5f;
-            float x = Mathf.Clamp(bubbleRect.anchoredPosition.x,
-                -halfW + bubbleRect.rect.width * 0.5f + 20f,
-                halfW - bubbleRect.rect.width * 0.5f - 20f);
-            bubbleRect.anchoredPosition = new Vector2(x, bubbleRect.anchoredPosition.y);
+
+            // 按当前 pivot 把气泡整体夹在屏幕内（pivot 在右侧就往左延伸，反之往右延伸）
+            float px = bubbleRect.pivot.x, py = bubbleRect.pivot.y;
+            float minX = -halfW + 20f + bw * px;
+            float maxX = halfW - 20f - bw * (1f - px);
+            float minY = -halfH + 20f + bh * py;
+            float maxY = halfH - 20f - bh * (1f - py);
+            Vector2 p = bubbleRect.anchoredPosition;
+            bubbleRect.anchoredPosition = new Vector2(
+                maxX >= minX ? Mathf.Clamp(p.x, minX, maxX) : p.x,
+                maxY >= minY ? Mathf.Clamp(p.y, minY, maxY) : p.y);
         }
     }
 
@@ -1885,7 +1905,7 @@ public class TutorialManager : MonoBehaviour
         }
 
         // 文本直接挂面板(不要中间容器，否则宽度为0会竖排)
-        Text title = CreateText("【今日当铺结算】", pr, 42, textColor, TextAnchor.MiddleCenter, FontStyle.Bold);
+        Text title = CreateText("【今日中检站结算】", pr, 42, textColor, TextAnchor.MiddleCenter, FontStyle.Bold);
         title.font = stFont;
         RectTransform tr = title.rectTransform;
         tr.anchorMin = new Vector2(0f, 1f); tr.anchorMax = new Vector2(1f, 1f);

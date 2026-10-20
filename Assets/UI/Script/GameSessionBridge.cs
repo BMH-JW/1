@@ -36,6 +36,17 @@ public class GameSessionBridge : MonoBehaviour
     private GameSession _session;
     private DayEndReport _lastDayEndReport;   // HandleWorkEnd 里存，HandleNewDay 里用来触发 DailyEvent
     private bool _gameEnded = false;           // 游戏结束标记 —— 结束后跳过 DailyEvent
+
+    // 最近一次日结的新闻数据缓存 —— 第 2 天起新闻不再自动弹，
+    // 改由玩家点「审查规则」(Btn_7) 打开弹窗时用 FillLatestDailyNews 填充。
+    // 事件文案在 DoEndDay 时一次性抽定并缓存，保证同一天弹几次都是同一份内容。
+    private bool _pendingNewsValid;
+    private int _pendingNewsDay;        // 显示用「第 N 天」
+    private int _pendingSettledDay;     // 结算的是第几天 —— 判定是否只显示标题「新闻」
+    private float _pendingNewsOrder;
+    private float _pendingNewsPurity;
+    private string _pendingOrderEvent;
+    private string _pendingPurityEvent;
     public static GameSessionBridge Instance { get; private set; }
     public GameSession Current => _session;
 
@@ -339,8 +350,12 @@ public class GameSessionBridge : MonoBehaviour
         Debug.Log($"[GameSessionBridge] OnNewDay → state.day={s.day} 今日申请者={s.todayApplicantCount} " +
             $"今日规则条数={s.npcs?.Count} 纯净={s.purity} 秩序={s.order} 信任={s.trust}");
 
-        // DailyEvent：按 EndDay 结算后的秩序/纯净区间选事件文本，自动弹弹窗
-        TryPopupDailyEvent();
+        // 只有第一天的新闻自动弹（且只显示标题「新闻」）；第 2 天起不再自动弹 ——
+        // 改成玩家点「审查规则」(Btn_7) 按钮打开弹窗时，再用 FillLatestDailyNews 填充显示
+        if (_lastDayEndReport != null && _lastDayEndReport.settledDay <= 1)
+            TryPopupDailyEvent();
+        else
+            Debug.Log("[GameSessionBridge] 第 2 天起新闻不再自动弹出 —— 等玩家点按钮时用 FillLatestDailyNews 填充");
     }
 
     private GameObject _activeDailyEventPopup;
@@ -422,11 +437,14 @@ public class GameSessionBridge : MonoBehaviour
         float purityAfter = report.after.purity;
         int dayNum = report.after.day;
 
-        string title = DailyEventConfig.BuildTitle(dayNum, orderAfter, purityAfter);
-        string body = dailyEventConfig.BuildDailyEventText(orderAfter, purityAfter);
+        // 事件文本优先用 DoEndDay 缓存的 —— 保证同一天弹几次都是同一份内容
+        string orderEvent = _pendingNewsValid ? _pendingOrderEvent : dailyEventConfig.ResolveOrderEvent(orderAfter);
+        string purityEvent = _pendingNewsValid ? _pendingPurityEvent : dailyEventConfig.ResolvePurityEvent(purityAfter);
+        string eventText = DailyEventConfig.JoinEventText(orderEvent, purityEvent);
 
-        // 始终弹窗 —— 有事件显示事件，没事件显示"无新闻报道"
-        Debug.Log($"[GameSessionBridge] DailyEvent —— day={dayNum} order={orderAfter:F1} purity={purityAfter:F1}\n标题: {title}\n事件:\n{body}");
+        // 始终弹窗；只有真的抽到事件时才显示事件正文
+        Debug.Log($"[GameSessionBridge] DailyEvent —— day={dayNum} 秩序={orderAfter:F1} 纯净={purityAfter:F1}\n事件: " +
+            (string.IsNullOrEmpty(eventText) ? "（本日无事件）" : eventText));
         _lastDayEndReport = null;
 
         // 关掉上一个 DailyEvent 弹窗（防止重复）
@@ -436,16 +454,21 @@ public class GameSessionBridge : MonoBehaviour
             _activeDailyEventPopup = null;
         }
 
-        GameObject canvasGO = GameObject.Find("Canvas");
-        Transform parent = canvasGO != null ? canvasGO.transform : transform.parent;
+        Transform parent = ResolvePopupParent();
         _activeDailyEventPopup = Instantiate(dailyEventPrefab, parent);
+        _activeDailyEventPopup.transform.SetAsLastSibling();   // 确保盖在房间之上
+        _activeDailyEventPopup.SetActive(true);
 
         PopupPanel panel = _activeDailyEventPopup.GetComponent<PopupPanel>();
         if (panel != null)
         {
             panel.SetSource("DailyEvent");
-            panel.SetText(title, body);
+            ApplyDailyEventText(panel, dayNum, orderAfter, purityAfter, orderEvent, purityEvent, report.settledDay <= 1);
         }
+
+        var rt = (RectTransform)_activeDailyEventPopup.transform;
+        Debug.Log($"[DailyEvent] 弹窗已生成 —— parent={parent.name} sibling={rt.GetSiblingIndex()}/{parent.childCount - 1} " +
+            $"size={rt.rect.size} active={_activeDailyEventPopup.activeInHierarchy}");
 
         _lastDayEndReport = null;   // 消费一次就清，防止同一天重复触发
     }
@@ -456,8 +479,115 @@ public class GameSessionBridge : MonoBehaviour
         TryPopupDailyEvent();
     }
 
+    /// <summary>把最近一次日结的新闻填充进指定弹窗 —— 玩家点「审查规则」(Btn_7) 打开弹窗时用。
+    /// 第 1 天（settledDay&lt;=1）或还没有日结数据时，只显示标题「新闻」，其余框全部隐藏。</summary>
+    public bool FillLatestDailyNews(PopupPanel panel)
+    {
+        if (panel == null) return false;
+
+        panel.SetSource("DailyEvent");
+
+        if (!_pendingNewsValid)
+        {
+            // 还没有日结数据（第 1 天 / 新手教程）—— 按"只显示标题「新闻」"处理，其他文字框全部不展示
+            ApplyDailyEventText(panel, 0, 0f, 0f, null, null, true);
+            Debug.Log("[GameSessionBridge] FillLatestDailyNews —— 还没有日结新闻数据 → 只显示标题「新闻」");
+            return true;
+        }
+
+        ApplyDailyEventText(panel, _pendingNewsDay, _pendingNewsOrder, _pendingNewsPurity,
+            _pendingOrderEvent, _pendingPurityEvent, _pendingSettledDay <= 1);
+        Debug.Log($"[GameSessionBridge] FillLatestDailyNews —— 填充第 {_pendingNewsDay} 天新闻" +
+            $"（settledDay={_pendingSettledDay} → {(_pendingSettledDay <= 1 ? "只显示标题「新闻」" : "显示完整内容")}）");
+        return true;
+    }
+
+    /// <summary>关掉新闻弹窗（玩家点 Btn_6 打开自己的弹窗时调用）。</summary>
+    public void CloseDailyEventPopup()
+    {
+        if (_activeDailyEventPopup == null) return;
+        Destroy(_activeDailyEventPopup);
+        _activeDailyEventPopup = null;
+        Debug.Log("[GameSessionBridge] CloseDailyEventPopup —— 已关闭新闻弹窗");
+    }
+
     /// <summary>游戏是否已结束（供外部查询）。</summary>
     public bool IsGameEnded() => _gameEnded;
+
+    /// <summary>定位弹窗的父节点。
+    /// 关键：RoomScene 的 Canvas 名字是 "Canvas_Room"（不是 "Canvas"），
+    /// 而 GameSessionBridge 就挂在 Canvas_Room 这个根对象上。
+    /// 若用 GameObject.Find("Canvas") 会返回 null，兜底 transform.parent 也是 null（根对象无父），
+    /// 结果 Instantiate(prefab, null) 把弹窗丢到场景根节点 → 不在任何 Canvas 下 → 永远不显示。
+    /// 正确做法：直接取自己所在（或最近上级）的 Canvas 作为父节点。</summary>
+    private Transform ResolvePopupParent()
+    {
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null) canvas = FindObjectOfType<Canvas>();
+        return canvas != null ? canvas.transform : transform;
+    }
+
+    /// <summary>把 DailyEvent 的文字写进弹窗 —— 代码只管"往哪个框写什么"，绝不动框的位置/尺寸。
+    /// 内容：标题固定「新闻」；day = 第 N 天；order / purity 都带上"秩序/纯净"前缀；
+    /// 事件正文只在真的抽到事件时才显示（没事件就是空，不留占位文字）。
+    /// onlyNewsTitle = true（第 1 天 / 新手教程期间）时只保留标题「新闻」，其余框全部留空隐藏。
+    /// 预制体里配了「文字框 ↔ 内容键」（PopupPanel.documentFields）就按 key 分派；
+    /// 没配则退回 TitleText / ContentText 两个默认框。</summary>
+    private static void ApplyDailyEventText(PopupPanel panel, int day, float order, float purity,
+        string orderEvent, string purityEvent, bool onlyNewsTitle)
+    {
+        string eventText = DailyEventConfig.JoinEventText(orderEvent, purityEvent);
+
+        var values = new Dictionary<string, string>
+        {
+            { "title",       "新闻" },                               // 弹窗标题
+            { "day",         $"第 {day} 天" },                       // 第几天
+            { "order",       $"秩序 {Mathf.RoundToInt(order)}" },    // 数值带上名字，避免看不出是什么值
+            { "purity",      $"纯净 {Mathf.RoundToInt(purity)}" },
+            { "content",     eventText },                            // 事件正文（没抽到事件则为空）
+            { "event",       eventText },
+            { "body",        eventText },
+            { "orderEvent",  orderEvent ?? "" },                     // 只要秩序那条事件
+            { "purityEvent", purityEvent ?? "" },                    // 只要纯净那条事件
+        };
+
+        // 第 1 天（或新手教程期间）：只保留标题「新闻」，日期/数值/事件全部不显示
+        bool inTutorial = TutorialManager.Instance != null && !TutorialManager.Instance.IsFreePlay;
+        bool onlyNews = onlyNewsTitle || inTutorial;
+        if (onlyNews)
+            foreach (var k in new List<string>(values.Keys))
+                if (k != "title") values[k] = "";
+
+        // 默认两个框（没配文字框时就用它们）
+        var boxes = panel.documentFields;
+        if (boxes == null || boxes.Count == 0)
+        {
+            panel.SetText(values["title"], values["content"]);
+            return;
+        }
+
+        // 配了文字框 → 内容全部走键位；默认两个框留空，免得和文字框叠字
+        panel.SetText("", "");
+
+        panel.SetDocumentFields(values);
+        HideEmptyFieldBoxes(boxes, values);
+
+        Debug.Log($"[DailyEvent] 按文字框写入内容键 —— {values.Count} 个键" +
+            (onlyNewsTitle ? "（第 1 天：只显示标题「新闻」）" : inTutorial ? "（新手教程中：只显示标题「新闻」）" : "") +
+            $"\n可用键：title / day / order / purity / content(event,body) / orderEvent / purityEvent");
+    }
+
+    /// <summary>把值为空的文字框隐藏掉 —— 免得露出预制体里的默认文字
+    ///（例如：本日无事件时的事件框、新手教程里的日期/数值框）</summary>
+    private static void HideEmptyFieldBoxes(List<PopupTextField> boxes, Dictionary<string, string> values)
+    {
+        foreach (var f in boxes)
+        {
+            if (f == null || f.slotGO == null || string.IsNullOrEmpty(f.fieldName)) continue;
+            bool visible = values.TryGetValue(f.fieldName, out string v) && !string.IsNullOrEmpty(v);
+            if (f.slotGO.activeSelf != visible) f.slotGO.SetActive(visible);
+        }
+    }
 
     // ================================================================
     // 🔧 调试入口（DailyEventDebugger 调用）
@@ -486,21 +616,22 @@ public class GameSessionBridge : MonoBehaviour
         // 关掉之前的 DailyEvent
         if (_activeDailyEventPopup != null) { Destroy(_activeDailyEventPopup); _activeDailyEventPopup = null; }
 
-        // 构造伪 title + body
+        // 构造 day/数值 + 事件文本
         int dayNum = _session.GetState().day;
-        string title = DailyEventConfig.BuildTitle(dayNum, order, purity);
-        string body = dailyEventConfig.BuildDailyEventText(order, purity);
+        string orderEvent = dailyEventConfig.ResolveOrderEvent(order);
+        string purityEvent = dailyEventConfig.ResolvePurityEvent(purity);
+        string eventText = DailyEventConfig.JoinEventText(orderEvent, purityEvent);
 
-        Debug.Log($"[GameSessionBridge] 🔧 调试弹 DailyEvent —— day={dayNum} order={order:0} purity={purity:0}\n标题: {title}\n事件: {body}");
+        Debug.Log($"[GameSessionBridge] 🔧 调试弹 DailyEvent —— day={dayNum} 秩序={order:0} 纯净={purity:0}\n事件: " +
+            (string.IsNullOrEmpty(eventText) ? "（无事件）" : eventText));
 
-        GameObject canvasGO = GameObject.Find("Canvas");
-        Transform parent = canvasGO != null ? canvasGO.transform : transform.parent;
+        Transform parent = ResolvePopupParent();
         _activeDailyEventPopup = Instantiate(dailyEventPrefab, parent);
         PopupPanel panel = _activeDailyEventPopup.GetComponent<PopupPanel>();
         if (panel != null)
         {
             panel.SetSource("DailyEvent_Debug");
-            panel.SetText(title, body);
+            ApplyDailyEventText(panel, dayNum, order, purity, orderEvent, purityEvent, false);
         }
     }
 
@@ -535,6 +666,16 @@ public class GameSessionBridge : MonoBehaviour
         Debug.Log($"  日结后 day={report.after.day}  今日申请者={report.after.todayApplicantCount}");
         Debug.Log($"  日结日志:\n{string.Join("\n", report.log)}");
         _lastDayEndReport = report;
+
+        // 缓存本次日结的新闻数据 —— 第 1 天自动弹（只显示标题「新闻」），
+        // 第 2 天起不自动弹，等玩家点 Btn_7 时用 FillLatestDailyNews 填充
+        _pendingNewsValid  = true;
+        _pendingSettledDay = report.settledDay;
+        _pendingNewsDay    = report.after.day;
+        _pendingNewsOrder  = report.after.order;
+        _pendingNewsPurity = report.after.purity;
+        _pendingOrderEvent  = dailyEventConfig != null ? dailyEventConfig.ResolveOrderEvent(_pendingNewsOrder)  : "";
+        _pendingPurityEvent = dailyEventConfig != null ? dailyEventConfig.ResolvePurityEvent(_pendingNewsPurity) : "";
 
         // 游戏结束判定
         if (report.gameEnded)

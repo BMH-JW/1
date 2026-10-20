@@ -8,7 +8,8 @@ using TMPro;
 /// 右侧竖排三个按钮：Btn_1=向上切换、Btn_2=向下切换、Btn_TelePhone=电话。Btn_3 自动隐藏。
 /// 内容页两种模式：
 ///   A. 拖入内容页 GameObject → 切换显示对应页、隐藏其他页
-///   B. 不拖内容页，只填 tabTexts → 把当前页文字写进弹窗正文(ContentText)
+///   B. 只填 tabTexts / tabBodies → 标题框写 tabTexts[页]，正文框写 tabBodies[页]
+///      （tabBodies 里的 {RULES} 会自动换成今日规则公告）
 /// 到头就停（不循环）：第1页再向上无反应，最后一页再向下无反应。
 /// </summary>
 public class PopupTabs : MonoBehaviour
@@ -26,8 +27,14 @@ public class PopupTabs : MonoBehaviour
     [Header("内容页（模式A：拖入页面 GameObject）")]
     public List<GameObject> tabPages = new List<GameObject>();
 
-    [Header("每页文案（模式B：没拖内容页时，作为弹窗正文）")]
-    [TextArea(3, 8)] public List<string> tabTexts = new List<string>();
+    [Header("每页文案：写进弹窗**标题框**（页数 = 这个列表条数）")]
+    [TextArea(1, 3)] public List<string> tabTexts = new List<string>();
+
+    [Header("每页正文（可选）：与页数一一对应，写进弹窗正文框；{RULES} = 今日规则公告；空=该页不显示正文")]
+    [TextArea(3, 8)] public List<string> tabBodies = new List<string>();
+
+    [Tooltip("勾选后：切到非第 1 页时隐藏「文字框 ↔ 内容键」里的所有框；切回第 1 页按框内有没有文字恢复显示")]
+    public bool switchFieldBoxes = true;
 
     [Header("右侧竖排布局")]
     [Tooltip("勾选后每次弹窗打开都按下方参数摆放右侧三个按钮；取消则用预制体里手摆的位置")]
@@ -62,6 +69,11 @@ public class PopupTabs : MonoBehaviour
     public List<string> buttonTexts = new List<string>();
 
     private int _current;
+
+    // 第 1 页正文（新闻）由 GameSessionBridge 往「文字框 ↔ 内容键」里填，
+    // 这里先把打开时的正文记下来，翻到别的页再翻回来时原样还原，避免被清空
+    private string _page0Body = "";
+    private bool _page0BodyCaptured;
 
     void Awake()
     {
@@ -245,7 +257,9 @@ public class PopupTabs : MonoBehaviour
         return null;
     }
 
-    /// <summary>切换到指定页（0-based，自动夹在有效范围内；到头就停不循环）</summary>
+    /// <summary>切换到指定页（0-based，自动夹在有效范围内；到头就停不循环）
+    /// 每页：标题框写 tabTexts[页]，正文框写 tabBodies[页]（{RULES} 自动换成今日规则公告）；
+    /// 非第 1 页时把「文字框 ↔ 内容键」里的其他框全部隐藏，回第 1 页再按框内文字恢复。</summary>
     public void SelectTab(int index)
     {
         _current = Mathf.Clamp(index, 0, Mathf.Max(0, PageCount - 1));
@@ -258,19 +272,76 @@ public class PopupTabs : MonoBehaviour
                 if (tabPages[i] != null) tabPages[i].SetActive(i == _current);
             }
         }
-        // 模式B：切换弹窗正文文字
-        else if (_current < tabTexts.Count)
+
+        PopupPanel panel = GetComponent<PopupPanel>();
+
+        // 结算弹窗（GameOver）只是复用同一预制体，不翻页 ——
+        // 它的标题/正文由 GameSessionBridge 决定，这里别覆盖、也别动文字框显隐
+        if (panel != null && panel.popupSource == "GameOver")
         {
-            PopupPanel panel = GetComponent<PopupPanel>();
-            // 如果是表单弹窗（有 documentFields），正文由逐字段数据驱动，这里不能再塞 tabTexts 覆盖掉
-            if (panel != null && panel.contentLegacy != null)
+            Debug.Log("[PopupTabs] popupSource=GameOver → 跳过翻页，保持结算文字");
+            return;
+        }
+
+        if (panel != null)
+        {
+            // 标题：按当前页写进标题框（顺便确保它是显示状态 ——
+            // 打开时正文优先的弹窗可能先把标题框藏起来了）
+            Text titleBox = panel.GetTitleLegacy();
+            if (titleBox != null && _current < tabTexts.Count)
             {
-                bool isForm = panel.documentFields != null && panel.documentFields.Count > 0;
-                if (!isForm)
-                    panel.contentLegacy.text = tabTexts[_current];
+                titleBox.text = tabTexts[_current];
+                if (titleBox.gameObject != null && !string.IsNullOrEmpty(titleBox.text))
+                    titleBox.gameObject.SetActive(true);
+            }
+
+            // 正文：按当前页写进正文框（没配该页正文就空着并隐藏）
+            // 特例：第 1 页正文由 GameSessionBridge 填（新闻），tabBodies[0] 为空时
+            //       保留打开时已有的正文，并记住它，翻回来时还原
+            Text contentBox = panel.GetContentLegacy();
+            if (contentBox != null)
+            {
+                if (!_page0BodyCaptured)
+                {
+                    _page0Body = contentBox.text ?? "";
+                    _page0BodyCaptured = true;
+                }
+
+                bool hasPageBody = _current < tabBodies.Count && !string.IsNullOrEmpty(tabBodies[_current]);
+                string body = hasPageBody ? ResolveBody(tabBodies[_current]) : (_current == 0 ? _page0Body : "");
+
+                contentBox.text = body ?? "";
+                if (contentBox.gameObject != null)
+                    contentBox.gameObject.SetActive(!string.IsNullOrEmpty(contentBox.text));
+            }
+
+            // 「文字框 ↔ 内容键」里的其他框：非第 1 页隐藏，回第 1 页按框内有没有文字恢复
+            // （标题框、正文框上面已单独处理，这里跳过）
+            if (switchFieldBoxes && panel.documentFields != null)
+            {
+                foreach (var f in panel.documentFields)
+                {
+                    if (f == null || f.slotGO == null) continue;
+                    if (f.fieldName == "content" || f.fieldName == "title") continue;
+                    f.slotGO.SetActive(_current == 0 && f.text != null && !string.IsNullOrEmpty(f.text.text));
+                }
             }
         }
 
         Debug.Log($"[PopupTabs] 切换到第 {_current + 1}/{Mathf.Max(1, PageCount)} 页");
+    }
+
+    /// <summary>把正文里的 {RULES} 换成今日规则公告（其他内容原样返回）</summary>
+    private static string ResolveBody(string body)
+    {
+        if (string.IsNullOrEmpty(body)) return body;
+        if (body.IndexOf("{RULES}", System.StringComparison.Ordinal) < 0) return body;
+
+        var bridge = GameSessionBridge.Instance;
+        if (bridge != null && bridge.Current == null) bridge.EnsureSessionReady();
+        string rules = (bridge != null && bridge.Current != null)
+            ? bridge.Current.GetRuleAnnouncement()
+            : "（规则暂无）";
+        return body.Replace("{RULES}", rules ?? "");
     }
 }
